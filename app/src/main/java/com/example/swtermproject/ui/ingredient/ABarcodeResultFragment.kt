@@ -1,0 +1,203 @@
+package com.example.swtermproject.ui.ingredient
+
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.airbnb.lottie.LottieAnimationView
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+import com.example.swtermproject.data.model.ATempIngredientStore
+import com.example.swtermproject.data.model.Ingredient
+
+class ABarcodeResultFragment : Fragment() {
+
+    private var barcode: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        barcode = arguments?.getString("barcode") ?: ""
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_barcode_result,
+            container,
+            false
+        )
+
+        val loadingLayout = view.findViewById<LinearLayout>(R.id.loadingLayout)
+        val contentLayout = view.findViewById<View>(R.id.contentLayout)
+        val productCard = view.findViewById<LinearLayout>(R.id.productCard)
+        val errorCard = view.findViewById<LinearLayout>(R.id.errorCard)
+
+        val lottieLoading = view.findViewById<LottieAnimationView>(R.id.lottieLoading)
+        val progressFallback = view.findViewById<ProgressBar>(R.id.progressFallback)
+
+        setupOptionalLoadingLottie(lottieLoading, progressFallback)
+
+        val textBarcodeNumber = view.findViewById<TextView>(R.id.textBarcodeNumber)
+        val textProductName = view.findViewById<TextView>(R.id.textProductName)
+        val textCompany = view.findViewById<TextView>(R.id.textCompany)
+        val textProductCategory = view.findViewById<TextView>(R.id.textProductCategory)
+
+        val btnAdd = view.findViewById<Button>(R.id.btnAddBarcodeIngredient)
+        val btnRetry = view.findViewById<Button>(R.id.btnRetryBarcode)
+        val btnManualInput = view.findViewById<Button>(R.id.btnManualInput)
+
+        contentLayout.visibility = View.INVISIBLE
+
+        fun showLoading() {
+            loadingLayout.visibility = View.VISIBLE
+            contentLayout.visibility = View.INVISIBLE
+        }
+
+        fun showContent() {
+            loadingLayout.visibility = View.GONE
+            contentLayout.visibility = View.VISIBLE
+
+            val fadeIn = AlphaAnimation(0f, 1f)
+            fadeIn.duration = 350
+            contentLayout.startAnimation(fadeIn)
+        }
+
+        fun loadProduct() {
+            showLoading()
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                textBarcodeNumber.text = "바코드 번호: $barcode"
+
+                val product = getDummyProduct(barcode)
+
+                if (product == null) {
+                    productCard.visibility = View.GONE
+                    errorCard.visibility = View.VISIBLE
+                } else {
+                    productCard.visibility = View.VISIBLE
+                    errorCard.visibility = View.GONE
+
+                    textProductName.text = product.name
+                    textCompany.text = product.company
+                    textProductCategory.text = product.category
+                }
+
+                showContent()
+            }, 800)
+        }
+
+        btnAdd.setOnClickListener {
+            val product = getDummyProduct(barcode)
+
+            if (product == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "추가할 상품 정보가 없습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            val isNewItem = ATempIngredientStore.addIngredient(
+                Ingredient(
+                    name = product.name,
+                    category = product.category,
+                    percent = 100
+                )
+            )
+
+            val message = if (isNewItem) {
+                "${product.name} 추가 완료!"
+            } else {
+                "${product.name} 재고 갱신 완료!"
+            }
+
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
+            (activity as MainActivity).openIngredientList()
+        }
+
+        btnRetry.setOnClickListener {
+            loadProduct()
+        }
+
+        btnManualInput.setOnClickListener {
+            (activity as MainActivity).openIngredientInput()
+        }
+
+        loadProduct()
+
+        return view
+    }
+
+    private fun setupOptionalLoadingLottie(
+        lottieView: LottieAnimationView,
+        fallbackProgress: ProgressBar
+    ) {
+        val resId = resources.getIdentifier(
+            "lottie_loading",
+            "raw",
+            requireContext().packageName
+        )
+
+        if (resId != 0) {
+            lottieView.setAnimation(resId)
+            lottieView.visibility = View.VISIBLE
+            fallbackProgress.visibility = View.GONE
+            lottieView.playAnimation()
+        } else {
+            lottieView.visibility = View.GONE
+            fallbackProgress.visibility = View.VISIBLE
+        }
+    }
+
+    private fun getDummyProduct(barcode: String): BarcodeProduct? {
+        return when {
+            barcode.startsWith("880") -> {
+                BarcodeProduct(
+                    name = "서울우유 1L",
+                    company = "서울우유협동조합",
+                    category = "유제품"
+                )
+            }
+
+            barcode.startsWith("490") -> {
+                BarcodeProduct(
+                    name = "수입 식품",
+                    company = "수입사 정보",
+                    category = "기타"
+                )
+            }
+
+            else -> null
+        }
+    }
+
+    data class BarcodeProduct(
+        val name: String,
+        val company: String,
+        val category: String
+    )
+
+    companion object {
+        fun newInstance(barcode: String): ABarcodeResultFragment {
+            val fragment = ABarcodeResultFragment()
+            val bundle = Bundle()
+            bundle.putString("barcode", barcode)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+}
