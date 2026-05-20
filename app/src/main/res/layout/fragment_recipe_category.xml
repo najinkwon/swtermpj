@@ -1,4 +1,55 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFDF8">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="레시피 추천"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="원하는 요리 종류를 선택하세요"
+        android:textSize="16sp"
+        android:layout_marginBottom="28dp" />
+
+    <Button
+        android:id="@+id/btnKorean"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="한식"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnWestern"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="양식"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnJapanese"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="일식"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnEtc"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="기타"
+        android:textSize="20sp" />
+
+</LinearLayout>

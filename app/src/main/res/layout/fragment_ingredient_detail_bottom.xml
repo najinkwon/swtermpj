@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="@drawable/bg_card">
+
+        <View
+            android:layout_width="50dp"
+            android:layout_height="5dp"
+            android:layout_gravity="center"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/textDetailEmoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🥛"
+            android:textSize="52sp" />
+
+        <TextView
+            android:id="@+id/textDetailName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="서울우유"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/textDetailCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="유제품"
+            android:textColor="@color/primary_pink"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:background="@drawable/bg_chip"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginTop="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="현재 남은 양"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:textSize="16sp"
+            android:layout_marginTop="28dp" />
+
+        <ProgressBar
+            android:id="@+id/progressIngredient"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:max="100"
+            android:progress="70"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/textDetailPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="70%"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#4CAF50"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="유통기한 상태"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:textSize="16sp"
+            android:layout_marginTop="24dp" />
+
+        <ProgressBar
+            android:id="@+id/progressExpire"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:max="30"
+            android:progress="7"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:id="@+id/textExpireDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="D-7"
+            android:textStyle="bold"
+            android:textColor="#FF7043"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="28dp">
+
+            <Button
+                android:id="@+id/btnUse10"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:text="-10%"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnUse30"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:text="-30%"
+                android:textSize="16sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" />
+
+            <Button
+                android:id="@+id/btnRefill"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:text="리필"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnCloseBottom"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="닫기"
+            android:textSize="17sp"
+            android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
+</ScrollView>

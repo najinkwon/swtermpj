@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg">
+
+    <ScrollView
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="상품 정보"
+                        android:textColor="@color/text_main"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textBarcodeNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="바코드 번호"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14sp"
+                        android:layout_marginTop="6dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:text="📦"
+                    android:textSize="24sp"
+                    android:background="@drawable/bg_chip" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/productCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="22dp"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp">
+
+                <ImageView
+                    android:id="@+id/imageProduct"
+                    android:layout_width="match_parent"
+                    android:layout_height="190dp"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/ic_launcher"
+                    android:background="@drawable/bg_stat_mint" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="18dp">
+
+                    <TextView
+                        android:id="@+id/textProductCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="유제품"
+                        android:textColor="@color/primary_green_dark"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_chip"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp" />
+
+                    <TextView
+                        android:id="@+id/textStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="조회 완료"
+                        android:textColor="@color/text_sub"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_chip_white"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginLeft="10dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="제품명"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:textSize="15sp"
+                    android:layout_marginTop="22dp" />
+
+                <TextView
+                    android:id="@+id/textProductName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="서울우유 1L"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="18dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="제조사"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/textCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="서울우유협동조합"
+                    android:textColor="@color/text_sub"
+                    android:textSize="16sp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="22dp" />
+
+                <Button
+                    android:id="@+id/btnAddBarcodeIngredient"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="냉장고에 추가"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/errorCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="상품 정보를 찾을 수 없어요"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/textErrorMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="등록되지 않은 바코드거나 네트워크 상태가 불안정할 수 있어요."
+                    android:textColor="@color/text_sub"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="6dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="24dp" />
+
+                <Button
+                    android:id="@+id/btnRetryBarcode"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="다시 조회하기"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btnManualInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="직접 입력하기"
+                    android:textSize="16sp"
+                    android:layout_marginTop="12dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#CCF8FAF7">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieLoading"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true" />
+
+        <ProgressBar
+            android:id="@+id/progressFallback"
+            android:layout_width="58dp"
+            android:layout_height="58dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상품 정보를 조회하고 있어요..."
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
+</FrameLayout>

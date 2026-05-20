@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="PinkButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/bg_primary_button</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- Base -->
+    <color name="app_bg">#F8FAF7</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Main Theme -->
+    <color name="primary_green">#67B97A</color>
+    <color name="primary_green_dark">#3E8F59</color>
+    <color name="primary_green_light">#E9F6EC</color>
+
+    <!-- Legacy / Compatibility -->
+    <!-- 기존 파일들이 아직 primary_pink를 쓰고 있어서 남겨둬야 함 -->
+    <color name="primary_pink">#67B97A</color>
+
+    <!-- Accent -->
+    <color name="accent_coral">#FF8F70</color>
+    <color name="accent_orange">#FFB25F</color>
+    <color name="accent_red">#FF6B6B</color>
+    <color name="accent_yellow">#F2C94C</color>
+    <color name="accent_blue">#6FA8FF</color>
+
+    <!-- Text -->
+    <color name="text_main">#1F2A24</color>
+    <color name="text_sub">#7A857D</color>
+    <color name="text_hint">#AAB3AD</color>
+
+    <!-- Border / Shadow -->
+    <color name="stroke_soft">#E5ECE7</color>
+    <color name="shadow_soft">#14000000</color>
+
+    <!-- Bottom Navigation -->
+    <color name="bottom_nav_selected">#67B97A</color>
+    <color name="bottom_nav_unselected">#9AA39D</color>
+
 </resources>
