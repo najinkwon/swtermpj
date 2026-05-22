@@ -1,5 +1,107 @@
 ﻿package com.example.swtermproject.ui.shopping
 
-// TODO: A 담당 - 쇼핑 목록 Adapter
-class AShoppingAdapter
+import android.content.Intent
+import android.net.Uri
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.swtermproject.R
+import com.example.swtermproject.data.model.ShoppingItem
 
+class AShoppingAdapter(
+    private val shoppingList: List<ShoppingItem>
+) : RecyclerView.Adapter<AShoppingAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) :
+        RecyclerView.ViewHolder(view) {
+
+        val emoji: TextView =
+            view.findViewById(R.id.textShoppingEmoji)
+
+        val name: TextView =
+            view.findViewById(R.id.textShoppingName)
+
+        val percent: TextView =
+            view.findViewById(R.id.textShoppingPercent)
+
+        val message: TextView =
+            view.findViewById(R.id.textShoppingMessage)
+
+        val badge: TextView =
+            view.findViewById(R.id.textShoppingBadge)
+
+        val button: Button =
+            view.findViewById(R.id.btnShoppingSearch)
+    }
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): ViewHolder {
+
+        val view = LayoutInflater.from(
+            parent.context
+        ).inflate(
+            R.layout.item_shopping,
+            parent,
+            false
+        )
+
+        return ViewHolder(view)
+    }
+
+    override fun getItemCount(): Int =
+        shoppingList.size
+
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int
+    ) {
+
+        val item = shoppingList[position]
+
+        holder.emoji.text =
+            item.emoji
+
+        holder.name.text =
+            item.name
+
+        holder.percent.text =
+            "현재 재고 ${item.percent}%"
+
+        holder.message.text =
+            "${item.name} 재고가 부족해요. 지금 구매를 추천해요."
+
+        holder.badge.text =
+            if (item.percent <= 10) {
+                "매우 부족"
+            } else {
+                "부족"
+            }
+
+        holder.button.setOnClickListener {
+
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(
+                    "https://www.coupang.com/np/search?q=${item.name}"
+                )
+            )
+
+            holder.itemView.context.startActivity(intent)
+        }
+
+        holder.itemView.alpha = 0f
+
+        holder.itemView.translationY = 50f
+
+        holder.itemView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(320)
+            .start()
+    }
+}

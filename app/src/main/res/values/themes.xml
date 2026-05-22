@@ -1,9 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.Swtermproject" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowBackground">@color/app_bg</item>
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorSecondary">@color/accent_coral</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:textColorPrimary">@color/text_main</item>
+        <item name="android:textColorSecondary">@color/text_sub</item>
+        <item name="buttonStyle">@style/AppButtonStyle</item>
     </style>
 
     <style name="Theme.Swtermproject" parent="Base.Theme.Swtermproject" />
+
+    <style name="AppButtonStyle" parent="Widget.Material3.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">18dp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="backgroundTint">@color/primary_green</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
 </resources>

@@ -1,4 +1,177 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textRecipeImageEmoji"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:gravity="center"
+            android:text="🍳"
+            android:textSize="92sp"
+            android:background="@drawable/bg_stat_mint" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <TextView
+                android:id="@+id/textRecipeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="계란볶음밥"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main" />
+
+            <TextView
+                android:id="@+id/textRecipeReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="냉장고 속 재료로 간단하게 만들 수 있어요"
+                android:textSize="15sp"
+                android:textColor="@color/text_sub"
+                android:lineSpacingExtra="5dp"
+                android:layout_marginTop="10dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="22dp">
+
+                <TextView
+                    android:id="@+id/textMatch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="재료 90%"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:textColor="@color/primary_green_dark"
+                    android:background="@drawable/bg_chip"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="9dp" />
+
+                <TextView
+                    android:id="@+id/textCookTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10분"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_main"
+                    android:background="@drawable/bg_chip_white"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="9dp"
+                    android:layout_marginLeft="8dp" />
+
+                <TextView
+                    android:id="@+id/textDifficulty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="쉬움"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_main"
+                    android:background="@drawable/bg_chip_white"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="9dp"
+                    android:layout_marginLeft="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp"
+                android:padding="22dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="필요 재료"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main" />
+
+                <TextView
+                    android:id="@+id/textIngredients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="• 계란"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_sub"
+                    android:lineSpacingExtra="8dp"
+                    android:layout_marginTop="14dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp"
+                android:padding="22dp"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="조리 순서"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main" />
+
+                <TextView
+                    android:id="@+id/textSteps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. 재료를 준비해요"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_sub"
+                    android:lineSpacingExtra="10dp"
+                    android:layout_marginTop="14dp" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnYoutube"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="유튜브 레시피 보기"
+                android:textSize="16sp"
+                android:layout_marginTop="22dp" />
+
+            <Button
+                android:id="@+id/btnShopping"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="부족 재료 구매하기"
+                android:textSize="16sp"
+                android:layout_marginTop="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,4 +1,222 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:background="@color/app_bg">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@color/app_bg">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="18dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="재료 목록"
+                        android:textColor="@color/text_main"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="검색하고 정렬해서 냉장고를 관리해요"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14sp"
+                        android:layout_marginTop="5dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="🧊"
+                    android:textSize="24sp"
+                    android:background="@drawable/bg_chip" />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/editSearch"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="재료 검색"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:background="@drawable/bg_card"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:textSize="15sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginTop="14dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnFilterAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:text="전체"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnFilterVegetable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:text="채소"
+                        android:textSize="13sp"
+                        android:layout_marginLeft="8dp" />
+
+                    <Button
+                        android:id="@+id/btnFilterDairy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:text="유제품"
+                        android:textSize="13sp"
+                        android:layout_marginLeft="8dp" />
+
+                    <Button
+                        android:id="@+id/btnFilterProtein"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:text="단백질"
+                        android:textSize="13sp"
+                        android:layout_marginLeft="8dp" />
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <Spinner
+                android:id="@+id/spinnerSort"
+                android:layout_width="168dp"
+                android:layout_height="46dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp" />
+
+            <LinearLayout
+                android:id="@+id/emptyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="42dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textEmptyEmoji"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🥲"
+                    android:textSize="64sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="재료가 없어요"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:layout_marginTop="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="새 재료를 추가해보세요"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_sub"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerIngredient"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingTop="16dp"
+                android:paddingBottom="96dp" />
+
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/fabMenuLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:orientation="vertical"
+        android:gravity="end"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="96dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnAddManual"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="직접 추가"
+            android:textSize="14sp"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnAddBarcode"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="바코드 스캔"
+            android:textSize="14sp"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnAddReceipt"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="영수증 스캔"
+            android:textSize="14sp"
+            android:layout_marginBottom="10dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/primary_green"
+        android:tint="@color/white"
+        android:src="@android:drawable/ic_input_add" />
+
+</FrameLayout>
