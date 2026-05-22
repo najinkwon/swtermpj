@@ -1,5 +1,15 @@
 ﻿package com.example.swtermproject.data.remote.shopping
 
-// TODO: B 담당 - 쇼핑 API 인터페이스
-class BShoppingApi
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Query
 
+interface BShoppingApi {
+    @GET("v1/search/shop.json")
+    suspend fun searchShoppingItems(
+        @Header("X-Naver-Client-Id") clientId: String,
+        @Header("X-Naver-Client-Secret") clientSecret: String,
+        @Query("query") query: String,
+        @Query("display") display: Int = 10
+    ): BShoppingResponse
+}

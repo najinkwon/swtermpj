@@ -1,5 +1,7 @@
 ﻿package com.example.swtermproject.common
 
-// TODO: API/DB 결과 상태 관리
-class BResource
-
+sealed class BResource<out T> {
+    data class Success<T>(val data: T) : BResource<T>()
+    data class Error(val message: String, val throwable: Throwable? = null) : BResource<Nothing>()
+    object Loading : BResource<Nothing>()
+}

@@ -1,5 +1,8 @@
 ﻿package com.example.swtermproject.domain.model
 
-// TODO: B 담당 - 쇼핑 상품 모델
-class BShoppingItem
-
+data class BShoppingItem(
+    val title: String,
+    val imageUrl: String? = null,
+    val price: String? = null,
+    val link: String
+)
