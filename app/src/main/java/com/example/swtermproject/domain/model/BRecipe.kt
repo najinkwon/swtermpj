@@ -1,5 +1,14 @@
 ﻿package com.example.swtermproject.domain.model
 
-// TODO: B 담당 - 앱에서 사용하는 레시피 모델
-class BRecipe
-
+data class BRecipe(
+    val id: Long,
+    val title: String,
+    val category: String,
+    val mainIngredients: List<String>,
+    val subIngredients: List<String>,
+    val seasonings: List<String>,
+    val description: String,
+    val youtubeKeyword: String,
+    val score: Int = 0,
+    val missingIngredients: List<String> = emptyList()
+)
