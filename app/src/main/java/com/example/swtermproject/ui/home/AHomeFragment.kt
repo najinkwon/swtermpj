@@ -16,8 +16,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
-import com.example.swtermproject.data.model.RecipeDummyStore
+import com.example.swtermproject.data.model.Recipe
 import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.domain.model.BRecipe
+import com.example.swtermproject.recipe.BRecipeDataSource
+import com.example.swtermproject.recipe.BRecipeScorer
 import com.example.swtermproject.ui.ingredient.AIngredientListFragment
 import com.example.swtermproject.ui.recipe.RecipeAdapter
 import com.example.swtermproject.viewmodel.BHomeViewModel
@@ -35,6 +38,9 @@ class AHomeFragment : Fragment() {
     private lateinit var textFavorite: TextView
     private lateinit var textLowStock: TextView
     private lateinit var textExpire: TextView
+
+    private lateinit var recipeAdapter: RecipeAdapter
+    private val homeRecipes = mutableListOf<Recipe>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,11 +67,12 @@ class AHomeFragment : Fragment() {
         val recyclerRecipe = view.findViewById<RecyclerView>(R.id.recyclerRecipe)
 
         recyclerRecipe.layoutManager = GridLayoutManager(requireContext(), 2)
-        recyclerRecipe.adapter = RecipeAdapter(
-            RecipeDummyStore.recipes.take(2)
-        ) { recipe ->
+
+        recipeAdapter = RecipeAdapter(homeRecipes) { recipe ->
             (activity as MainActivity).openRecipeDetail(recipe.title)
         }
+
+        recyclerRecipe.adapter = recipeAdapter
 
         cardTotal.setOnClickListener {
             (activity as MainActivity).openIngredientListWithFilter(
@@ -108,6 +115,7 @@ class AHomeFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.ingredients.collect { ingredients ->
                     updateDashboard(ingredients)
+                    updateHomeRecipes(ingredients)
                 }
             }
         }
@@ -119,13 +127,105 @@ class AHomeFragment : Fragment() {
         val expireCount = ingredients.count {
             calculateExpireDay(it.expiryDate) <= 3
         }
-
         val favoriteCount = ingredients.count { it.favorite }
 
         animateCount(textTotal, totalCount)
         animateCount(textFavorite, favoriteCount)
         animateCount(textLowStock, lowStockCount)
         animateCount(textExpire, expireCount)
+    }
+
+    private fun updateHomeRecipes(ingredients: List<BIngredient>) {
+        val recommended = BRecipeDataSource.recipes
+            .map { recipe ->
+                BRecipeScorer.scoreRecipe(recipe, ingredients)
+            }
+            .sortedWith(
+                compareByDescending<BRecipe> { it.score }
+                    .thenBy { it.missingIngredients.size }
+                    .thenBy { it.title }
+            )
+            .take(2)
+            .map { it.toUiRecipe() }
+
+        homeRecipes.clear()
+        homeRecipes.addAll(recommended)
+        recipeAdapter.notifyDataSetChanged()
+    }
+
+    private fun BRecipe.toUiRecipe(): Recipe {
+        val matchPercent = calculateRecipeMatchPercent(this)
+
+        val reasonText =
+            if (missingIngredients.isEmpty()) {
+                "현재 냉장고 재료만으로 만들기 좋아요."
+            } else {
+                "부족 재료: ${missingIngredients.joinToString(", ")}"
+            }
+
+        return Recipe(
+            emoji = emojiForRecipe(this),
+            title = title,
+            reason = reasonText,
+            matchPercent = matchPercent,
+            cookTime = cookTimeForRecipe(this),
+            difficulty = difficultyForRecipe(this),
+            ingredients = mainIngredients + subIngredients + seasonings,
+            steps = description
+                .lines()
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
+        )
+    }
+
+    private fun calculateRecipeMatchPercent(recipe: BRecipe): Int {
+        val required = recipe.mainIngredients + recipe.subIngredients
+
+        if (required.isEmpty()) return 100
+
+        val missingCount = recipe.missingIngredients
+            .distinct()
+            .count { it in required }
+
+        val ownedCount = (required.size - missingCount).coerceAtLeast(0)
+
+        return ((ownedCount.toDouble() / required.size.toDouble()) * 100.0)
+            .toInt()
+            .coerceIn(0, 100)
+    }
+
+    private fun emojiForRecipe(recipe: BRecipe): String {
+        val source = "${recipe.title} ${recipe.category}"
+
+        return when {
+            source.contains("볶음밥") -> "🍳"
+            source.contains("밥") -> "🍚"
+            source.contains("파스타") -> "🍝"
+            source.contains("두부") -> "🥘"
+            source.contains("규동") -> "🍱"
+            source.contains("오므라이스") -> "🍳"
+            else -> "🍽️"
+        }
+    }
+
+    private fun cookTimeForRecipe(recipe: BRecipe): String {
+        return when {
+            recipe.title.contains("간장계란밥") -> "5분"
+            recipe.title.contains("볶음밥") -> "10분"
+            recipe.title.contains("두부") -> "15분"
+            recipe.title.contains("파스타") -> "20분"
+            recipe.title.contains("오므라이스") -> "20분"
+            recipe.title.contains("규동") -> "20분"
+            else -> "15분"
+        }
+    }
+
+    private fun difficultyForRecipe(recipe: BRecipe): String {
+        return when {
+            recipe.title.contains("간장계란밥") -> "쉬움"
+            recipe.title.contains("계란볶음밥") -> "쉬움"
+            else -> "보통"
+        }
     }
 
     private fun calculateExpireDay(expiryDate: String): Int {
