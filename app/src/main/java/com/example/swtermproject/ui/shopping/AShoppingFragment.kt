@@ -30,6 +30,17 @@ class AShoppingFragment : Fragment() {
     private val shoppingList = mutableListOf<ShoppingItem>()
     private lateinit var adapter: AShoppingAdapter
 
+    private var recipeName: String? = null
+    private var recipeMissingIngredients: List<String> = emptyList()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        recipeName = arguments?.getString(ARG_RECIPE_NAME)
+        recipeMissingIngredients =
+            arguments?.getStringArrayList(ARG_MISSING_INGREDIENTS).orEmpty()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -56,20 +67,29 @@ class AShoppingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeIngredients()
+
+        if (isRecipeMode()) {
+            updateRecipeShoppingList()
+        } else {
+            observeIngredients()
+        }
+    }
+
+    private fun isRecipeMode(): Boolean {
+        return recipeName != null
     }
 
     private fun observeIngredients() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.ingredients.collect { ingredients ->
-                    updateShoppingList(ingredients)
+                    updateLowStockShoppingList(ingredients)
                 }
             }
         }
     }
 
-    private fun updateShoppingList(ingredients: List<BIngredient>) {
+    private fun updateLowStockShoppingList(ingredients: List<BIngredient>) {
         shoppingList.clear()
 
         ingredients
@@ -85,7 +105,11 @@ class AShoppingFragment : Fragment() {
             }
 
         summary.text =
-            "현재 ${shoppingList.size}개의 재료 구매를 추천해요"
+            if (shoppingList.isEmpty()) {
+                "현재 구매가 필요한 재료가 없어요"
+            } else {
+                "현재 ${shoppingList.size}개의 재료 구매를 추천해요"
+            }
 
         mainMessage.text =
             if (shoppingList.isEmpty()) {
@@ -96,9 +120,51 @@ class AShoppingFragment : Fragment() {
 
         subMessage.text =
             if (shoppingList.isEmpty()) {
-                "냉장고 상태가 안정적이에요"
+                "재고가 충분해요. 부족해지면 여기에서 바로 확인할 수 있어요"
             } else {
                 "부족한 재료만 모아서 보여드릴게요"
+            }
+
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun updateRecipeShoppingList() {
+        shoppingList.clear()
+
+        recipeMissingIngredients
+            .distinct()
+            .filter { it.isNotBlank() }
+            .forEach { name ->
+                shoppingList.add(
+                    ShoppingItem(
+                        emoji = emojiForIngredientName(name),
+                        name = name,
+                        percent = RECIPE_MISSING_PERCENT
+                    )
+                )
+            }
+
+        val name = recipeName ?: "선택한 레시피"
+
+        summary.text =
+            if (shoppingList.isEmpty()) {
+                "$name 레시피에 부족한 재료가 없어요"
+            } else {
+                "${name}에 필요한 부족 재료 ${shoppingList.size}개"
+            }
+
+        mainMessage.text =
+            if (shoppingList.isEmpty()) {
+                "바로 만들 수 있는 레시피예요"
+            } else {
+                "레시피에 필요한 재료를 모았어요"
+            }
+
+        subMessage.text =
+            if (shoppingList.isEmpty()) {
+                "현재 냉장고 재료만으로 조리할 수 있어요"
+            } else {
+                "부족 재료를 구매하면 이 레시피를 만들 수 있어요"
             }
 
         adapter.notifyDataSetChanged()
@@ -111,6 +177,71 @@ class AShoppingFragment : Fragment() {
             "단백질" -> "🍖"
             "조미료/소스" -> "🥫"
             else -> "🛒"
+        }
+    }
+
+    private fun emojiForIngredientName(name: String): String {
+        return when {
+            name.contains("계란") ||
+                name.contains("달걀") ||
+                name.contains("고기") ||
+                name.contains("닭") ||
+                name.contains("소고기") ||
+                name.contains("두부") ||
+                name.contains("햄") -> "🥚"
+
+            name.contains("우유") ||
+                name.contains("치즈") ||
+                name.contains("요거트") ||
+                name.contains("버터") -> "🥛"
+
+            name.contains("양파") ||
+                name.contains("대파") ||
+                name.contains("파") ||
+                name.contains("마늘") ||
+                name.contains("당근") ||
+                name.contains("상추") ||
+                name.contains("토마토") ||
+                name.contains("감자") ||
+                name.contains("오이") ||
+                name.contains("양배추") -> "🥬"
+
+            name.contains("간장") ||
+                name.contains("소금") ||
+                name.contains("후추") ||
+                name.contains("설탕") ||
+                name.contains("소스") ||
+                name.contains("케첩") ||
+                name.contains("마요네즈") ||
+                name.contains("드레싱") ||
+                name.contains("참기름") ||
+                name.contains("고춧가루") ||
+                name.contains("된장") -> "🥫"
+
+            name.contains("밥") ||
+                name.contains("면") ||
+                name.contains("파스타") ||
+                name.contains("식빵") -> "🍚"
+
+            else -> "🛒"
+        }
+    }
+
+    companion object {
+        private const val ARG_RECIPE_NAME = "recipe_name"
+        private const val ARG_MISSING_INGREDIENTS = "missing_ingredients"
+        const val RECIPE_MISSING_PERCENT = -1
+
+        fun newRecipeMode(
+            recipeName: String,
+            missingIngredients: ArrayList<String>
+        ): AShoppingFragment {
+            val fragment = AShoppingFragment()
+            val bundle = Bundle()
+            bundle.putString(ARG_RECIPE_NAME, recipeName)
+            bundle.putStringArrayList(ARG_MISSING_INGREDIENTS, missingIngredients)
+            fragment.arguments = bundle
+            return fragment
         }
     }
 }

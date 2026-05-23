@@ -1,12 +1,16 @@
 package com.example.swtermproject.ui.ingredient
 
+import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,10 +21,14 @@ import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
 import com.example.swtermproject.viewmodel.BIngredientViewModel
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Locale
 
 class AIngredientInputFragment : Fragment() {
 
     private val viewModel: BIngredientViewModel by viewModels()
+
+    private var currentAmountEditedByUser = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,31 +45,85 @@ class AIngredientInputFragment : Fragment() {
         val editInitialAmount = view.findViewById<EditText>(R.id.editInitialAmount)
         val editCurrentAmount = view.findViewById<EditText>(R.id.editCurrentAmount)
         val editExpiryDate = view.findViewById<EditText>(R.id.editExpiryDate)
-        val textCategory = view.findViewById<TextView>(R.id.textCategory)
+
+        val spinnerCategory = view.findViewById<Spinner>(R.id.spinnerCategory)
+        val spinnerUnit = view.findViewById<Spinner>(R.id.spinnerUnit)
+        val spinnerStorage = view.findViewById<Spinner>(R.id.spinnerStorage)
+
         val btnSave = view.findViewById<Button>(R.id.btnSave)
         val btnReceiptScan = view.findViewById<Button>(R.id.btnReceiptScan)
         val btnBarcodeScan = view.findViewById<Button>(R.id.btnBarcodeScan)
 
-        textCategory.text = "저장 시 자동 분류됩니다"
+        setupSpinner(
+            spinner = spinnerCategory,
+            items = listOf("채소", "유제품", "단백질", "조미료/소스", "기타")
+        )
+
+        setupSpinner(
+            spinner = spinnerUnit,
+            items = listOf("개", "g", "ml", "봉", "팩")
+        )
+
+        setupSpinner(
+            spinner = spinnerStorage,
+            items = listOf("냉장", "냉동", "실온")
+        )
+
+        editCurrentAmount.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                currentAmountEditedByUser = true
+            }
+        }
+
+        editInitialAmount.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    if (!currentAmountEditedByUser || editCurrentAmount.text.isNullOrBlank()) {
+                        editCurrentAmount.setText(s?.toString().orEmpty())
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {}
+            }
+        )
+
+        editExpiryDate.setOnClickListener {
+            showDatePicker(editExpiryDate)
+        }
 
         btnSave.setOnClickListener {
             val name = editName.text.toString().trim()
+            val category = spinnerCategory.selectedItem.toString()
             val initialAmount = editInitialAmount.text.toString().toDoubleOrNull()
             val currentAmount = editCurrentAmount.text.toString().toDoubleOrNull()
+            val unit = spinnerUnit.selectedItem.toString()
             val expiryDate = editExpiryDate.text.toString().trim()
+            val storageType = spinnerStorage.selectedItem.toString()
 
             if (name.isBlank()) {
                 Toast.makeText(requireContext(), "재료명을 입력하세요", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (initialAmount == null || currentAmount == null || initialAmount <= 0.0) {
-                Toast.makeText(requireContext(), "수량을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
+            if (initialAmount == null || initialAmount <= 0.0) {
+                Toast.makeText(requireContext(), "구매량을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (currentAmount < 0.0) {
-                Toast.makeText(requireContext(), "현재 남은 양은 0 이상이어야 합니다", Toast.LENGTH_SHORT).show()
+            if (currentAmount == null || currentAmount < 0.0) {
+                Toast.makeText(requireContext(), "현재 남은 양을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -70,20 +132,14 @@ class AIngredientInputFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (expiryDate.isNotBlank() && !expiryDate.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
-                Toast.makeText(requireContext(), "유통기한은 2026-06-30 형식으로 입력하세요", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            textCategory.text = "분류 중..."
-
-            viewModel.addIngredient(
+            viewModel.addIngredientManually(
                 name = name,
+                category = category,
                 initialAmount = initialAmount,
                 currentAmount = currentAmount,
-                unit = "개",
+                unit = unit,
                 expiryDate = expiryDate,
-                storageType = "냉장"
+                storageType = storageType
             )
         }
 
@@ -105,6 +161,41 @@ class AIngredientInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeMessage()
+    }
+
+    private fun setupSpinner(
+        spinner: Spinner,
+        items: List<String>
+    ) {
+        spinner.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            items
+        )
+    }
+
+    private fun showDatePicker(editExpiryDate: EditText) {
+        val calendar = Calendar.getInstance(Locale.KOREA)
+
+        val dialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val dateText = String.format(
+                    Locale.KOREA,
+                    "%04d-%02d-%02d",
+                    year,
+                    month + 1,
+                    dayOfMonth
+                )
+
+                editExpiryDate.setText(dateText)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        dialog.show()
     }
 
     private fun observeMessage() {

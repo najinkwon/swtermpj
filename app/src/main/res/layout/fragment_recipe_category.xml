@@ -69,7 +69,7 @@
                 android:background="@drawable/bg_stat_mint"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="2dp"
+                android:elevation="0dp"
                 android:layout_marginRight="7dp">
 
                 <TextView
@@ -111,7 +111,7 @@
                 android:background="@drawable/bg_stat_peach"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="2dp"
+                android:elevation="0dp"
                 android:layout_marginLeft="7dp">
 
                 <TextView
@@ -161,7 +161,7 @@
                 android:background="@drawable/bg_card"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="2dp"
+                android:elevation="0dp"
                 android:layout_marginRight="7dp">
 
                 <TextView
@@ -203,7 +203,7 @@
                 android:background="@drawable/bg_stat_yellow"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="2dp"
+                android:elevation="0dp"
                 android:layout_marginLeft="7dp">
 
                 <TextView

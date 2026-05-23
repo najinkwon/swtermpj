@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.ui.shopping
+package com.example.swtermproject.ui.shopping
 
 import android.content.Intent
 import android.net.Uri
@@ -60,34 +60,41 @@ class AShoppingAdapter(
         holder: ViewHolder,
         position: Int
     ) {
-
         val item = shoppingList[position]
+        val isRecipeMissingItem =
+            item.percent == AShoppingFragment.RECIPE_MISSING_PERCENT
 
-        holder.emoji.text =
-            item.emoji
-
-        holder.name.text =
-            item.name
+        holder.emoji.text = item.emoji
+        holder.name.text = item.name
 
         holder.percent.text =
-            "현재 재고 ${item.percent}%"
+            if (isRecipeMissingItem) {
+                "레시피에 필요한 재료"
+            } else {
+                "현재 재고 ${item.percent}%"
+            }
 
         holder.message.text =
-            "${item.name} 재고가 부족해요. 지금 구매를 추천해요."
+            if (isRecipeMissingItem) {
+                "${item.name}이 있으면 선택한 레시피를 만들 수 있어요."
+            } else {
+                "${item.name} 재고가 부족해요. 지금 구매를 추천해요."
+            }
 
         holder.badge.text =
-            if (item.percent <= 10) {
+            if (isRecipeMissingItem) {
+                "레시피"
+            } else if (item.percent <= 10) {
                 "매우 부족"
             } else {
                 "부족"
             }
 
         holder.button.setOnClickListener {
-
             val intent = Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse(
-                    "https://www.coupang.com/np/search?q=${item.name}"
+                    "https://www.coupang.com/np/search?q=${Uri.encode(item.name)}"
                 )
             )
 
@@ -95,7 +102,6 @@ class AShoppingAdapter(
         }
 
         holder.itemView.alpha = 0f
-
         holder.itemView.translationY = 50f
 
         holder.itemView.animate()

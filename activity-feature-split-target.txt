@@ -1,3 +1,35 @@
+===== SplashActivity.kt =====
+package com.example.swtermproject.ui.splash
+
+import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import androidx.appcompat.app.AppCompatActivity
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+
+class SplashActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.activity_splash)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+
+            startActivity(
+                Intent(
+                    this,
+                    MainActivity::class.java
+                )
+            )
+
+            finish()
+
+        }, 1800)
+    }
+}===== ABarcodeScanFragment.kt =====
 package com.example.swtermproject.ui.ingredient
 
 import android.content.Intent
@@ -9,7 +41,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.swtermproject.R
-import com.example.swtermproject.ui.activity.BarcodeResultActivity
 import com.google.zxing.integration.android.IntentIntegrator
 
 class ABarcodeScanFragment : Fragment() {
@@ -81,13 +112,11 @@ class ABarcodeScanFragment : Fragment() {
     }
 
     private fun moveToResult(barcode: String) {
-        val intent = Intent(
-            requireContext(),
-            BarcodeResultActivity::class.java
-        ).apply {
-            putExtra(BarcodeResultActivity.EXTRA_BARCODE, barcode)
-        }
-
-        startActivity(intent)
+        parentFragmentManager.beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                ABarcodeResultFragment.newInstance(barcode)
+            )
+            .commit()
     }
 }

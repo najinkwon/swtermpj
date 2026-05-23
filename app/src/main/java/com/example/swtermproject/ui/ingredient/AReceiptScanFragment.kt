@@ -1,5 +1,9 @@
 package com.example.swtermproject.ui.ingredient
 
+import android.Manifest
+import android.app.AlertDialog
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.swtermproject.R
@@ -34,6 +39,33 @@ class AReceiptScanFragment : Fragment() {
             recognizeReceiptImage(uri)
         }
 
+    private val cameraPreview =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
+            if (bitmap == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "촬영이 취소되었습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@registerForActivityResult
+            }
+
+            recognizeReceiptBitmap(bitmap)
+        }
+
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                cameraPreview.launch(null)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "카메라 권한이 필요합니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ocrManager = BReceiptOcrManager(requireContext().applicationContext)
@@ -54,7 +86,7 @@ class AReceiptScanFragment : Fragment() {
         btnResult = view.findViewById(R.id.btnReceiptResult)
 
         btnStart.setOnClickListener {
-            imagePicker.launch("image/*")
+            showScanOptionDialog()
         }
 
         btnResult.setOnClickListener {
@@ -66,50 +98,96 @@ class AReceiptScanFragment : Fragment() {
         return view
     }
 
-    private fun recognizeReceiptImage(uri: Uri) {
-        btnStart.isEnabled = false
-        btnResult.isEnabled = false
+    private fun showScanOptionDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("영수증 인식")
+            .setItems(
+                arrayOf(
+                    "카메라로 촬영",
+                    "갤러리에서 선택"
+                )
+            ) { _, which ->
+                when (which) {
+                    0 -> startCamera()
+                    1 -> imagePicker.launch("image/*")
+                }
+            }
+            .show()
+    }
 
-        Toast.makeText(
+    private fun startCamera() {
+        val permission = ContextCompat.checkSelfPermission(
             requireContext(),
-            "영수증을 인식하고 있어요",
-            Toast.LENGTH_SHORT
-        ).show()
+            Manifest.permission.CAMERA
+        )
+
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            cameraPreview.launch(null)
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun recognizeReceiptImage(uri: Uri) {
+        setLoading(true)
 
         viewLifecycleOwner.lifecycleScope.launch {
             val result = ocrManager.recognizeTextFromImage(uri)
+            handleOcrResult(result)
+        }
+    }
 
-            result.onSuccess { rawText ->
-                val candidates = ocrManager.extractItemsFromText(rawText)
-                val names = candidates
-                    .map { it.name }
-                    .filter { it.isNotBlank() }
-                    .distinct()
-                    .take(12)
+    private fun recognizeReceiptBitmap(bitmap: Bitmap) {
+        setLoading(true)
 
-                if (names.isEmpty()) {
-                    Toast.makeText(
-                        requireContext(),
-                        "영수증에서 재료 후보를 찾지 못했어요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ocrManager.recognizeTextFromBitmap(bitmap)
+            handleOcrResult(result)
+        }
+    }
 
-                    btnStart.isEnabled = true
-                    btnResult.isEnabled = true
-                } else {
-                    moveToResult(names)
-                }
-            }.onFailure {
+    private fun handleOcrResult(result: Result<String>) {
+        result.onSuccess { rawText ->
+            val candidates = ocrManager.extractItemsFromText(rawText)
+
+            val names = candidates
+                .map { it.name }
+                .filter { it.isNotBlank() }
+                .distinct()
+                .take(12)
+
+            if (names.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
-                    it.message ?: "OCR 인식에 실패했습니다",
+                    "영수증에서 재료 후보를 찾지 못했어요",
                     Toast.LENGTH_SHORT
                 ).show()
 
-                btnStart.isEnabled = true
-                btnResult.isEnabled = true
+                setLoading(false)
+            } else {
+                moveToResult(names)
             }
+        }.onFailure {
+            Toast.makeText(
+                requireContext(),
+                it.message ?: "OCR 인식에 실패했습니다",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            setLoading(false)
         }
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        btnStart.isEnabled = !isLoading
+        btnResult.isEnabled = !isLoading
+
+        btnStart.text =
+            if (isLoading) {
+                "영수증 인식 중..."
+            } else {
+                "영수증 인식 시작"
+            }
     }
 
     private fun moveToResult(names: List<String>) {

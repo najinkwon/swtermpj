@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.swtermproject.MainActivity
@@ -18,11 +19,13 @@ import com.example.swtermproject.domain.model.BIngredient
 import com.example.swtermproject.domain.model.BRecipe
 import com.example.swtermproject.recipe.BRecipeDataSource
 import com.example.swtermproject.recipe.BRecipeScorer
+import com.example.swtermproject.ui.shopping.AShoppingFragment
 import kotlinx.coroutines.launch
 
 class ARecipeDetailFragment : Fragment() {
 
     private var recipeName: String = "계란볶음밥"
+    private val currentMissingIngredients = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,10 +97,47 @@ class ARecipeDetailFragment : Fragment() {
         }
 
         btnShopping.setOnClickListener {
-            (activity as MainActivity).openShopping()
+            if (currentMissingIngredients.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    "이 레시피는 부족한 재료가 없어요",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                openRecipeShopping(
+                    recipeName = recipe.title,
+                    missingIngredients = ArrayList(currentMissingIngredients)
+                )
+            }
         }
 
         return view
+    }
+
+    private fun openRecipeShopping(
+        recipeName: String,
+        missingIngredients: ArrayList<String>
+    ) {
+        val hostActivity = activity
+
+        if (hostActivity is MainActivity) {
+            hostActivity.openShoppingForRecipe(
+                recipeName = recipeName,
+                missingIngredients = missingIngredients
+            )
+            return
+        }
+
+        parentFragmentManager.beginTransaction()
+            .replace(
+                R.id.singleFragmentContainer,
+                AShoppingFragment.newRecipeMode(
+                    recipeName = recipeName,
+                    missingIngredients = missingIngredients
+                )
+            )
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun bindRecipeMatch(
@@ -112,6 +152,9 @@ class ARecipeDetailFragment : Fragment() {
 
         val requiredForPercent =
             recipe.mainIngredients + recipe.subIngredients
+
+        currentMissingIngredients.clear()
+        currentMissingIngredients.addAll(recipe.missingIngredients.distinct())
 
         val missingSet = recipe.missingIngredients.toSet()
 

@@ -16,6 +16,14 @@
         android:theme="@style/Theme.Swtermproject">
 
         <activity
+            android:name=".ui.activity.BarcodeResultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activity.RecipeDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true" />
 

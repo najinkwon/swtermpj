@@ -125,7 +125,7 @@ class ANotificationFragment : Fragment() {
         if (notifications.isEmpty()) {
             notifications.add(
                 NotificationItem(
-                    title = "냉장고 상태 안정",
+                    title = "냉장고 상태가 좋아요",
                     message = "현재 부족하거나 유통기한이 임박한 재료가 없어요.",
                     time = "현재",
                     isRead = true
@@ -169,7 +169,7 @@ class ANotificationFragment : Fragment() {
 
     private fun updateSummary() {
         val realNotifications =
-            notifications.filter { it.title != "냉장고 상태 안정" }
+            notifications.filter { it.title != "냉장고 상태가 좋아요" }
 
         val unreadCount = realNotifications.count { !it.isRead }
 

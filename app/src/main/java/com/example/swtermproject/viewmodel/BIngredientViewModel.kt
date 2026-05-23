@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.viewmodel
+package com.example.swtermproject.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -50,6 +50,36 @@ class BIngredientViewModel(application: Application) : AndroidViewModel(applicat
                     BIngredient(
                         name = name,
                         category = prediction.category,
+                        initialAmount = initialAmount,
+                        currentAmount = currentAmount,
+                        unit = unit,
+                        expiryDate = expiryDate,
+                        storageType = storageType
+                    )
+                )
+            }.onSuccess {
+                _message.value = "재료가 추가되었습니다."
+            }.onFailure {
+                _message.value = it.message ?: "재료 추가에 실패했습니다."
+            }
+        }
+    }
+
+    fun addIngredientManually(
+        name: String,
+        category: String,
+        initialAmount: Double,
+        currentAmount: Double,
+        unit: String,
+        expiryDate: String,
+        storageType: String
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                repository.addIngredient(
+                    BIngredient(
+                        name = name,
+                        category = category,
                         initialAmount = initialAmount,
                         currentAmount = currentAmount,
                         unit = unit,

@@ -1,13 +1,19 @@
 package com.example.swtermproject.ui.ingredient
 
+import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -22,11 +28,14 @@ import com.example.swtermproject.data.repository.BIngredientRepository
 import com.example.swtermproject.domain.model.BIngredient
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Locale
 
 class ABarcodeResultFragment : Fragment() {
 
     private var barcode: String = ""
     private var currentProduct: BBarcodeProduct? = null
+    private var currentAmountEditedByUser = false
 
     private val barcodeRepository =
         BBarcodeRepository(BFoodsafetyBarcodeClient.api)
@@ -64,9 +73,34 @@ class ABarcodeResultFragment : Fragment() {
         val textProductCategory = view.findViewById<TextView>(R.id.textProductCategory)
         val textErrorMessage = view.findViewById<TextView>(R.id.textErrorMessage)
 
+        val editInitialAmount = view.findViewById<EditText>(R.id.editBarcodeInitialAmount)
+        val editCurrentAmount = view.findViewById<EditText>(R.id.editBarcodeCurrentAmount)
+        val editExpiryDate = view.findViewById<EditText>(R.id.editBarcodeExpiryDate)
+        val spinnerUnit = view.findViewById<Spinner>(R.id.spinnerBarcodeUnit)
+        val spinnerStorage = view.findViewById<Spinner>(R.id.spinnerBarcodeStorage)
+
         val btnAdd = view.findViewById<Button>(R.id.btnAddBarcodeIngredient)
         val btnRetry = view.findViewById<Button>(R.id.btnRetryBarcode)
         val btnManualInput = view.findViewById<Button>(R.id.btnManualInput)
+
+        setupSpinner(
+            spinner = spinnerUnit,
+            items = listOf("개", "g", "ml", "봉", "팩")
+        )
+
+        setupSpinner(
+            spinner = spinnerStorage,
+            items = listOf("냉장", "냉동", "실온")
+        )
+
+        setupAmountAutoFill(
+            editInitialAmount = editInitialAmount,
+            editCurrentAmount = editCurrentAmount
+        )
+
+        editExpiryDate.setOnClickListener {
+            showDatePicker(editExpiryDate)
+        }
 
         val ingredientRepository = BIngredientRepository(
             BAppDatabase.getDatabase(requireContext()).ingredientDao()
@@ -130,7 +164,7 @@ class ABarcodeResultFragment : Fragment() {
                     showProduct(product)
                 } else {
                     val message = result.exceptionOrNull()?.message
-                        ?: "식품안전나라 API에서 해당 바코드 상품 정보를 찾지 못했어요. 직접 입력으로 등록해 주세요."
+                        ?: "식품안전나라 API에서 해당 바코드 상품 정보를 찾지 못했어요.\n스캔한 바코드 번호를 확인한 뒤 직접 입력으로 등록할 수 있어요."
 
                     showError(message)
                 }
@@ -151,6 +185,39 @@ class ABarcodeResultFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            val initialAmount = editInitialAmount.text.toString().toDoubleOrNull()
+            val currentAmount = editCurrentAmount.text.toString().toDoubleOrNull()
+            val unit = spinnerUnit.selectedItem.toString()
+            val expiryDate = editExpiryDate.text.toString().trim()
+            val storageType = spinnerStorage.selectedItem.toString()
+
+            if (initialAmount == null || initialAmount <= 0.0) {
+                Toast.makeText(
+                    requireContext(),
+                    "구매량을 올바르게 입력하세요",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            if (currentAmount == null || currentAmount < 0.0) {
+                Toast.makeText(
+                    requireContext(),
+                    "현재 남은 양을 올바르게 입력하세요",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            if (currentAmount > initialAmount) {
+                Toast.makeText(
+                    requireContext(),
+                    "현재 남은 양은 구매량보다 클 수 없습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
             btnAdd.isEnabled = false
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -159,11 +226,11 @@ class ABarcodeResultFragment : Fragment() {
                         BIngredient(
                             name = product.name,
                             category = product.category,
-                            initialAmount = 1.0,
-                            currentAmount = 1.0,
-                            unit = "개",
-                            expiryDate = "",
-                            storageType = "냉장"
+                            initialAmount = initialAmount,
+                            currentAmount = currentAmount,
+                            unit = unit,
+                            expiryDate = expiryDate,
+                            storageType = storageType
                         )
                     )
                 }.onSuccess {
@@ -197,6 +264,76 @@ class ABarcodeResultFragment : Fragment() {
         loadProduct()
 
         return view
+    }
+
+    private fun setupSpinner(
+        spinner: Spinner,
+        items: List<String>
+    ) {
+        spinner.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            items
+        )
+    }
+
+    private fun setupAmountAutoFill(
+        editInitialAmount: EditText,
+        editCurrentAmount: EditText
+    ) {
+        editCurrentAmount.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                currentAmountEditedByUser = true
+            }
+        }
+
+        editInitialAmount.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    if (!currentAmountEditedByUser || editCurrentAmount.text.isNullOrBlank()) {
+                        editCurrentAmount.setText(s?.toString().orEmpty())
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {}
+            }
+        )
+    }
+
+    private fun showDatePicker(editExpiryDate: EditText) {
+        val calendar = Calendar.getInstance(Locale.KOREA)
+
+        val dialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val dateText = String.format(
+                    Locale.KOREA,
+                    "%04d-%02d-%02d",
+                    year,
+                    month + 1,
+                    dayOfMonth
+                )
+
+                editExpiryDate.setText(dateText)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        dialog.show()
     }
 
     private fun emojiForCategory(category: String): String {

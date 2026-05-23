@@ -1,0 +1,451 @@
+===== AIngredientInputFragment.kt =====
+package com.example.swtermproject.ui.ingredient
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+import com.example.swtermproject.viewmodel.BIngredientViewModel
+import kotlinx.coroutines.launch
+
+class AIngredientInputFragment : Fragment() {
+
+    private val viewModel: BIngredientViewModel by viewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_ingredient_input,
+            container,
+            false
+        )
+
+        val editName = view.findViewById<EditText>(R.id.editIngredientName)
+        val editInitialAmount = view.findViewById<EditText>(R.id.editInitialAmount)
+        val editCurrentAmount = view.findViewById<EditText>(R.id.editCurrentAmount)
+        val editExpiryDate = view.findViewById<EditText>(R.id.editExpiryDate)
+        val textCategory = view.findViewById<TextView>(R.id.textCategory)
+        val btnSave = view.findViewById<Button>(R.id.btnSave)
+        val btnReceiptScan = view.findViewById<Button>(R.id.btnReceiptScan)
+        val btnBarcodeScan = view.findViewById<Button>(R.id.btnBarcodeScan)
+
+        textCategory.text = "저장 시 자동 분류됩니다"
+
+        btnSave.setOnClickListener {
+            val name = editName.text.toString().trim()
+            val initialAmount = editInitialAmount.text.toString().toDoubleOrNull()
+            val currentAmount = editCurrentAmount.text.toString().toDoubleOrNull()
+            val expiryDate = editExpiryDate.text.toString().trim()
+
+            if (name.isBlank()) {
+                Toast.makeText(requireContext(), "재료명을 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (initialAmount == null || currentAmount == null || initialAmount <= 0.0) {
+                Toast.makeText(requireContext(), "수량을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (currentAmount < 0.0) {
+                Toast.makeText(requireContext(), "현재 남은 양은 0 이상이어야 합니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (currentAmount > initialAmount) {
+                Toast.makeText(requireContext(), "현재 남은 양은 구매량보다 클 수 없습니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (expiryDate.isNotBlank() && !expiryDate.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
+                Toast.makeText(requireContext(), "유통기한은 2026-06-30 형식으로 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            textCategory.text = "분류 중..."
+
+            viewModel.addIngredient(
+                name = name,
+                initialAmount = initialAmount,
+                currentAmount = currentAmount,
+                unit = "개",
+                expiryDate = expiryDate,
+                storageType = "냉장"
+            )
+        }
+
+        btnReceiptScan.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, AReceiptScanFragment())
+                .commit()
+        }
+
+        btnBarcodeScan.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, ABarcodeScanFragment())
+                .commit()
+        }
+
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeMessage()
+    }
+
+    private fun observeMessage() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.message.collect { message ->
+                    if (message == null) return@collect
+
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
+                    val shouldMoveToList =
+                        message.contains("추가") || message.contains("저장")
+
+                    viewModel.clearMessage()
+
+                    if (shouldMoveToList) {
+                        (activity as MainActivity).openIngredientList()
+                    }
+                }
+            }
+        }
+    }
+}
+===== fragment_ingredient_input.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="재료 추가"
+                    android:textColor="@color/text_main"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="직접 입력하거나 스캔으로 등록해요"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="6dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:text="➕"
+                android:textSize="22sp"
+                android:background="@drawable/bg_chip" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp"
+            android:background="@drawable/bg_card"
+            android:elevation="3dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="재료명"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/editIngredientName"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="예: 우유"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="자동 분류 카테고리"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/textCategory"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:gravity="center_vertical"
+                android:text="입력 후 자동 분류됩니다"
+                android:textColor="@color/primary_green_dark"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_chip"
+                android:paddingLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="구매량"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/editInitialAmount"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="예: 500"
+                android:inputType="number"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="현재 남은 양"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/editCurrentAmount"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="예: 100"
+                android:inputType="numberDecimal"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="유통기한"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/editExpiryDate"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="예: 2026-06-30"
+                android:inputType="date"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="22dp" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="재료 저장하기"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_stat_mint"
+            android:padding="18dp"
+            android:layout_marginTop="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="빠른 등록"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="바코드나 영수증으로 더 빠르게 추가할 수 있어요"
+                android:textSize="14sp"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnReceiptScan"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="영수증 스캔으로 추가"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnBarcodeScan"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="바코드로 상품 등록"
+                android:textSize="15sp"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>===== BIngredientViewModel.kt =====
+﻿package com.example.swtermproject.viewmodel
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.swtermproject.data.local.BAppDatabase
+import com.example.swtermproject.data.repository.BIngredientRepository
+import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.ml.BIngredientClassifier
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class BIngredientViewModel(application: Application) : AndroidViewModel(application) {
+    private val database = BAppDatabase.getDatabase(application)
+    private val repository = BIngredientRepository(database.ingredientDao())
+    private val classifier = BIngredientClassifier(application)
+
+    private val _ingredients = MutableStateFlow<List<BIngredient>>(emptyList())
+    val ingredients: StateFlow<List<BIngredient>> = _ingredients
+
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message
+
+    init {
+        observeIngredients()
+    }
+
+    private fun observeIngredients() {
+        viewModelScope.launch {
+            repository.observeIngredients().collect {
+                _ingredients.value = it
+            }
+        }
+    }
+
+    fun addIngredient(
+        name: String,
+        initialAmount: Double,
+        currentAmount: Double,
+        unit: String,
+        expiryDate: String,
+        storageType: String
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                val prediction = classifier.classify(name)
+
+                repository.addIngredient(
+                    BIngredient(
+                        name = name,
+                        category = prediction.category,
+                        initialAmount = initialAmount,
+                        currentAmount = currentAmount,
+                        unit = unit,
+                        expiryDate = expiryDate,
+                        storageType = storageType
+                    )
+                )
+            }.onSuccess {
+                _message.value = "재료가 추가되었습니다."
+            }.onFailure {
+                _message.value = it.message ?: "재료 추가에 실패했습니다."
+            }
+        }
+    }
+
+    fun updateCurrentAmount(id: Long, currentAmount: Double) {
+        viewModelScope.launch {
+            repository.updateCurrentAmount(id, currentAmount)
+        }
+    }
+
+    fun updateIngredient(ingredient: BIngredient) {
+        viewModelScope.launch {
+            runCatching {
+                repository.updateIngredient(ingredient)
+            }.onSuccess {
+                _message.value = "재료 정보가 수정되었습니다."
+            }.onFailure {
+                _message.value = it.message ?: "재료 정보 수정에 실패했습니다."
+            }
+        }
+    }
+
+    fun deleteIngredient(id: Long) {
+        viewModelScope.launch {
+            repository.deleteIngredient(id)
+        }
+    }
+
+    fun clearMessage() {
+        _message.value = null
+    }
+}

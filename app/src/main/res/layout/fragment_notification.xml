@@ -58,7 +58,7 @@
         android:paddingLeft="15dp"
         android:paddingRight="13dp"
         android:layout_marginBottom="15dp"
-        android:elevation="1dp">
+        android:elevation="0dp">
 
         <TextView
             android:layout_width="0dp"

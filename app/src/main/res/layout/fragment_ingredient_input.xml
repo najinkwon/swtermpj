@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="22dp">
+        android:padding="22dp"
+        android:paddingBottom="96dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,15 +30,17 @@
                     android:text="재료 추가"
                     android:textColor="@color/text_main"
                     android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="직접 입력하거나 스캔으로 등록해요"
+                    android:text="수량과 보관 정보를 함께 기록해요"
                     android:textColor="@color/text_sub"
                     android:textSize="14sp"
-                    android:layout_marginTop="6dp" />
+                    android:layout_marginTop="7dp"
+                    android:includeFontPadding="false" />
 
             </LinearLayout>
 
@@ -55,9 +58,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="22dp"
+            android:padding="18dp"
             android:background="@drawable/bg_card"
-            android:elevation="3dp">
+            android:elevation="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -70,81 +73,125 @@
             <EditText
                 android:id="@+id/editIngredientName"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:hint="예: 우유"
                 android:background="@drawable/bg_chip_white"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:textColor="@color/text_main"
                 android:textColorHint="@color/text_hint"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="18dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="자동 분류 카테고리"
-                android:textColor="@color/text_main"
-                android:textStyle="bold"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/textCategory"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:gravity="center_vertical"
-                android:text="입력 후 자동 분류됩니다"
-                android:textColor="@color/primary_green_dark"
                 android:textSize="15sp"
-                android:textStyle="bold"
-                android:background="@drawable/bg_chip"
-                android:paddingLeft="16dp"
+                android:singleLine="true"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="18dp" />
+                android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="구매량"
+                android:text="카테고리"
                 android:textColor="@color/text_main"
                 android:textStyle="bold"
                 android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/editInitialAmount"
+            <Spinner
+                android:id="@+id/spinnerCategory"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:hint="예: 500"
-                android:inputType="number"
+                android:layout_height="52dp"
                 android:background="@drawable/bg_chip_white"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:textColor="@color/text_main"
-                android:textColorHint="@color/text_hint"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="18dp" />
+                android:layout_marginBottom="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginRight="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="구매량"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:textSize="15sp" />
+
+                    <EditText
+                        android:id="@+id/editInitialAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="예: 500"
+                        android:inputType="numberDecimal"
+                        android:background="@drawable/bg_chip_white"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:textColor="@color/text_main"
+                        android:textColorHint="@color/text_hint"
+                        android:textSize="15sp"
+                        android:singleLine="true"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="현재량"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:textSize="15sp" />
+
+                    <EditText
+                        android:id="@+id/editCurrentAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="예: 500"
+                        android:inputType="numberDecimal"
+                        android:background="@drawable/bg_chip_white"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:textColor="@color/text_main"
+                        android:textColorHint="@color/text_hint"
+                        android:textSize="15sp"
+                        android:singleLine="true"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="현재 남은 양"
+                android:text="단위"
                 android:textColor="@color/text_main"
                 android:textStyle="bold"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:layout_marginTop="16dp" />
 
-            <EditText
-                android:id="@+id/editCurrentAmount"
+            <Spinner
+                android:id="@+id/spinnerUnit"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:hint="예: 100"
-                android:inputType="numberDecimal"
+                android:layout_height="52dp"
                 android:background="@drawable/bg_chip_white"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:textColor="@color/text_main"
-                android:textColorHint="@color/text_hint"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="18dp" />
+                android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -157,16 +204,38 @@
             <EditText
                 android:id="@+id/editExpiryDate"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:hint="예: 2026-06-30"
-                android:inputType="date"
+                android:layout_height="52dp"
+                android:hint="날짜 선택"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none"
                 android:background="@drawable/bg_chip_white"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:textColor="@color/text_main"
                 android:textColorHint="@color/text_hint"
+                android:textSize="15sp"
+                android:singleLine="true"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="22dp" />
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="보관 방식"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <Spinner
+                android:id="@+id/spinnerStorage"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp" />
 
             <Button
                 android:id="@+id/btnSave"
@@ -191,7 +260,8 @@
                 android:text="빠른 등록"
                 android:textSize="19sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_main" />
+                android:textColor="@color/text_main"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -199,20 +269,20 @@
                 android:text="바코드나 영수증으로 더 빠르게 추가할 수 있어요"
                 android:textSize="14sp"
                 android:textColor="@color/text_sub"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="7dp"
                 android:layout_marginBottom="16dp" />
 
             <Button
                 android:id="@+id/btnReceiptScan"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="50dp"
                 android:text="영수증 스캔으로 추가"
                 android:textSize="15sp" />
 
             <Button
                 android:id="@+id/btnBarcodeScan"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="50dp"
                 android:text="바코드로 상품 등록"
                 android:textSize="15sp"
                 android:layout_marginTop="10dp" />

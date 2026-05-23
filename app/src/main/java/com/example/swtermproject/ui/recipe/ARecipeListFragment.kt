@@ -50,7 +50,7 @@ class ARecipeListFragment : Fragment() {
         title = view.findViewById(R.id.textRecipeListTitle)
         recyclerView = view.findViewById(R.id.recyclerRecipe)
 
-        title.text = "$category 추천 레시피"
+        title.text = titleForCategory(category)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -76,11 +76,7 @@ class ARecipeListFragment : Fragment() {
                 viewModel.recipes.collect { recommendedRecipes ->
                     recipes.clear()
 
-                    if (recommendedRecipes.isEmpty()) {
-                        title.text = "$category 추천 레시피 · 준비 중"
-                    } else {
-                        title.text = "$category 추천 레시피 · ${recommendedRecipes.size}개"
-                    }
+                    title.text = titleForCategory(category)
 
                     recipes.addAll(
                         recommendedRecipes.map { it.toUiRecipe() }
@@ -163,6 +159,16 @@ class ARecipeListFragment : Fragment() {
             recipe.title.contains("간장계란밥") -> "쉬움"
             recipe.title.contains("계란볶음밥") -> "쉬움"
             else -> "보통"
+        }
+    }
+
+    private fun titleForCategory(category: String): String {
+        return when (category) {
+            "한식" -> "오늘은 집밥 어때요?"
+            "양식" -> "가볍게 즐기는 양식"
+            "일식" -> "깔끔한 일식 한 끼"
+            "기타" -> "간단하게 냉털하기"
+            else -> "$category 추천 레시피"
         }
     }
 
