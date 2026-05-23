@@ -20,7 +20,7 @@
             android:exported="true" />
 
         <activity
-            android:name=".ui_splash.SplashActivity"
+            android:name=".ui.splash.SplashActivity"
             android:exported="true">
 
             <intent-filter>
