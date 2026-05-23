@@ -1,10 +1,10 @@
 ﻿package com.example.swtermproject.ui.ingredient
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.R
@@ -17,8 +17,7 @@ class AIngredientAdapter(
     private val onDataChanged: () -> Unit
 ) : RecyclerView.Adapter<AIngredientAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) :
-        RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val textIcon: TextView =
             view.findViewById(R.id.textIngredientIcon)
@@ -49,7 +48,6 @@ class AIngredientAdapter(
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
-
         val view = LayoutInflater.from(parent.context)
             .inflate(
                 R.layout.item_ingredient,
@@ -68,51 +66,39 @@ class AIngredientAdapter(
         holder: ViewHolder,
         position: Int
     ) {
+        val ingredient = ingredientList[position]
+        val context = holder.itemView.context
 
-        val ingredient =
-            ingredientList[position]
+        holder.textName.text = ingredient.name
+        holder.textCategory.text = ingredient.category
+        holder.textPercent.text = "${ingredient.percent}%"
+        holder.textExpireDay.text = "D-${ingredient.expireDay}"
 
-        holder.textName.text =
-            ingredient.name
-
-        holder.textCategory.text =
-            ingredient.category
-
-        holder.textPercent.text =
-            "${ingredient.percent}%"
-
-        holder.textExpireDay.text =
-            "D-${ingredient.expireDay}"
+        val warningColor = ContextCompat.getColor(context, R.color.accent_red)
+        val safeColor = ContextCompat.getColor(context, R.color.primary_green_dark)
 
         holder.textExpireDay.setTextColor(
             if (ingredient.expireDay <= 3) {
-                Color.parseColor("#FF5F7E")
+                warningColor
             } else {
-                Color.parseColor("#4CAF50")
+                safeColor
             }
         )
 
-        holder.textIcon.text = when (
-            ingredient.category
-        ) {
-
+        holder.textIcon.text = when (ingredient.category) {
             "채소" -> "🥬"
             "유제품" -> "🥛"
             "단백질" -> "🥚"
             "조미료/소스" -> "🥫"
-
             else -> "🍽️"
         }
 
-        val percentColor =
-            if (ingredient.percent <= 20) {
-                Color.parseColor("#FF5F7E")
-            } else {
-                Color.parseColor("#4CAF50")
-            }
-
         holder.textPercent.setTextColor(
-            percentColor
+            if (ingredient.percent <= 20) {
+                warningColor
+            } else {
+                safeColor
+            }
         )
 
         holder.textFavorite.visibility =
@@ -130,25 +116,18 @@ class AIngredientAdapter(
             }
 
         holder.btnFavorite.setOnClickListener {
+            ingredient.favorite = !ingredient.favorite
 
-            ingredient.favorite =
-                !ingredient.favorite
-
-            notifyItemChanged(
-                holder.adapterPosition
-            )
+            notifyItemChanged(holder.adapterPosition)
+            onDataChanged()
         }
 
         holder.itemView.setOnClickListener {
-
             AIngredientDetailBottomSheet(
                 ingredient.name
             ) {
-
                 notifyDataSetChanged()
-
                 onDataChanged()
-
             }.show(
                 activity.supportFragmentManager,
                 "ingredient_detail"
@@ -156,10 +135,7 @@ class AIngredientAdapter(
         }
 
         holder.btnDelete.setOnClickListener {
-
-            onDeleteClick(
-                holder.adapterPosition
-            )
+            onDeleteClick(holder.adapterPosition)
         }
 
         holder.itemView.alpha = 0f

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
@@ -40,6 +40,7 @@ class AHomeFragment : Fragment() {
         val cardLowStock = view.findViewById<LinearLayout>(R.id.cardLowStock)
         val cardExpire = view.findViewById<LinearLayout>(R.id.cardExpire)
 
+        val buttonMoreRecipe = view.findViewById<TextView>(R.id.buttonMoreRecipe)
         val recyclerRecipe = view.findViewById<RecyclerView>(R.id.recyclerRecipe)
 
         val ingredients = ATempIngredientStore.ingredients
@@ -49,8 +50,10 @@ class AHomeFragment : Fragment() {
         animateCount(textLowStock, ingredients.count { it.percent <= 20 })
         animateCount(textExpire, ingredients.count { it.expireDay <= 3 })
 
-        recyclerRecipe.layoutManager = LinearLayoutManager(requireContext())
-        recyclerRecipe.adapter = RecipeAdapter(RecipeDummyStore.recipes) { recipe ->
+        recyclerRecipe.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerRecipe.adapter = RecipeAdapter(
+            RecipeDummyStore.recipes.take(2)
+        ) { recipe ->
             (activity as MainActivity).openRecipeDetail(recipe.title)
         }
 
@@ -76,6 +79,10 @@ class AHomeFragment : Fragment() {
             )
         }
 
+        buttonMoreRecipe.setOnClickListener {
+            (activity as MainActivity).openRecipeCategory()
+        }
+
         return view
     }
 
@@ -85,7 +92,7 @@ class AHomeFragment : Fragment() {
     ) {
         val animator = ValueAnimator.ofInt(0, target)
 
-        animator.duration = 700
+        animator.duration = 650
 
         animator.addUpdateListener {
             textView.text = it.animatedValue.toString()
