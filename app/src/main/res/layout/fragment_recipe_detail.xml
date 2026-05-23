@@ -13,26 +13,28 @@
         <TextView
             android:id="@+id/textRecipeImageEmoji"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="230dp"
             android:gravity="center"
             android:text="🍳"
-            android:textSize="92sp"
+            android:textSize="86sp"
             android:background="@drawable/bg_stat_mint" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="22dp">
+            android:padding="22dp"
+            android:paddingBottom="104dp">
 
             <TextView
                 android:id="@+id/textRecipeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="계란볶음밥"
-                android:textSize="32sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_main" />
+                android:textColor="@color/text_main"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:id="@+id/textRecipeReason"
@@ -111,7 +113,8 @@
                     android:text="필요 재료"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_main" />
+                    android:textColor="@color/text_main"
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:id="@+id/textIngredients"
@@ -140,7 +143,8 @@
                     android:text="조리 순서"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_main" />
+                    android:textColor="@color/text_main"
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:id="@+id/textSteps"
@@ -160,6 +164,9 @@
                 android:layout_height="54dp"
                 android:text="유튜브 레시피 보기"
                 android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_outline_button"
+                android:textColor="@color/primary_green_dark"
                 android:layout_marginTop="22dp" />
 
             <Button
@@ -168,6 +175,9 @@
                 android:layout_height="54dp"
                 android:text="부족 재료 구매하기"
                 android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_primary_button"
+                android:textColor="@color/white"
                 android:layout_marginTop="12dp" />
 
         </LinearLayout>

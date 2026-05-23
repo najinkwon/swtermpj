@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.data.local.entity
+package com.example.swtermproject.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -15,6 +15,7 @@ data class BIngredientEntity(
     val unit: String,
     val expiryDate: String,
     val storageType: String,
+    val favorite: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 ) {
     fun stockRate(): Double {

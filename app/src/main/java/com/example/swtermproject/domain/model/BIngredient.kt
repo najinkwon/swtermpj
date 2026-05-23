@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.domain.model
+package com.example.swtermproject.domain.model
 
 import com.example.swtermproject.common.BConstants
 
@@ -11,6 +11,7 @@ data class BIngredient(
     val unit: String,
     val expiryDate: String,
     val storageType: String,
+    val favorite: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 ) {
     val stockRate: Double

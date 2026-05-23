@@ -1,12 +1,11 @@
 ﻿package com.example.swtermproject.ui.notification
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.R
 import com.example.swtermproject.data.model.NotificationItem
@@ -23,8 +22,7 @@ class ANotificationAdapter(
         val title: TextView = view.findViewById(R.id.textNotificationTitle)
         val message: TextView = view.findViewById(R.id.textNotificationMessage)
         val time: TextView = view.findViewById(R.id.textNotificationTime)
-        val btnRead: Button = view.findViewById(R.id.btnReadNotification)
-        val btnDelete: Button = view.findViewById(R.id.btnDeleteNotification)
+        val btnDelete: TextView = view.findViewById(R.id.btnDeleteNotification)
     }
 
     override fun onCreateViewHolder(
@@ -44,6 +42,12 @@ class ANotificationAdapter(
         position: Int
     ) {
         val item = notificationList[position]
+        val context = holder.itemView.context
+
+        val textMain = ContextCompat.getColor(context, R.color.text_main)
+        val textSub = ContextCompat.getColor(context, R.color.text_sub)
+        val textHint = ContextCompat.getColor(context, R.color.text_hint)
+        val primaryDark = ContextCompat.getColor(context, R.color.primary_green_dark)
 
         holder.title.text = item.title
         holder.message.text = item.message
@@ -56,15 +60,15 @@ class ANotificationAdapter(
         }
 
         if (item.isRead) {
-            holder.root.alpha = 0.55f
-            holder.title.setTextColor(Color.parseColor("#999999"))
-            holder.time.setTextColor(Color.parseColor("#999999"))
-            holder.btnRead.text = "읽음 완료"
+            holder.root.alpha = 0.72f
+            holder.title.setTextColor(textSub)
+            holder.message.setTextColor(textHint)
+            holder.time.setTextColor(textHint)
         } else {
             holder.root.alpha = 1f
-            holder.title.setTextColor(Color.parseColor("#333333"))
-            holder.time.setTextColor(Color.parseColor("#FF6B9D"))
-            holder.btnRead.text = "읽음"
+            holder.title.setTextColor(textMain)
+            holder.message.setTextColor(textSub)
+            holder.time.setTextColor(primaryDark)
         }
 
         holder.root.setOnClickListener {
@@ -73,21 +77,17 @@ class ANotificationAdapter(
             onItemClick(item)
         }
 
-        holder.btnRead.setOnClickListener {
-            item.isRead = true
-            notifyItemChanged(holder.adapterPosition)
-        }
-
         holder.btnDelete.setOnClickListener {
             onDeleteClick(holder.adapterPosition)
         }
 
         holder.itemView.alpha = 0f
-        holder.itemView.translationX = 40f
+        holder.itemView.translationY = 24f
+
         holder.itemView.animate()
             .alpha(1f)
-            .translationX(0f)
-            .setDuration(300)
+            .translationY(0f)
+            .setDuration(240)
             .start()
     }
 }

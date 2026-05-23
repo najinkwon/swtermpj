@@ -79,7 +79,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="OCR 연결 전까지는 테스트 결과 화면으로 이동해요"
+                android:text="영수증 사진을 선택하면 OCR로 재료 후보를 찾아요"
                 android:textColor="@color/text_sub"
                 android:textSize="14sp"
                 android:gravity="center"
@@ -100,7 +100,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="인식 예정 항목"
+                android:text="인식 항목"
                 android:textColor="@color/text_main"
                 android:textStyle="bold"
                 android:textSize="19sp" />
@@ -128,7 +128,7 @@
             android:id="@+id/btnReceiptResult"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="테스트 결과 확인"
+            android:text="샘플 결과 확인"
             android:textSize="16sp"
             android:layout_marginTop="12dp" />
 

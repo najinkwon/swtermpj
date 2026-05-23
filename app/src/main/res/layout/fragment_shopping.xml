@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="18dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -24,7 +24,8 @@
                 android:text="부족 재료 장보기"
                 android:textSize="30sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_main" />
+                android:textColor="@color/text_main"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:id="@+id/textShoppingSummary"
@@ -33,16 +34,17 @@
                 android:text="현재 구매 추천 재료"
                 android:textSize="14sp"
                 android:textColor="@color/text_sub"
-                android:layout_marginTop="6dp" />
+                android:layout_marginTop="7dp"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
         <TextView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:gravity="center"
             android:text="🛒"
-            android:textSize="24sp"
+            android:textSize="23sp"
             android:background="@drawable/bg_chip" />
 
     </LinearLayout>
@@ -50,21 +52,21 @@
     <LinearLayout
         android:id="@+id/shoppingSummaryCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="76dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/bg_stat_mint"
-        android:padding="18dp"
-        android:layout_marginBottom="18dp">
+        android:padding="13dp"
+        android:layout_marginBottom="14dp">
 
         <TextView
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
             android:gravity="center"
             android:text="🧺"
-            android:textSize="26sp"
+            android:textSize="24sp"
             android:background="@drawable/bg_chip_white"
-            android:layout_marginRight="14dp" />
+            android:layout_marginRight="12dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -76,17 +78,18 @@
                 android:id="@+id/textShoppingMainMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="필요한 재료를 빠르게 구매하세요"
-                android:textSize="18sp"
+                android:text="필요한 재료만 모았어요"
+                android:textSize="17sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_main" />
+                android:textColor="@color/text_main"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:id="@+id/textShoppingSubMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="부족한 재료만 모아봤어요"
-                android:textSize="14sp"
+                android:text="부족한 재료를 빠르게 구매해요"
+                android:textSize="13sp"
                 android:textColor="@color/text_sub"
                 android:layout_marginTop="5dp" />
 

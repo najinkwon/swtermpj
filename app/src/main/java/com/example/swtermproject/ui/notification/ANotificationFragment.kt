@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.ui.notification
+package com.example.swtermproject.ui.notification
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,21 +6,34 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
-import com.example.swtermproject.data.model.ATempIngredientStore
 import com.example.swtermproject.data.model.NotificationItem
+import com.example.swtermproject.domain.model.BIngredient
 import com.example.swtermproject.ui.ingredient.AIngredientListFragment
+import com.example.swtermproject.viewmodel.BIngredientViewModel
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class ANotificationFragment : Fragment() {
+
+    private val viewModel: BIngredientViewModel by viewModels()
 
     private lateinit var summary: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ANotificationAdapter
 
     private val notifications = mutableListOf<NotificationItem>()
+    private val deletedNotificationKeys = mutableSetOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,8 +51,6 @@ class ANotificationFragment : Fragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        makeNotifications()
-
         adapter = ANotificationAdapter(
             notifications,
             { item ->
@@ -52,31 +63,60 @@ class ANotificationFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-        updateSummary()
-
         return view
     }
 
-    private fun makeNotifications() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeIngredients()
+    }
+
+    private fun observeIngredients() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.ingredients.collect { ingredients ->
+                    makeNotifications(ingredients)
+                    adapter.notifyDataSetChanged()
+                    updateSummary()
+                }
+            }
+        }
+    }
+
+    private fun makeNotifications(ingredients: List<BIngredient>) {
+        val previousReadTitles =
+            notifications
+                .filter { it.isRead }
+                .map { it.title }
+                .toSet()
+
         notifications.clear()
 
-        ATempIngredientStore.ingredients.forEach { ingredient ->
-            if (ingredient.percent <= 20) {
+        ingredients.forEach { ingredient ->
+            val stockPercent = ingredient.stockPercent.coerceIn(0, 100)
+            val expireDay = calculateExpireDay(ingredient.expiryDate)
+
+            val lowStockTitle = "${ingredient.name} 재고 부족"
+            val expireTitle = "${ingredient.name} 유통기한 임박"
+
+            if (stockPercent <= 20 && !deletedNotificationKeys.contains(lowStockTitle)) {
                 notifications.add(
                     NotificationItem(
-                        title = "${ingredient.name} 재고 부족",
-                        message = "현재 ${ingredient.percent}% 남아있어요. 재구매를 추천해요.",
-                        time = "방금 전"
+                        title = lowStockTitle,
+                        message = "현재 ${stockPercent}% 남아있어요. 재구매를 추천해요.",
+                        time = "방금 전",
+                        isRead = previousReadTitles.contains(lowStockTitle)
                     )
                 )
             }
 
-            if (ingredient.expireDay <= 3) {
+            if (expireDay <= 3 && !deletedNotificationKeys.contains(expireTitle)) {
                 notifications.add(
                     NotificationItem(
-                        title = "${ingredient.name} 유통기한 임박",
-                        message = "D-${ingredient.expireDay} 남았어요. 빨리 소비하는 걸 추천해요.",
-                        time = "방금 전"
+                        title = expireTitle,
+                        message = "D-${expireDay} 남았어요. 빨리 소비하는 걸 추천해요.",
+                        time = "방금 전",
+                        isRead = previousReadTitles.contains(expireTitle)
                     )
                 )
             }
@@ -85,7 +125,7 @@ class ANotificationFragment : Fragment() {
         if (notifications.isEmpty()) {
             notifications.add(
                 NotificationItem(
-                    title = "냉장고 상태 안정",
+                    title = "냉장고 상태가 좋아요",
                     message = "현재 부족하거나 유통기한이 임박한 재료가 없어요.",
                     time = "현재",
                     isRead = true
@@ -95,6 +135,10 @@ class ANotificationFragment : Fragment() {
     }
 
     private fun handleNotificationClick(item: NotificationItem) {
+        item.isRead = true
+        adapter.notifyDataSetChanged()
+        updateSummary()
+
         when {
             item.title.contains("재고") || item.title.contains("부족") -> {
                 (activity as MainActivity).openShopping()
@@ -115,18 +159,39 @@ class ANotificationFragment : Fragment() {
     private fun deleteNotification(position: Int) {
         if (position !in notifications.indices) return
 
+        val item = notifications[position]
+        deletedNotificationKeys.add(item.title)
+
         notifications.removeAt(position)
         adapter.notifyItemRemoved(position)
         updateSummary()
     }
 
     private fun updateSummary() {
-        val unreadCount = notifications.count { !it.isRead }
+        val realNotifications =
+            notifications.filter { it.title != "냉장고 상태가 좋아요" }
 
-        summary.text = if (notifications.isEmpty()) {
-            "알림이 없습니다"
-        } else {
-            "총 ${notifications.size}개 · 안 읽은 알림 ${unreadCount}개"
-        }
+        val unreadCount = realNotifications.count { !it.isRead }
+
+        summary.text =
+            if (realNotifications.isEmpty()) {
+                "알림이 없습니다"
+            } else {
+                "총 ${realNotifications.size}개 · 안 읽은 알림 ${unreadCount}개"
+            }
+    }
+
+    private fun calculateExpireDay(expiryDate: String): Int {
+        if (expiryDate.isBlank()) return 7
+
+        return runCatching {
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val targetDate = formatter.parse(expiryDate) ?: return 7
+
+            val now = Date()
+            val diff = targetDate.time - now.time
+
+            TimeUnit.MILLISECONDS.toDays(diff).toInt().coerceAtLeast(0)
+        }.getOrDefault(7)
     }
 }

@@ -15,7 +15,6 @@
         android:paddingTop="22dp"
         android:paddingBottom="96dp">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,8 +31,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Smart Refrigerator"
-                    android:textSize="29sp"
+                    android:text="냉털매니저"
+                    android:textSize="30sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
                     android:singleLine="true"
@@ -42,7 +41,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="냉장고를 더 똑똑하게 관리해보세요"
+                    android:text="남은 재료로 오늘의 레시피를 추천해요"
                     android:textSize="14sp"
                     android:textColor="@color/text_sub"
                     android:layout_marginTop="7dp"
@@ -52,25 +51,24 @@
             </LinearLayout>
 
             <TextView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:gravity="center"
                 android:text="🧊"
-                android:textSize="25sp"
+                android:textSize="23sp"
                 android:background="@drawable/bg_chip" />
 
         </LinearLayout>
 
-        <!-- Greeting Card -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="96dp"
             android:background="@drawable/bg_card"
-            android:padding="20dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:elevation="2dp"
-            android:layout_marginTop="22dp">
+            android:padding="16dp"
+            android:elevation="0dp"
+            android:layout_marginTop="18dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -83,7 +81,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="안녕하세요 👋"
-                    android:textSize="22sp"
+                    android:textSize="21sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
                     android:includeFontPadding="false" />
@@ -94,121 +92,22 @@
                     android:text="오늘도 신선한 하루 보내세요!"
                     android:textSize="14sp"
                     android:textColor="@color/text_sub"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="7dp"
+                    android:singleLine="true"
                     android:includeFontPadding="false" />
 
             </LinearLayout>
 
             <TextView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:gravity="center"
                 android:text="🥬"
-                android:textSize="30sp"
+                android:textSize="27sp"
                 android:background="@drawable/bg_chip" />
 
         </LinearLayout>
 
-        <!-- Stat Row 1 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp">
-
-            <LinearLayout
-                android:id="@+id/cardTotal"
-                android:layout_width="0dp"
-                android:layout_height="152dp"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:background="@drawable/bg_stat_mint"
-                android:layout_marginRight="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:elevation="1dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="총 재료"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_sub"
-                    android:singleLine="true" />
-
-                <TextView
-                    android:id="@+id/textTotalCount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="34sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_main"
-                    android:layout_marginTop="18dp"
-                    android:includeFontPadding="false" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="전체 보유 재료"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_sub"
-                    android:layout_marginTop="10dp"
-                    android:maxLines="2"
-                    android:includeFontPadding="false" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/cardFavorite"
-                android:layout_width="0dp"
-                android:layout_height="152dp"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:background="@drawable/bg_stat_peach"
-                android:layout_marginLeft="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:elevation="1dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="즐겨찾기"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_sub"
-                    android:singleLine="true" />
-
-                <TextView
-                    android:id="@+id/textFavoriteCount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="34sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/accent_coral"
-                    android:layout_marginTop="18dp"
-                    android:includeFontPadding="false" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="자주 쓰는 재료"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_sub"
-                    android:layout_marginTop="10dp"
-                    android:maxLines="2"
-                    android:includeFontPadding="false" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Stat Row 2 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -216,116 +115,246 @@
             android:layout_marginTop="16dp">
 
             <LinearLayout
-                android:id="@+id/cardLowStock"
+                android:id="@+id/cardTotal"
                 android:layout_width="0dp"
-                android:layout_height="152dp"
+                android:layout_height="92dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:background="@drawable/bg_stat_red"
-                android:layout_marginRight="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="13dp"
+                android:background="@drawable/bg_stat_mint"
+                android:layout_marginRight="7dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="1dp">
+                android:elevation="0dp">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:gravity="center"
+                    android:text="📦"
+                    android:textSize="22sp"
+                    android:background="@drawable/bg_chip_white"
+                    android:layout_marginRight="10dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="부족 재료"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_sub"
-                    android:singleLine="true" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="총 재료"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_sub"
+                        android:includeFontPadding="false" />
+
+                    <TextView
+                        android:id="@+id/textTotalCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="27sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_main"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="false" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cardFavorite"
+                android:layout_width="0dp"
+                android:layout_height="92dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="13dp"
+                android:background="@drawable/bg_stat_peach"
+                android:layout_marginLeft="7dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="0dp">
 
                 <TextView
-                    android:id="@+id/textLowStockCount"
-                    android:layout_width="match_parent"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:gravity="center"
+                    android:text="⭐"
+                    android:textSize="22sp"
+                    android:background="@drawable/bg_chip_white"
+                    android:layout_marginRight="10dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="34sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/accent_red"
-                    android:layout_marginTop="18dp"
-                    android:includeFontPadding="false" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="즐겨찾기"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_sub"
+                        android:includeFontPadding="false" />
+
+                    <TextView
+                        android:id="@+id/textFavoriteCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="27sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/accent_coral"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="false" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <LinearLayout
+                android:id="@+id/cardLowStock"
+                android:layout_width="0dp"
+                android:layout_height="92dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="13dp"
+                android:background="@drawable/bg_stat_red"
+                android:layout_marginRight="7dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="0dp">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:gravity="center"
+                    android:text="🛒"
+                    android:textSize="22sp"
+                    android:background="@drawable/bg_chip_white"
+                    android:layout_marginRight="10dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="보충 필요"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_sub"
-                    android:layout_marginTop="10dp"
-                    android:maxLines="2"
-                    android:includeFontPadding="false" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="부족 재료"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_sub"
+                        android:includeFontPadding="false" />
+
+                    <TextView
+                        android:id="@+id/textLowStockCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="27sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/accent_red"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="false" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/cardExpire"
                 android:layout_width="0dp"
-                android:layout_height="152dp"
+                android:layout_height="92dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="18dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="13dp"
                 android:background="@drawable/bg_stat_yellow"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="7dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="1dp">
+                android:elevation="0dp">
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="유통기한"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_sub"
-                    android:singleLine="true" />
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:gravity="center"
+                    android:text="⏰"
+                    android:textSize="22sp"
+                    android:background="@drawable/bg_chip_white"
+                    android:layout_marginRight="10dp" />
 
-                <TextView
-                    android:id="@+id/textExpireCount"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="34sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/accent_orange"
-                    android:layout_marginTop="18dp"
-                    android:includeFontPadding="false" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="임박 재료"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_sub"
-                    android:layout_marginTop="10dp"
-                    android:maxLines="2"
-                    android:includeFontPadding="false" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="유통기한"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_sub"
+                        android:includeFontPadding="false" />
+
+                    <TextView
+                        android:id="@+id/textExpireCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="27sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/accent_orange"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="false" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Recipe Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="14dp">
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="AI 추천 레시피"
-                android:textSize="23sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
                 android:includeFontPadding="false" />
 
             <TextView
+                android:id="@+id/buttonMoreRecipe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="더보기"

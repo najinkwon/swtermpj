@@ -16,11 +16,19 @@
         android:theme="@style/Theme.Swtermproject">
 
         <activity
+            android:name=".ui.activity.BarcodeResultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activity.RecipeDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true" />
 
         <activity
-            android:name=".ui_splash.SplashActivity"
+            android:name=".ui.splash.SplashActivity"
             android:exported="true">
 
             <intent-filter>

@@ -5,48 +5,55 @@
     android:orientation="vertical"
     android:background="@drawable/bg_card"
     android:padding="0dp"
-    android:elevation="3dp"
-    android:layout_marginBottom="16dp">
+    android:elevation="0dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp"
+    android:layout_marginBottom="12dp">
 
     <TextView
         android:id="@+id/textRecipeImageEmoji"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="88dp"
         android:gravity="center"
         android:text="🍳"
-        android:textSize="72sp"
+        android:textSize="42sp"
         android:background="@drawable/bg_stat_mint" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="13dp">
 
         <TextView
             android:id="@+id/textRecipeTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="계란볶음밥"
-            android:textSize="23sp"
+            android:textSize="17sp"
             android:textStyle="bold"
-            android:textColor="@color/text_main" />
+            android:textColor="@color/text_main"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false" />
 
         <TextView
             android:id="@+id/textRecipeReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="보유 재료로 빠르게 만들 수 있어요"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textColor="@color/text_sub"
-            android:lineSpacingExtra="4dp"
-            android:layout_marginTop="8dp" />
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="6dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:id="@+id/textRecipeMatch"
@@ -55,42 +62,34 @@
                 android:text="재료 90%"
                 android:textColor="@color/primary_green_dark"
                 android:textStyle="bold"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:background="@drawable/bg_chip"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp" />
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp" />
 
             <TextView
                 android:id="@+id/textRecipeTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="10분"
-                android:textColor="@color/text_main"
+                android:textColor="@color/text_sub"
                 android:textStyle="bold"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:background="@drawable/bg_chip_white"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:layout_marginLeft="8dp" />
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_marginLeft="6dp" />
 
             <TextView
                 android:id="@+id/textRecipeDifficulty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="쉬움"
-                android:textColor="@color/text_main"
-                android:textStyle="bold"
-                android:textSize="13sp"
-                android:background="@drawable/bg_chip_white"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:layout_marginLeft="8dp" />
+                android:visibility="gone" />
 
         </LinearLayout>
 

@@ -1,11 +1,13 @@
 package com.example.swtermproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.swtermproject.ui.activity.RecipeDetailActivity
 import com.example.swtermproject.ui.home.AHomeFragment
 import com.example.swtermproject.ui.ingredient.ABarcodeScanFragment
 import com.example.swtermproject.ui.ingredient.AIngredientInputFragment
@@ -18,6 +20,12 @@ import com.example.swtermproject.ui.recipe.ARecipeListFragment
 import com.example.swtermproject.ui.shopping.AShoppingFragment
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_START_DESTINATION = "extra_start_destination"
+        const val DEST_INGREDIENT_LIST = "ingredient_list"
+        const val DEST_INGREDIENT_INPUT = "ingredient_input"
+    }
 
     private lateinit var tabHome: LinearLayout
     private lateinit var tabIngredient: LinearLayout
@@ -42,8 +50,7 @@ class MainActivity : AppCompatActivity() {
         initBottomTabs()
 
         if (savedInstanceState == null) {
-            replaceFragment(AHomeFragment())
-            selectTab("home")
+            handleStartDestination()
         }
 
         tabHome.setOnClickListener {
@@ -64,6 +71,25 @@ class MainActivity : AppCompatActivity() {
         tabNotification.setOnClickListener {
             replaceFragment(ANotificationFragment())
             selectTab("notification")
+        }
+    }
+
+    private fun handleStartDestination() {
+        when (intent.getStringExtra(EXTRA_START_DESTINATION)) {
+            DEST_INGREDIENT_INPUT -> {
+                replaceFragment(AIngredientInputFragment())
+                selectTab("ingredient")
+            }
+
+            DEST_INGREDIENT_LIST -> {
+                replaceFragment(AIngredientListFragment())
+                selectTab("ingredient")
+            }
+
+            else -> {
+                replaceFragment(AHomeFragment())
+                selectTab("home")
+            }
         }
     }
 
@@ -205,12 +231,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openRecipeDetail(recipeName: String) {
-        moveFragment(ARecipeDetailFragment.newInstance(recipeName))
-        selectTab("recipe")
+        val intent = Intent(
+            this,
+            RecipeDetailActivity::class.java
+        ).apply {
+            putExtra(RecipeDetailActivity.EXTRA_RECIPE_NAME, recipeName)
+        }
+
+        startActivity(intent)
     }
 
     fun openShopping() {
         moveFragment(AShoppingFragment())
+        selectTab("ingredient")
+    }
+
+    fun openShoppingForRecipe(
+        recipeName: String,
+        missingIngredients: ArrayList<String>
+    ) {
+        moveFragment(
+            AShoppingFragment.newRecipeMode(
+                recipeName = recipeName,
+                missingIngredients = missingIngredients
+            )
+        )
         selectTab("ingredient")
     }
 }

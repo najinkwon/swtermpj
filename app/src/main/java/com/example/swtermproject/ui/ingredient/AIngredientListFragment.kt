@@ -1,6 +1,7 @@
-﻿package com.example.swtermproject.ui.ingredient
+package com.example.swtermproject.ui.ingredient
 
 import android.app.AlertDialog
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,17 +15,29 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Spinner
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
-import com.example.swtermproject.data.model.ATempIngredientStore
-import com.example.swtermproject.data.model.Ingredient
+import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.viewmodel.BIngredientViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class AIngredientListFragment : Fragment() {
+
+    private val viewModel: BIngredientViewModel by viewModels()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: AIngredientAdapter
@@ -36,16 +49,21 @@ class AIngredientListFragment : Fragment() {
     private lateinit var fabMain: FloatingActionButton
     private lateinit var fabMenuLayout: LinearLayout
 
+    private lateinit var btnAll: Button
+    private lateinit var btnVegetable: Button
+    private lateinit var btnDairy: Button
+    private lateinit var btnProtein: Button
+
     private var isFabOpen = false
 
-    private val filteredList = mutableListOf<Ingredient>()
-
+    private val allIngredients = mutableListOf<BIngredient>()
+    private val filteredList = mutableListOf<BIngredient>()
+ 
     private var currentCategory = "전체"
     private var dashboardFilter = FILTER_ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         dashboardFilter = arguments?.getString("filter") ?: FILTER_ALL
     }
 
@@ -72,22 +90,26 @@ class AIngredientListFragment : Fragment() {
         val btnAddBarcode = view.findViewById<Button>(R.id.btnAddBarcode)
         val btnAddReceipt = view.findViewById<Button>(R.id.btnAddReceipt)
 
-        val btnAll = view.findViewById<Button>(R.id.btnFilterAll)
-        val btnVegetable = view.findViewById<Button>(R.id.btnFilterVegetable)
-        val btnDairy = view.findViewById<Button>(R.id.btnFilterDairy)
-        val btnProtein = view.findViewById<Button>(R.id.btnFilterProtein)
+        btnAll = view.findViewById(R.id.btnFilterAll)
+        btnVegetable = view.findViewById(R.id.btnFilterVegetable)
+        btnDairy = view.findViewById(R.id.btnFilterDairy)
+        btnProtein = view.findViewById(R.id.btnFilterProtein)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        filteredList.addAll(ATempIngredientStore.ingredients)
-
         adapter = AIngredientAdapter(
-            filteredList,
-            requireActivity(),
-            { position ->
+            ingredientList = filteredList,
+            activity = requireActivity(),
+            onDeleteClick = { position ->
                 showDeleteDialog(position)
             },
-            {
+            onAmountChanged = { ingredientId, currentAmount ->
+                viewModel.updateCurrentAmount(ingredientId, currentAmount)
+            },
+            onIngredientUpdated = { updatedIngredient ->
+                viewModel.updateIngredient(updatedIngredient)
+            },
+            onDataChanged = {
                 refreshList()
             }
         )
@@ -152,24 +174,28 @@ class AIngredientListFragment : Fragment() {
         btnAll.setOnClickListener {
             currentCategory = "전체"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnAll)
             refreshList()
         }
 
         btnVegetable.setOnClickListener {
             currentCategory = "채소"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnVegetable)
             refreshList()
         }
 
         btnDairy.setOnClickListener {
             currentCategory = "유제품"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnDairy)
             refreshList()
         }
 
         btnProtein.setOnClickListener {
             currentCategory = "단백질"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnProtein)
             refreshList()
         }
 
@@ -193,15 +219,31 @@ class AIngredientListFragment : Fragment() {
         }
 
         applyDashboardDefaultSort()
-        refreshList()
+        updateFilterButtonStyle(btnAll)
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeIngredients()
+    }
+
+    private fun observeIngredients() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.ingredients.collect { ingredients ->
+                    allIngredients.clear()
+                    allIngredients.addAll(ingredients)
+                    refreshList()
+                }
+            }
+        }
     }
 
     private fun toggleFabMenu() {
         if (!isFabOpen) {
             fabMenuLayout.visibility = View.VISIBLE
-
             fabMenuLayout.alpha = 0f
             fabMenuLayout.translationY = 120f
 
@@ -243,31 +285,59 @@ class AIngredientListFragment : Fragment() {
 
     private fun applyDashboardDefaultSort() {
         when (dashboardFilter) {
-            FILTER_FAVORITE -> {
-                spinnerSort.setSelection(4)
-            }
+            FILTER_FAVORITE -> spinnerSort.setSelection(4)
+            FILTER_LOW -> spinnerSort.setSelection(2)
+            FILTER_EXPIRE -> spinnerSort.setSelection(3)
+            else -> spinnerSort.setSelection(0)
+        }
+    }
 
-            FILTER_LOW -> {
-                spinnerSort.setSelection(2)
-            }
+    private fun updateFilterButtonStyle(selectedButton: Button) {
+        val buttons = listOf(
+            btnAll,
+            btnVegetable,
+            btnDairy,
+            btnProtein
+        )
 
-            FILTER_EXPIRE -> {
-                spinnerSort.setSelection(3)
-            }
+        buttons.forEach { button ->
+            val isSelected = button == selectedButton
 
-            else -> {
-                spinnerSort.setSelection(0)
-            }
+            button.setBackgroundResource(
+                if (isSelected) {
+                    R.drawable.bg_chip
+                } else {
+                    R.drawable.bg_chip_white
+                }
+            )
+
+            button.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    if (isSelected) {
+                        R.color.primary_green_dark
+                    } else {
+                        R.color.text_sub
+                    }
+                )
+            )
+
+            button.setTypeface(
+                null,
+                if (isSelected) Typeface.BOLD else Typeface.NORMAL
+            )
         }
     }
 
     private fun refreshList() {
+        if (!::adapter.isInitialized) return
+
         val keyword = editSearch.text.toString()
 
         filteredList.clear()
 
         filteredList.addAll(
-            ATempIngredientStore.ingredients.filter { ingredient ->
+            allIngredients.filter { ingredient ->
                 val matchesKeyword = ingredient.name.contains(
                     keyword,
                     ignoreCase = true
@@ -278,8 +348,8 @@ class AIngredientListFragment : Fragment() {
 
                 val matchesDashboard = when (dashboardFilter) {
                     FILTER_FAVORITE -> ingredient.favorite
-                    FILTER_LOW -> ingredient.percent <= 20
-                    FILTER_EXPIRE -> ingredient.expireDay <= 3
+                    FILTER_LOW -> ingredient.stockPercent <= 20
+                    FILTER_EXPIRE -> calculateExpireDay(ingredient.expiryDate) <= 3
                     else -> true
                 }
 
@@ -287,17 +357,17 @@ class AIngredientListFragment : Fragment() {
             }
         )
 
-        when (spinnerSort.selectedItem.toString()) {
+        when (spinnerSort.selectedItem?.toString()) {
             "이름순" -> {
                 filteredList.sortBy { it.name }
             }
 
             "부족순" -> {
-                filteredList.sortBy { it.percent }
+                filteredList.sortBy { it.stockPercent }
             }
 
             "유통기한순" -> {
-                filteredList.sortBy { it.expireDay }
+                filteredList.sortBy { calculateExpireDay(it.expiryDate) }
             }
 
             "즐겨찾기순" -> {
@@ -306,11 +376,7 @@ class AIngredientListFragment : Fragment() {
         }
 
         emptyLayout.visibility =
-            if (filteredList.isEmpty()) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            if (filteredList.isEmpty()) View.VISIBLE else View.GONE
 
         adapter.notifyDataSetChanged()
     }
@@ -323,13 +389,23 @@ class AIngredientListFragment : Fragment() {
             .setMessage("정말 삭제하시겠어요?")
             .setPositiveButton("삭제") { _, _ ->
                 val ingredient = filteredList[position]
-
-                ATempIngredientStore.ingredients.remove(ingredient)
-
-                refreshList()
+                viewModel.deleteIngredient(ingredient.id)
             }
             .setNegativeButton("취소", null)
             .show()
+    }
+
+    private fun calculateExpireDay(expiryDate: String): Int {
+        if (expiryDate.isBlank()) return 7
+
+        return runCatching {
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val targetDate = formatter.parse(expiryDate) ?: return 7
+
+            val now = Date()
+            val diff = targetDate.time - now.time
+            TimeUnit.MILLISECONDS.toDays(diff).toInt().coerceAtLeast(0)
+        }.getOrDefault(7)
     }
 
     companion object {

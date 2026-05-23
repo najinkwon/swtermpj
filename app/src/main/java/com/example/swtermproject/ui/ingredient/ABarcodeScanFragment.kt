@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.swtermproject.R
+import com.example.swtermproject.ui.activity.BarcodeResultActivity
 import com.google.zxing.integration.android.IntentIntegrator
 
 class ABarcodeScanFragment : Fragment() {
@@ -80,11 +81,13 @@ class ABarcodeScanFragment : Fragment() {
     }
 
     private fun moveToResult(barcode: String) {
-        parentFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                ABarcodeResultFragment.newInstance(barcode)
-            )
-            .commit()
+        val intent = Intent(
+            requireContext(),
+            BarcodeResultActivity::class.java
+        ).apply {
+            putExtra(BarcodeResultActivity.EXTRA_BARCODE, barcode)
+        }
+
+        startActivity(intent)
     }
 }
