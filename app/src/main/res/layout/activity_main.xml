@@ -17,7 +17,7 @@
         android:layout_height="78dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:background="@color/white"
+        android:background="@drawable/bg_bottom_bar"
         android:elevation="14dp"
         android:paddingTop="7dp"
         android:paddingBottom="7dp">

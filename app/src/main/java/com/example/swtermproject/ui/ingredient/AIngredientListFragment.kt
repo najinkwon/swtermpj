@@ -1,6 +1,7 @@
 ﻿package com.example.swtermproject.ui.ingredient
 
 import android.app.AlertDialog
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,6 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Spinner
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +37,11 @@ class AIngredientListFragment : Fragment() {
 
     private lateinit var fabMain: FloatingActionButton
     private lateinit var fabMenuLayout: LinearLayout
+
+    private lateinit var btnAll: Button
+    private lateinit var btnVegetable: Button
+    private lateinit var btnDairy: Button
+    private lateinit var btnProtein: Button
 
     private var isFabOpen = false
 
@@ -72,13 +79,14 @@ class AIngredientListFragment : Fragment() {
         val btnAddBarcode = view.findViewById<Button>(R.id.btnAddBarcode)
         val btnAddReceipt = view.findViewById<Button>(R.id.btnAddReceipt)
 
-        val btnAll = view.findViewById<Button>(R.id.btnFilterAll)
-        val btnVegetable = view.findViewById<Button>(R.id.btnFilterVegetable)
-        val btnDairy = view.findViewById<Button>(R.id.btnFilterDairy)
-        val btnProtein = view.findViewById<Button>(R.id.btnFilterProtein)
+        btnAll = view.findViewById(R.id.btnFilterAll)
+        btnVegetable = view.findViewById(R.id.btnFilterVegetable)
+        btnDairy = view.findViewById(R.id.btnFilterDairy)
+        btnProtein = view.findViewById(R.id.btnFilterProtein)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        filteredList.clear()
         filteredList.addAll(ATempIngredientStore.ingredients)
 
         adapter = AIngredientAdapter(
@@ -152,24 +160,28 @@ class AIngredientListFragment : Fragment() {
         btnAll.setOnClickListener {
             currentCategory = "전체"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnAll)
             refreshList()
         }
 
         btnVegetable.setOnClickListener {
             currentCategory = "채소"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnVegetable)
             refreshList()
         }
 
         btnDairy.setOnClickListener {
             currentCategory = "유제품"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnDairy)
             refreshList()
         }
 
         btnProtein.setOnClickListener {
             currentCategory = "단백질"
             dashboardFilter = FILTER_ALL
+            updateFilterButtonStyle(btnProtein)
             refreshList()
         }
 
@@ -193,6 +205,7 @@ class AIngredientListFragment : Fragment() {
         }
 
         applyDashboardDefaultSort()
+        updateFilterButtonStyle(btnAll)
         refreshList()
 
         return view
@@ -258,6 +271,47 @@ class AIngredientListFragment : Fragment() {
             else -> {
                 spinnerSort.setSelection(0)
             }
+        }
+    }
+
+    private fun updateFilterButtonStyle(selectedButton: Button) {
+        val buttons = listOf(
+            btnAll,
+            btnVegetable,
+            btnDairy,
+            btnProtein
+        )
+
+        buttons.forEach { button ->
+            val isSelected = button == selectedButton
+
+            button.setBackgroundResource(
+                if (isSelected) {
+                    R.drawable.bg_chip
+                } else {
+                    R.drawable.bg_chip_white
+                }
+            )
+
+            button.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    if (isSelected) {
+                        R.color.primary_green_dark
+                    } else {
+                        R.color.text_sub
+                    }
+                )
+            )
+
+            button.setTypeface(
+                null,
+                if (isSelected) {
+                    Typeface.BOLD
+                } else {
+                    Typeface.NORMAL
+                }
+            )
         }
     }
 

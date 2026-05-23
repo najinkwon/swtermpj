@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="88dp"
     android:orientation="horizontal"
-    android:padding="18dp"
-    android:layout_marginBottom="14dp"
+    android:paddingLeft="14dp"
+    android:paddingRight="12dp"
+    android:layout_marginBottom="11dp"
     android:background="@drawable/bg_card"
-    android:elevation="3dp"
+    android:elevation="2dp"
     android:gravity="center_vertical">
 
     <TextView
         android:id="@+id/textIngredientIcon"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
         android:gravity="center"
         android:text="🥬"
-        android:textSize="25sp"
+        android:textSize="23sp"
         android:background="@drawable/bg_chip"
-        android:layout_marginRight="14dp" />
+        android:layout_marginRight="13dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -38,14 +39,15 @@
                 android:text="우유"
                 android:textColor="@color/text_main"
                 android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:id="@+id/textFavorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="⭐"
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:layout_marginLeft="6dp"
                 android:visibility="gone" />
 
@@ -58,7 +60,7 @@
             android:text="유제품"
             android:textColor="@color/text_sub"
             android:textSize="13sp"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="5dp" />
 
         <TextView
             android:id="@+id/textExpireDay"
@@ -66,58 +68,50 @@
             android:layout_height="wrap_content"
             android:text="D-3"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textColor="@color/accent_orange"
             android:background="@drawable/bg_chip_white"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:layout_marginTop="8dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/textIngredientPercent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30%"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_green_dark"
-            android:background="@drawable/bg_chip"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp" />
-
-        <TextView
-            android:id="@+id/btnFavorite"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:gravity="center"
-            android:text="☆"
-            android:textSize="24sp"
-            android:textColor="@color/accent_coral"
+            android:paddingLeft="9dp"
+            android:paddingRight="9dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
             android:layout_marginTop="6dp" />
 
     </LinearLayout>
 
     <TextView
+        android:id="@+id/textIngredientPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="30%"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_green_dark"
+        android:background="@drawable/bg_chip"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:layout_marginRight="8dp" />
+
+    <TextView
+        android:id="@+id/btnFavorite"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:gravity="center"
+        android:text="☆"
+        android:textSize="22sp"
+        android:textColor="@color/accent_coral"
+        android:layout_marginRight="2dp" />
+
+    <TextView
         android:id="@+id/btnDeleteIngredient"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:gravity="center"
         android:text="×"
-        android:textSize="23sp"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="@color/text_hint"
-        android:layout_marginLeft="6dp" />
+        android:textColor="@color/text_hint" />
 
 </LinearLayout>

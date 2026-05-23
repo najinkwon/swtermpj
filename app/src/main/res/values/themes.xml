@@ -11,6 +11,8 @@
         <item name="android:textColorPrimary">@color/text_main</item>
         <item name="android:textColorSecondary">@color/text_sub</item>
         <item name="buttonStyle">@style/AppButtonStyle</item>
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
     </style>
 
     <style name="Theme.Swtermproject" parent="Base.Theme.Swtermproject" />
@@ -21,6 +23,8 @@
         <item name="android:minHeight">50dp</item>
         <item name="backgroundTint">@color/primary_green</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
     </style>
 
 </resources>
