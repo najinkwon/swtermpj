@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.ui.ingredient
+package com.example.swtermproject.ui.ingredient
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,12 +9,18 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
-import com.example.swtermproject.data.model.ATempIngredientStore
-import com.example.swtermproject.data.model.Ingredient
+import com.example.swtermproject.viewmodel.BIngredientViewModel
+import kotlinx.coroutines.launch
 
 class AIngredientInputFragment : Fragment() {
+
+    private val viewModel: BIngredientViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,57 +36,55 @@ class AIngredientInputFragment : Fragment() {
         val editName = view.findViewById<EditText>(R.id.editIngredientName)
         val editInitialAmount = view.findViewById<EditText>(R.id.editInitialAmount)
         val editCurrentAmount = view.findViewById<EditText>(R.id.editCurrentAmount)
+        val editExpiryDate = view.findViewById<EditText>(R.id.editExpiryDate)
         val textCategory = view.findViewById<TextView>(R.id.textCategory)
         val btnSave = view.findViewById<Button>(R.id.btnSave)
         val btnReceiptScan = view.findViewById<Button>(R.id.btnReceiptScan)
         val btnBarcodeScan = view.findViewById<Button>(R.id.btnBarcodeScan)
 
+        textCategory.text = "저장 시 자동 분류됩니다"
+
         btnSave.setOnClickListener {
-            val name = editName.text.toString()
-            val initialAmount = editInitialAmount.text.toString().toIntOrNull()
-            val currentAmount = editCurrentAmount.text.toString().toIntOrNull()
+            val name = editName.text.toString().trim()
+            val initialAmount = editInitialAmount.text.toString().toDoubleOrNull()
+            val currentAmount = editCurrentAmount.text.toString().toDoubleOrNull()
+            val expiryDate = editExpiryDate.text.toString().trim()
 
             if (name.isBlank()) {
                 Toast.makeText(requireContext(), "재료명을 입력하세요", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (initialAmount == null || currentAmount == null || initialAmount <= 0) {
+            if (initialAmount == null || currentAmount == null || initialAmount <= 0.0) {
                 Toast.makeText(requireContext(), "수량을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val category = when (name) {
-                "간장" -> "조미료/소스"
-                "우유" -> "유제품"
-                "대파" -> "채소"
-                "계란" -> "단백질"
-                "양파" -> "채소"
-                "두부" -> "단백질"
-                else -> "기타"
+            if (currentAmount < 0.0) {
+                Toast.makeText(requireContext(), "현재 남은 양은 0 이상이어야 합니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
-            val percent = ((currentAmount.toDouble() / initialAmount.toDouble()) * 100).toInt()
+            if (currentAmount > initialAmount) {
+                Toast.makeText(requireContext(), "현재 남은 양은 구매량보다 클 수 없습니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-            textCategory.text = category
+            if (expiryDate.isNotBlank() && !expiryDate.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
+                Toast.makeText(requireContext(), "유통기한은 2026-06-30 형식으로 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-            val isNewItem = ATempIngredientStore.addIngredient(
-                Ingredient(
-                    name = name,
-                    category = category,
-                    percent = percent
-                )
+            textCategory.text = "분류 중..."
+
+            viewModel.addIngredient(
+                name = name,
+                initialAmount = initialAmount,
+                currentAmount = currentAmount,
+                unit = "개",
+                expiryDate = expiryDate,
+                storageType = "냉장"
             )
-
-            val message = if (isNewItem) {
-                "$name 저장 완료!"
-            } else {
-                "$name 수량 갱신 완료!"
-            }
-
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-
-            (activity as MainActivity).openIngredientList()
         }
 
         btnReceiptScan.setOnClickListener {
@@ -96,5 +100,31 @@ class AIngredientInputFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeMessage()
+    }
+
+    private fun observeMessage() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.message.collect { message ->
+                    if (message == null) return@collect
+
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
+                    val shouldMoveToList =
+                        message.contains("추가") || message.contains("저장")
+
+                    viewModel.clearMessage()
+
+                    if (shouldMoveToList) {
+                        (activity as MainActivity).openIngredientList()
+                    }
+                }
+            }
+        }
     }
 }

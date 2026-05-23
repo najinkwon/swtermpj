@@ -137,7 +137,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:hint="예: 100"
-                android:inputType="number"
+                android:inputType="numberDecimal"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="유통기한"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/editExpiryDate"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="예: 2026-06-30"
+                android:inputType="date"
                 android:background="@drawable/bg_chip_white"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"

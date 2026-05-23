@@ -1,0 +1,1106 @@
+===== ARecipeCategoryFragment.kt =====
+﻿package com.example.swtermproject.ui.recipe
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+
+class ARecipeCategoryFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_recipe_category,
+            container,
+            false
+        )
+
+        view.findViewById<LinearLayout>(R.id.cardKorean).setOnClickListener {
+            (activity as MainActivity).openRecipeList("한식")
+        }
+
+        view.findViewById<LinearLayout>(R.id.cardWestern).setOnClickListener {
+            (activity as MainActivity).openRecipeList("양식")
+        }
+
+        view.findViewById<LinearLayout>(R.id.cardJapanese).setOnClickListener {
+            (activity as MainActivity).openRecipeList("일식")
+        }
+
+        view.findViewById<LinearLayout>(R.id.cardEtc).setOnClickListener {
+            (activity as MainActivity).openRecipeList("기타")
+        }
+
+        return view
+    }
+}===== ARecipeListFragment.kt =====
+﻿package com.example.swtermproject.ui.recipe
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+import com.example.swtermproject.data.model.RecipeDummyStore
+
+class ARecipeListFragment : Fragment() {
+
+    private var category: String = "한식"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        category = arguments?.getString("category") ?: "한식"
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_recipe_list,
+            container,
+            false
+        )
+
+        val title = view.findViewById<TextView>(R.id.textRecipeListTitle)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerRecipe)
+
+        title.text = "$category 추천 레시피"
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        recyclerView.adapter = RecipeAdapter(RecipeDummyStore.recipes) { recipe ->
+            (activity as MainActivity).openRecipeDetail(recipe.title)
+        }
+
+        return view
+    }
+
+    companion object {
+        fun newInstance(category: String): ARecipeListFragment {
+            val fragment = ARecipeListFragment()
+            val bundle = Bundle()
+            bundle.putString("category", category)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+}===== ARecipeDetailFragment.kt =====
+﻿package com.example.swtermproject.ui.recipe
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+import com.example.swtermproject.data.model.RecipeDummyStore
+
+class ARecipeDetailFragment : Fragment() {
+
+    private var recipeName: String = "계란볶음밥"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        recipeName = arguments?.getString("recipeName") ?: "계란볶음밥"
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_recipe_detail,
+            container,
+            false
+        )
+
+        val recipe = RecipeDummyStore.findRecipe(recipeName)
+
+        val textImageEmoji = view.findViewById<TextView>(R.id.textRecipeImageEmoji)
+        val textTitle = view.findViewById<TextView>(R.id.textRecipeTitle)
+        val textReason = view.findViewById<TextView>(R.id.textRecipeReason)
+        val textMatch = view.findViewById<TextView>(R.id.textMatch)
+        val textCookTime = view.findViewById<TextView>(R.id.textCookTime)
+        val textDifficulty = view.findViewById<TextView>(R.id.textDifficulty)
+        val textIngredients = view.findViewById<TextView>(R.id.textIngredients)
+        val textSteps = view.findViewById<TextView>(R.id.textSteps)
+        val btnYoutube = view.findViewById<Button>(R.id.btnYoutube)
+        val btnShopping = view.findViewById<Button>(R.id.btnShopping)
+
+        textImageEmoji.text = recipe.emoji
+        textTitle.text = "${recipe.emoji} ${recipe.title}"
+        textReason.text = recipe.reason
+        textMatch.text = "재료 ${recipe.matchPercent}%"
+        textCookTime.text = recipe.cookTime
+        textDifficulty.text = recipe.difficulty
+
+        textIngredients.text = recipe.ingredients.joinToString("\n") {
+            "• $it"
+        }
+
+        textSteps.text = recipe.steps.mapIndexed { index, step ->
+            "${index + 1}. $step"
+        }.joinToString("\n\n")
+
+        btnYoutube.setOnClickListener {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.youtube.com/results?search_query=${recipe.title} 레시피")
+            )
+
+            startActivity(intent)
+        }
+
+        btnShopping.setOnClickListener {
+            (activity as MainActivity).openShopping()
+        }
+
+        return view
+    }
+
+    companion object {
+        fun newInstance(recipeName: String): ARecipeDetailFragment {
+            val fragment = ARecipeDetailFragment()
+            val bundle = Bundle()
+            bundle.putString("recipeName", recipeName)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+}===== ARecipeAdapter.kt =====
+﻿package com.example.swtermproject.ui.recipe
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.swtermproject.R
+import com.example.swtermproject.data.model.Recipe
+
+class RecipeAdapter(
+    private val recipeList: List<Recipe>,
+    private val onClick: (Recipe) -> Unit
+) : RecyclerView.Adapter<RecipeAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageEmoji: TextView = view.findViewById(R.id.textRecipeImageEmoji)
+        val title: TextView = view.findViewById(R.id.textRecipeTitle)
+        val reason: TextView = view.findViewById(R.id.textRecipeReason)
+        val match: TextView = view.findViewById(R.id.textRecipeMatch)
+        val time: TextView = view.findViewById(R.id.textRecipeTime)
+        val difficulty: TextView = view.findViewById(R.id.textRecipeDifficulty)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_recipe, parent, false)
+
+        return ViewHolder(view)
+    }
+
+    override fun getItemCount(): Int = recipeList.size
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val recipe = recipeList[position]
+
+        holder.imageEmoji.text = recipe.emoji
+        holder.title.text = recipe.title
+        holder.reason.text = recipe.reason
+        holder.match.text = "재료 ${recipe.matchPercent}%"
+        holder.time.text = recipe.cookTime
+        holder.difficulty.text = recipe.difficulty
+
+        holder.itemView.setOnClickListener {
+            onClick(recipe)
+        }
+
+        holder.itemView.alpha = 0f
+        holder.itemView.translationY = 40f
+        holder.itemView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(320)
+            .start()
+    }
+}===== Recipe.kt =====
+package com.example.swtermproject.data.model
+
+data class Recipe(
+    val emoji: String,
+    val title: String,
+    val reason: String,
+    val matchPercent: Int,
+    val cookTime: String,
+    val difficulty: String,
+    val ingredients: List<String>,
+    val steps: List<String>
+)===== RecipeDummyStore.kt =====
+package com.example.swtermproject.data.model
+
+object RecipeDummyStore {
+
+    val recipes = listOf(
+        Recipe(
+            emoji = "🍳",
+            title = "계란볶음밥",
+            reason = "계란과 밥만 있어도 빠르게 만들 수 있는 냉털 메뉴예요.",
+            matchPercent = 90,
+            cookTime = "10분",
+            difficulty = "쉬움",
+            ingredients = listOf("계란", "밥", "간장", "대파"),
+            steps = listOf(
+                "팬에 기름을 두르고 대파를 먼저 볶아요.",
+                "계란을 넣고 스크램블처럼 익혀요.",
+                "밥을 넣고 골고루 섞어요.",
+                "간장으로 간을 맞추고 한 번 더 볶아요."
+            )
+        ),
+        Recipe(
+            emoji = "🥘",
+            title = "김치볶음밥",
+            reason = "남은 밥과 김치를 활용하기 좋아요.",
+            matchPercent = 78,
+            cookTime = "15분",
+            difficulty = "보통",
+            ingredients = listOf("김치", "밥", "계란", "대파"),
+            steps = listOf(
+                "김치를 먹기 좋은 크기로 잘라요.",
+                "팬에 김치와 대파를 먼저 볶아요.",
+                "밥을 넣고 골고루 섞어요.",
+                "계란 프라이를 올리면 완성돼요."
+            )
+        ),
+        Recipe(
+            emoji = "🍝",
+            title = "크림 파스타",
+            reason = "우유와 치즈 같은 유제품을 소비하기 좋은 메뉴예요.",
+            matchPercent = 65,
+            cookTime = "20분",
+            difficulty = "보통",
+            ingredients = listOf("우유", "치즈", "파스타면", "양파"),
+            steps = listOf(
+                "파스타면을 삶아요.",
+                "양파를 볶다가 우유를 넣어요.",
+                "치즈를 넣어 소스를 걸쭉하게 만들어요.",
+                "삶은 면을 넣고 잘 섞어요."
+            )
+        )
+    )
+
+    fun findRecipe(title: String): Recipe {
+        return recipes.find { it.title == title } ?: recipes.first()
+    }
+}===== BRecipe.kt =====
+﻿package com.example.swtermproject.domain.model
+
+data class BRecipe(
+    val id: Long,
+    val title: String,
+    val category: String,
+    val mainIngredients: List<String>,
+    val subIngredients: List<String>,
+    val seasonings: List<String>,
+    val description: String,
+    val youtubeKeyword: String,
+    val score: Int = 0,
+    val missingIngredients: List<String> = emptyList()
+)
+===== BRecipeViewModel.kt =====
+﻿package com.example.swtermproject.viewmodel
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.swtermproject.data.local.BAppDatabase
+import com.example.swtermproject.data.repository.BIngredientRepository
+import com.example.swtermproject.data.repository.BRecipeRepository
+import com.example.swtermproject.domain.model.BRecipe
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class BRecipeViewModel(application: Application) : AndroidViewModel(application) {
+    private val ingredientRepository = BIngredientRepository(
+        BAppDatabase.getDatabase(application).ingredientDao()
+    )
+    private val recipeRepository = BRecipeRepository()
+
+    private val _recipes = MutableStateFlow<List<BRecipe>>(emptyList())
+    val recipes: StateFlow<List<BRecipe>> = _recipes
+
+    fun recommend(category: String, fridgeCleanMode: Boolean = false) {
+        viewModelScope.launch {
+            val ingredients = ingredientRepository.getAllIngredients()
+            _recipes.value = recipeRepository.recommendRecipes(
+                ingredients = ingredients,
+                category = category,
+                fridgeCleanMode = fridgeCleanMode
+            )
+        }
+    }
+}
+===== BRecipeRepository.kt =====
+﻿package com.example.swtermproject.data.repository
+
+import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.domain.model.BRecipe
+import com.example.swtermproject.recipe.BRecipeRecommender
+
+class BRecipeRepository(
+    private val recommender: BRecipeRecommender = BRecipeRecommender()
+) {
+    fun recommendRecipes(
+        ingredients: List<BIngredient>,
+        category: String,
+        fridgeCleanMode: Boolean = false
+    ): List<BRecipe> {
+        return recommender.recommend(
+            ingredients = ingredients,
+            category = category,
+            fridgeCleanMode = fridgeCleanMode
+        )
+    }
+}
+===== BRecipeDataSource.kt =====
+﻿package com.example.swtermproject.recipe
+
+import com.example.swtermproject.domain.model.BRecipe
+
+object BRecipeDataSource {
+    val recipes = listOf(
+        BRecipe(
+            id = 1,
+            title = "계란볶음밥",
+            category = "한식",
+            mainIngredients = listOf("밥", "계란"),
+            subIngredients = listOf("대파", "양파"),
+            seasonings = listOf("간장", "소금", "후추", "식용유"),
+            description = """
+                1. 대파와 양파를 잘게 썰어주세요.
+                2. 팬에 식용유를 두르고 대파를 먼저 볶아 파기름을 냅니다.
+                3. 밥과 계란을 넣고 함께 볶아주세요.
+                4. 간장, 소금, 후추로 간을 맞추면 완성입니다.
+            """.trimIndent(),
+            youtubeKeyword = "계란볶음밥 레시피"
+        ),
+        BRecipe(
+            id = 2,
+            title = "간장계란밥",
+            category = "한식",
+            mainIngredients = listOf("밥", "계란"),
+            subIngredients = listOf(),
+            seasonings = listOf("간장", "참기름"),
+            description = """
+                1. 따뜻한 밥을 그릇에 담습니다.
+                2. 계란후라이를 올립니다.
+                3. 간장과 참기름을 넣고 비벼 먹으면 됩니다.
+            """.trimIndent(),
+            youtubeKeyword = "간장계란밥 레시피"
+        ),
+        BRecipe(
+            id = 3,
+            title = "두부조림",
+            category = "한식",
+            mainIngredients = listOf("두부"),
+            subIngredients = listOf("대파", "양파"),
+            seasonings = listOf("간장", "고춧가루", "설탕", "다진마늘"),
+            description = """
+                1. 두부를 먹기 좋은 크기로 자릅니다.
+                2. 팬에 두부를 살짝 굽습니다.
+                3. 간장, 고춧가루, 설탕, 다진마늘로 양념장을 만듭니다.
+                4. 양념장을 넣고 졸이면 완성입니다.
+            """.trimIndent(),
+            youtubeKeyword = "두부조림 레시피"
+        ),
+        BRecipe(
+            id = 4,
+            title = "토마토 파스타",
+            category = "양식",
+            mainIngredients = listOf("파스타면"),
+            subIngredients = listOf("양파", "마늘", "토마토"),
+            seasonings = listOf("소금", "후추", "올리브유"),
+            description = """
+                1. 파스타면을 삶습니다.
+                2. 팬에 올리브유를 두르고 마늘과 양파를 볶습니다.
+                3. 토마토 또는 토마토소스를 넣고 끓입니다.
+                4. 삶은 면을 넣고 섞으면 완성입니다.
+            """.trimIndent(),
+            youtubeKeyword = "토마토 파스타 레시피"
+        ),
+        BRecipe(
+            id = 5,
+            title = "오므라이스",
+            category = "양식",
+            mainIngredients = listOf("밥", "계란"),
+            subIngredients = listOf("양파", "당근", "햄"),
+            seasonings = listOf("케첩", "소금", "후추"),
+            description = """
+                1. 양파, 당근, 햄을 잘게 썰어 볶습니다.
+                2. 밥과 케첩을 넣고 볶음밥을 만듭니다.
+                3. 계란지단을 만들어 볶음밥 위에 올립니다.
+                4. 케첩을 뿌리면 완성입니다.
+            """.trimIndent(),
+            youtubeKeyword = "오므라이스 레시피"
+        ),
+        BRecipe(
+            id = 6,
+            title = "규동",
+            category = "일식",
+            mainIngredients = listOf("밥", "소고기"),
+            subIngredients = listOf("양파", "계란"),
+            seasonings = listOf("간장", "설탕"),
+            description = """
+                1. 양파를 채 썰고 소고기를 준비합니다.
+                2. 간장과 설탕을 넣은 소스에 양파와 소고기를 졸입니다.
+                3. 밥 위에 올리고 계란을 곁들이면 완성입니다.
+            """.trimIndent(),
+            youtubeKeyword = "규동 레시피"
+        )
+    )
+}
+===== BRecipeRecommender.kt =====
+﻿package com.example.swtermproject.recipe
+
+import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.domain.model.BRecipe
+
+class BRecipeRecommender {
+    fun recommend(
+        ingredients: List<BIngredient>,
+        category: String,
+        fridgeCleanMode: Boolean = false
+    ): List<BRecipe> {
+        return BRecipeDataSource.recipes
+            .filter { it.category == category }
+            .map { recipe -> BRecipeScorer.scoreRecipe(recipe, ingredients) }
+            .filter { scoredRecipe ->
+                if (fridgeCleanMode) {
+                    scoredRecipe.missingIngredients.size <= 1
+                } else {
+                    scoredRecipe.score > 0
+                }
+            }
+            .sortedByDescending { it.score }
+    }
+}
+===== BRecipeScorer.kt =====
+﻿package com.example.swtermproject.recipe
+
+import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.domain.model.BRecipe
+
+object BRecipeScorer {
+    fun scoreRecipe(recipe: BRecipe, ingredients: List<BIngredient>): BRecipe {
+        val ownedNames = ingredients.map { it.name.trim() }
+
+        val mainMatchCount = recipe.mainIngredients.count { required ->
+            ownedNames.any { owned -> owned.contains(required) || required.contains(owned) }
+        }
+
+        val subMatchCount = recipe.subIngredients.count { required ->
+            ownedNames.any { owned -> owned.contains(required) || required.contains(owned) }
+        }
+
+        val seasoningMatchCount = recipe.seasonings.count { required ->
+            ownedNames.any { owned -> owned.contains(required) || required.contains(owned) }
+        }
+
+        val missingMainIngredients = recipe.mainIngredients.filter { required ->
+            ownedNames.none { owned -> owned.contains(required) || required.contains(owned) }
+        }
+
+        val missingSubIngredients = recipe.subIngredients.filter { required ->
+            ownedNames.none { owned -> owned.contains(required) || required.contains(owned) }
+        }
+
+        val score =
+            mainMatchCount * 50 +
+            subMatchCount * 15 +
+            seasoningMatchCount * 5 -
+            missingMainIngredients.size * 40
+
+        return recipe.copy(
+            score = score.coerceAtLeast(0),
+            missingIngredients = missingMainIngredients + missingSubIngredients
+        )
+    }
+}
+===== BRecommendRecipeUseCase.kt =====
+﻿package com.example.swtermproject.domain.usecase
+
+// TODO: B 담당 - 레시피 추천 UseCase
+class BRecommendRecipeUseCase
+
+===== fragment_recipe_category.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:paddingBottom="96dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="18dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="레시피 카테고리"
+                    android:textColor="@color/text_main"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="오늘은 어떤 요리를 해볼까요?"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="7dp"
+                    android:includeFontPadding="false" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:text="🍳"
+                android:textSize="23sp"
+                android:background="@drawable/bg_chip" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/cardKorean"
+                android:layout_width="0dp"
+                android:layout_height="170dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="15dp"
+                android:background="@drawable/bg_stat_mint"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="2dp"
+                android:layout_marginRight="7dp">
+
+                <TextView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:gravity="center"
+                    android:text="🍚"
+                    android:textSize="30sp"
+                    android:background="@drawable/bg_chip_white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="한식"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="18dp"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="집밥 느낌으로\n든든하게"
+                    android:textColor="@color/text_sub"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cardWestern"
+                android:layout_width="0dp"
+                android:layout_height="170dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="15dp"
+                android:background="@drawable/bg_stat_peach"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="2dp"
+                android:layout_marginLeft="7dp">
+
+                <TextView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:gravity="center"
+                    android:text="🍝"
+                    android:textSize="30sp"
+                    android:background="@drawable/bg_chip_white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="양식"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="18dp"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="파스타와 브런치처럼\n가볍게"
+                    android:textColor="@color/text_sub"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp">
+
+            <LinearLayout
+                android:id="@+id/cardJapanese"
+                android:layout_width="0dp"
+                android:layout_height="170dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="15dp"
+                android:background="@drawable/bg_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="2dp"
+                android:layout_marginRight="7dp">
+
+                <TextView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:gravity="center"
+                    android:text="🍱"
+                    android:textSize="30sp"
+                    android:background="@drawable/bg_chip" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="일식"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="18dp"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="깔끔하고 담백한\n한 끼"
+                    android:textColor="@color/text_sub"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cardEtc"
+                android:layout_width="0dp"
+                android:layout_height="170dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="15dp"
+                android:background="@drawable/bg_stat_yellow"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="2dp"
+                android:layout_marginLeft="7dp">
+
+                <TextView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:gravity="center"
+                    android:text="🥗"
+                    android:textSize="30sp"
+                    android:background="@drawable/bg_chip_white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="기타"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="18dp"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="간식과 샐러드까지\n다양하게"
+                    android:textColor="@color/text_sub"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>===== fragment_recipe_list.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#FFFDF8">
+
+    <TextView
+        android:id="@+id/textRecipeListTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="한식 레시피"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerRecipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>===== fragment_recipe_detail.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textRecipeImageEmoji"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:gravity="center"
+            android:text="🍳"
+            android:textSize="86sp"
+            android:background="@drawable/bg_stat_mint" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp"
+            android:paddingBottom="104dp">
+
+            <TextView
+                android:id="@+id/textRecipeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="계란볶음밥"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:id="@+id/textRecipeReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="냉장고 속 재료로 간단하게 만들 수 있어요"
+                android:textSize="15sp"
+                android:textColor="@color/text_sub"
+                android:lineSpacingExtra="5dp"
+                android:layout_marginTop="10dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="22dp">
+
+                <TextView
+                    android:id="@+id/textMatch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="재료 90%"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:textColor="@color/primary_green_dark"
+                    android:background="@drawable/bg_chip"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="9dp" />
+
+                <TextView
+                    android:id="@+id/textCookTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10분"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_main"
+                    android:background="@drawable/bg_chip_white"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="9dp"
+                    android:layout_marginLeft="8dp" />
+
+                <TextView
+                    android:id="@+id/textDifficulty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="쉬움"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_main"
+                    android:background="@drawable/bg_chip_white"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="9dp"
+                    android:layout_marginLeft="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp"
+                android:padding="22dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="필요 재료"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:id="@+id/textIngredients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="• 계란"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_sub"
+                    android:lineSpacingExtra="8dp"
+                    android:layout_marginTop="14dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp"
+                android:padding="22dp"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="조리 순서"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:id="@+id/textSteps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. 재료를 준비해요"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_sub"
+                    android:lineSpacingExtra="10dp"
+                    android:layout_marginTop="14dp" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnYoutube"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="유튜브 레시피 보기"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_outline_button"
+                android:textColor="@color/primary_green_dark"
+                android:layout_marginTop="22dp" />
+
+            <Button
+                android:id="@+id/btnShopping"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="부족 재료 구매하기"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_primary_button"
+                android:textColor="@color/white"
+                android:layout_marginTop="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>===== item_recipe.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card"
+    android:padding="0dp"
+    android:elevation="2dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp"
+    android:layout_marginBottom="12dp">
+
+    <TextView
+        android:id="@+id/textRecipeImageEmoji"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:gravity="center"
+        android:text="🍳"
+        android:textSize="42sp"
+        android:background="@drawable/bg_stat_mint" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="13dp">
+
+        <TextView
+            android:id="@+id/textRecipeTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="계란볶음밥"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/textRecipeReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="보유 재료로 빠르게 만들 수 있어요"
+            android:textSize="12sp"
+            android:textColor="@color/text_sub"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="6dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/textRecipeMatch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="재료 90%"
+                android:textColor="@color/primary_green_dark"
+                android:textStyle="bold"
+                android:textSize="11sp"
+                android:background="@drawable/bg_chip"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:id="@+id/textRecipeTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10분"
+                android:textColor="@color/text_sub"
+                android:textStyle="bold"
+                android:textSize="11sp"
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_marginLeft="6dp" />
+
+            <TextView
+                android:id="@+id/textRecipeDifficulty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="쉬움"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

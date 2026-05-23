@@ -140,12 +140,20 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btnEditIngredient"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="정보 수정"
+            android:textSize="17sp"
+            android:layout_marginTop="20dp" />
+
+        <Button
             android:id="@+id/btnCloseBottom"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:text="닫기"
             android:textSize="17sp"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="12dp" />
 
     </LinearLayout>
 

@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.data.repository
+package com.example.swtermproject.data.repository
 
 import com.example.swtermproject.data.local.dao.BIngredientDao
 import com.example.swtermproject.data.local.entity.BIngredientEntity
@@ -50,6 +50,7 @@ fun BIngredientEntity.toDomain(): BIngredient {
         unit = unit,
         expiryDate = expiryDate,
         storageType = storageType,
+        favorite = favorite,
         createdAt = createdAt
     )
 }
@@ -64,6 +65,7 @@ fun BIngredient.toEntity(): BIngredientEntity {
         unit = unit,
         expiryDate = expiryDate,
         storageType = storageType,
+        favorite = favorite,
         createdAt = createdAt
     )
 }

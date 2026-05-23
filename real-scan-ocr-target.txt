@@ -1,0 +1,1475 @@
+===== ABarcodeScanFragment.kt =====
+package com.example.swtermproject.ui.ingredient
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.example.swtermproject.R
+import com.google.zxing.integration.android.IntentIntegrator
+
+class ABarcodeScanFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_barcode_scan,
+            container,
+            false
+        )
+
+        val btnStart = view.findViewById<Button>(R.id.btnStartBarcode)
+        val btnResult = view.findViewById<Button>(R.id.btnBarcodeResult)
+
+        btnStart.setOnClickListener {
+            startBarcodeScanner()
+        }
+
+        btnResult.setOnClickListener {
+            moveToResult("8801115111111")
+        }
+
+        return view
+    }
+
+    private fun startBarcodeScanner() {
+        val integrator = IntentIntegrator.forSupportFragment(this)
+
+        integrator.setPrompt("바코드를 스캔하세요")
+        integrator.setBeepEnabled(true)
+        integrator.setOrientationLocked(false)
+        integrator.initiateScan()
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        val result = IntentIntegrator.parseActivityResult(
+            requestCode,
+            resultCode,
+            data
+        )
+
+        if (result != null) {
+            if (result.contents == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "스캔 취소",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "바코드: ${result.contents}",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                moveToResult(result.contents)
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun moveToResult(barcode: String) {
+        parentFragmentManager.beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                ABarcodeResultFragment.newInstance(barcode)
+            )
+            .commit()
+    }
+}===== ABarcodeResultFragment.kt =====
+package com.example.swtermproject.ui.ingredient
+
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+import com.example.swtermproject.data.local.BAppDatabase
+import com.example.swtermproject.data.repository.BIngredientRepository
+import com.example.swtermproject.domain.model.BIngredient
+import kotlinx.coroutines.launch
+
+class ABarcodeResultFragment : Fragment() {
+
+    private var barcode: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        barcode = arguments?.getString("barcode") ?: ""
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_barcode_result,
+            container,
+            false
+        )
+
+        val loadingLayout = view.findViewById<LinearLayout>(R.id.loadingLayout)
+        val contentLayout = view.findViewById<View>(R.id.contentLayout)
+        val productCard = view.findViewById<LinearLayout>(R.id.productCard)
+        val errorCard = view.findViewById<LinearLayout>(R.id.errorCard)
+
+        val lottieLoading = view.findViewById<View>(R.id.lottieLoading)
+        val progressFallback = view.findViewById<ProgressBar>(R.id.progressFallback)
+
+        setupLoadingFallback(lottieLoading, progressFallback)
+
+        val textBarcodeNumber = view.findViewById<TextView>(R.id.textBarcodeNumber)
+        val textProductName = view.findViewById<TextView>(R.id.textProductName)
+        val textCompany = view.findViewById<TextView>(R.id.textCompany)
+        val textProductCategory = view.findViewById<TextView>(R.id.textProductCategory)
+
+        val btnAdd = view.findViewById<Button>(R.id.btnAddBarcodeIngredient)
+        val btnRetry = view.findViewById<Button>(R.id.btnRetryBarcode)
+        val btnManualInput = view.findViewById<Button>(R.id.btnManualInput)
+
+        val repository = BIngredientRepository(
+            BAppDatabase.getDatabase(requireContext()).ingredientDao()
+        )
+
+        contentLayout.visibility = View.INVISIBLE
+
+        fun showLoading() {
+            loadingLayout.visibility = View.VISIBLE
+            contentLayout.visibility = View.INVISIBLE
+        }
+
+        fun showContent() {
+            loadingLayout.visibility = View.GONE
+            contentLayout.visibility = View.VISIBLE
+
+            val fadeIn = AlphaAnimation(0f, 1f)
+            fadeIn.duration = 350
+            contentLayout.startAnimation(fadeIn)
+        }
+
+        fun loadProduct() {
+            showLoading()
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                textBarcodeNumber.text = "바코드 번호: $barcode"
+
+                val product = getDummyProduct(barcode)
+
+                if (product == null) {
+                    productCard.visibility = View.GONE
+                    errorCard.visibility = View.VISIBLE
+                } else {
+                    productCard.visibility = View.VISIBLE
+                    errorCard.visibility = View.GONE
+
+                    textProductName.text = product.name
+                    textCompany.text = product.company
+                    textProductCategory.text = product.category
+                }
+
+                showContent()
+            }, 800)
+        }
+
+        btnAdd.setOnClickListener {
+            val product = getDummyProduct(barcode)
+
+            if (product == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "추가할 상품 정보가 없습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            btnAdd.isEnabled = false
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                runCatching {
+                    repository.addIngredient(
+                        BIngredient(
+                            name = product.name,
+                            category = product.category,
+                            initialAmount = 1.0,
+                            currentAmount = 1.0,
+                            unit = "개",
+                            expiryDate = "",
+                            storageType = "냉장"
+                        )
+                    )
+                }.onSuccess {
+                    Toast.makeText(
+                        requireContext(),
+                        "${product.name} 추가 완료!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    (activity as MainActivity).openIngredientList()
+                }.onFailure {
+                    btnAdd.isEnabled = true
+
+                    Toast.makeText(
+                        requireContext(),
+                        it.message ?: "상품 추가에 실패했습니다",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        btnRetry.setOnClickListener {
+            loadProduct()
+        }
+
+        btnManualInput.setOnClickListener {
+            (activity as MainActivity).openIngredientInput()
+        }
+
+        loadProduct()
+
+        return view
+    }
+
+    private fun setupLoadingFallback(
+        lottieView: View,
+        fallbackProgress: ProgressBar
+    ) {
+        // 현재 raw Lottie JSON이 0B인 상태에서 파싱 크래시가 났으므로,
+        // 바코드 결과 화면에서는 Lottie 대신 기본 ProgressBar만 사용한다.
+        lottieView.visibility = View.GONE
+        fallbackProgress.visibility = View.VISIBLE
+    }
+
+    private fun getDummyProduct(barcode: String): BarcodeProduct? {
+        return when {
+            barcode.startsWith("880") -> {
+                BarcodeProduct(
+                    name = "서울우유 1L",
+                    company = "서울우유협동조합",
+                    category = "유제품"
+                )
+            }
+
+            barcode.startsWith("490") -> {
+                BarcodeProduct(
+                    name = "수입 식품",
+                    company = "수입사 정보",
+                    category = "기타"
+                )
+            }
+
+            else -> null
+        }
+    }
+
+    data class BarcodeProduct(
+        val name: String,
+        val company: String,
+        val category: String
+    )
+
+    companion object {
+        fun newInstance(barcode: String): ABarcodeResultFragment {
+            val fragment = ABarcodeResultFragment()
+            val bundle = Bundle()
+            bundle.putString("barcode", barcode)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+}
+===== fragment_barcode_scan.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="바코드 인식"
+                    android:textColor="@color/text_main"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="상품 바코드를 스캔해서 자동 등록해요"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="6dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:text="📷"
+                android:textSize="24sp"
+                android:background="@drawable/bg_chip" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_stat_mint"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="86dp"
+                android:layout_height="86dp"
+                android:gravity="center"
+                android:text="▣"
+                android:textSize="48sp"
+                android:textColor="@color/primary_green_dark"
+                android:background="@drawable/bg_chip_white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="카메라로 바코드를 비춰주세요"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="19sp"
+                android:layout_marginTop="18dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="스캔이 완료되면 상품 정보 화면으로 자동 이동해요"
+                android:textColor="@color/text_sub"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:elevation="3dp"
+            android:padding="20dp"
+            android:layout_marginTop="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="스캔 안내"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="19sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• 바코드가 화면 중앙에 오도록 맞춰주세요\n• 어두운 곳에서는 인식이 느릴 수 있어요\n• 인식이 안 되면 상품 정보 확인 버튼으로 테스트할 수 있어요"
+                android:textColor="@color/text_sub"
+                android:textSize="14sp"
+                android:lineSpacingExtra="6dp"
+                android:layout_marginTop="12dp" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnStartBarcode"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="바코드 스캔 시작"
+            android:textSize="16sp"
+            android:layout_marginTop="22dp" />
+
+        <Button
+            android:id="@+id/btnBarcodeResult"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="테스트 상품 정보 확인"
+            android:textSize="16sp"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+
+</ScrollView>===== fragment_barcode_result.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg">
+
+    <ScrollView
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="상품 정보"
+                        android:textColor="@color/text_main"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textBarcodeNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="바코드 번호"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14sp"
+                        android:layout_marginTop="6dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:text="📦"
+                    android:textSize="24sp"
+                    android:background="@drawable/bg_chip" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/productCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="22dp"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp">
+
+                <ImageView
+                    android:id="@+id/imageProduct"
+                    android:layout_width="match_parent"
+                    android:layout_height="190dp"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/ic_launcher"
+                    android:background="@drawable/bg_stat_mint" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="18dp">
+
+                    <TextView
+                        android:id="@+id/textProductCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="유제품"
+                        android:textColor="@color/primary_green_dark"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_chip"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp" />
+
+                    <TextView
+                        android:id="@+id/textStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="조회 완료"
+                        android:textColor="@color/text_sub"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_chip_white"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginLeft="10dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="제품명"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:textSize="15sp"
+                    android:layout_marginTop="22dp" />
+
+                <TextView
+                    android:id="@+id/textProductName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="서울우유 1L"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="18dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="제조사"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/textCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="서울우유협동조합"
+                    android:textColor="@color/text_sub"
+                    android:textSize="16sp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="22dp" />
+
+                <Button
+                    android:id="@+id/btnAddBarcodeIngredient"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="냉장고에 추가"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/errorCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:background="@drawable/bg_card"
+                android:elevation="3dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="상품 정보를 찾을 수 없어요"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/textErrorMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="등록되지 않은 바코드거나 네트워크 상태가 불안정할 수 있어요."
+                    android:textColor="@color/text_sub"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="6dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="24dp" />
+
+                <Button
+                    android:id="@+id/btnRetryBarcode"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="다시 조회하기"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btnManualInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="직접 입력하기"
+                    android:textSize="16sp"
+                    android:layout_marginTop="12dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#CCF8FAF7">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieLoading"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true" />
+
+        <ProgressBar
+            android:id="@+id/progressFallback"
+            android:layout_width="58dp"
+            android:layout_height="58dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상품 정보를 조회하고 있어요..."
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
+</FrameLayout>===== AReceiptScanFragment.kt =====
+﻿package com.example.swtermproject.ui.ingredient
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.example.swtermproject.R
+
+class AReceiptScanFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_receipt_scan,
+            container,
+            false
+        )
+
+        val btnStart = view.findViewById<Button>(R.id.btnStartReceiptScan)
+        val btnResult = view.findViewById<Button>(R.id.btnReceiptResult)
+
+        btnStart.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "OCR 영수증 인식 연결 예정",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        btnResult.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.fragmentContainer,
+                    AReceiptResultFragment()
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+
+        return view
+    }
+}===== AReceiptResultFragment.kt =====
+package com.example.swtermproject.ui.ingredient
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.swtermproject.MainActivity
+import com.example.swtermproject.R
+import com.example.swtermproject.data.local.BAppDatabase
+import com.example.swtermproject.data.repository.BIngredientRepository
+import com.example.swtermproject.domain.model.BIngredient
+import kotlinx.coroutines.launch
+
+class AReceiptResultFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(
+            R.layout.fragment_receipt_result,
+            container,
+            false
+        )
+
+        val btnAdd = view.findViewById<Button>(R.id.btnAddReceiptItems)
+
+        val repository = BIngredientRepository(
+            BAppDatabase.getDatabase(requireContext()).ingredientDao()
+        )
+
+        btnAdd.setOnClickListener {
+            btnAdd.isEnabled = false
+
+            val receiptIngredients = listOf(
+                BIngredient(
+                    name = "우유",
+                    category = "유제품",
+                    initialAmount = 1.0,
+                    currentAmount = 1.0,
+                    unit = "개",
+                    expiryDate = "",
+                    storageType = "냉장"
+                ),
+                BIngredient(
+                    name = "계란",
+                    category = "단백질",
+                    initialAmount = 1.0,
+                    currentAmount = 1.0,
+                    unit = "개",
+                    expiryDate = "",
+                    storageType = "냉장"
+                ),
+                BIngredient(
+                    name = "양파",
+                    category = "채소",
+                    initialAmount = 1.0,
+                    currentAmount = 1.0,
+                    unit = "개",
+                    expiryDate = "",
+                    storageType = "냉장"
+                )
+            )
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                runCatching {
+                    receiptIngredients.forEach { ingredient ->
+                        repository.addIngredient(ingredient)
+                    }
+                }.onSuccess {
+                    Toast.makeText(
+                        requireContext(),
+                        "영수증 재료를 냉장고에 추가했어요",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    (activity as MainActivity).openIngredientList()
+                }.onFailure {
+                    btnAdd.isEnabled = true
+
+                    Toast.makeText(
+                        requireContext(),
+                        it.message ?: "영수증 재료 추가에 실패했습니다",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        return view
+    }
+}
+===== fragment_receipt_scan.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="영수증 스캔"
+                    android:textColor="@color/text_main"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="구매한 재료를 한 번에 등록해요"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="6dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:text="🧾"
+                android:textSize="24sp"
+                android:background="@drawable/bg_chip" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_stat_mint"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="86dp"
+                android:layout_height="86dp"
+                android:gravity="center"
+                android:text="🧾"
+                android:textSize="44sp"
+                android:background="@drawable/bg_chip_white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="영수증 사진을 인식할 준비가 됐어요"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="19sp"
+                android:layout_marginTop="18dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OCR 연결 전까지는 테스트 결과 화면으로 이동해요"
+                android:textColor="@color/text_sub"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:elevation="3dp"
+            android:padding="20dp"
+            android:layout_marginTop="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="인식 예정 항목"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="19sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• 상품명\n• 구매 수량\n• 카테고리 자동 분류\n• 냉장고 일괄 추가"
+                android:textColor="@color/text_sub"
+                android:textSize="14sp"
+                android:lineSpacingExtra="6dp"
+                android:layout_marginTop="12dp" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnStartReceiptScan"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="영수증 인식 시작"
+            android:textSize="16sp"
+            android:layout_marginTop="22dp" />
+
+        <Button
+            android:id="@+id/btnReceiptResult"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="테스트 결과 확인"
+            android:textSize="16sp"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+
+</ScrollView>===== fragment_receipt_result.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="인식 결과"
+                    android:textColor="@color/text_main"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="영수증에서 찾은 재료를 확인하세요"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="6dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:text="✅"
+                android:textSize="24sp"
+                android:background="@drawable/bg_chip" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_stat_mint"
+            android:padding="18dp"
+            android:layout_marginBottom="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="총 3개의 재료를 찾았어요"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="확인 후 냉장고에 한 번에 추가할 수 있어요"
+                android:textColor="@color/text_sub"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardReceiptMilk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:elevation="3dp"
+            android:padding="18dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:gravity="center"
+                android:text="🥛"
+                android:textSize="26sp"
+                android:background="@drawable/bg_chip" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginLeft="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="우유"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="유제품 · 100%"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardReceiptEgg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:elevation="3dp"
+            android:padding="18dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:gravity="center"
+                android:text="🥚"
+                android:textSize="26sp"
+                android:background="@drawable/bg_chip" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginLeft="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="계란"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="단백질 · 100%"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardReceiptOnion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:elevation="3dp"
+            android:padding="18dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:gravity="center"
+                android:text="🧅"
+                android:textSize="26sp"
+                android:background="@drawable/bg_chip" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginLeft="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="양파"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="채소 · 100%"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnAddReceiptItems"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="냉장고에 모두 추가"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+</ScrollView>===== BReceiptViewModel.kt =====
+﻿package com.example.swtermproject.viewmodel
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.example.swtermproject.ocr.BReceiptItemCandidate
+import com.example.swtermproject.ocr.BReceiptOcrManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+class BReceiptViewModel(application: Application) : AndroidViewModel(application) {
+    private val ocrManager = BReceiptOcrManager(application)
+
+    private val _candidates = MutableStateFlow<List<BReceiptItemCandidate>>(emptyList())
+    val candidates: StateFlow<List<BReceiptItemCandidate>> = _candidates
+
+    fun extractFromRawText(rawText: String) {
+        _candidates.value = ocrManager.extractItemsFromText(rawText)
+    }
+}
+===== BReceiptOcrManager.kt =====
+﻿package com.example.swtermproject.ocr
+
+import android.content.Context
+import android.net.Uri
+
+class BReceiptOcrManager(
+    private val context: Context
+) {
+    suspend fun recognizeTextFromImage(uri: Uri): Result<String> {
+        return Result.failure(
+            NotImplementedError(
+                "OCR 실제 인식은 ML Kit 연결 단계에서 구현 예정입니다. 현재는 ReceiptParser/Extractor 테스트용 구조만 준비되었습니다."
+            )
+        )
+    }
+
+    fun extractItemsFromText(rawText: String): List<BReceiptItemCandidate> {
+        val lines = BReceiptParser.parseLines(rawText)
+        return BReceiptItemExtractor.extractCandidates(lines)
+    }
+}
+===== BReceiptParser.kt =====
+﻿package com.example.swtermproject.ocr
+
+object BReceiptParser {
+    fun parseLines(rawText: String): List<String> {
+        return rawText
+            .lines()
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+    }
+}
+===== BReceiptItemExtractor.kt =====
+﻿package com.example.swtermproject.ocr
+
+data class BReceiptItemCandidate(
+    val name: String,
+    val amountText: String? = null
+)
+
+object BReceiptItemExtractor {
+    private val ignoredKeywords = listOf(
+        "합계", "카드", "승인", "영수증", "부가세", "과세", "면세", "거스름돈",
+        "전화", "사업자", "대표", "주소", "일시", "금액", "수량"
+    )
+
+    fun extractCandidates(lines: List<String>): List<BReceiptItemCandidate> {
+        return lines
+            .filterNot { line -> ignoredKeywords.any { line.contains(it) } }
+            .mapNotNull { line -> extractCandidate(line) }
+            .distinctBy { it.name }
+    }
+
+    private fun extractCandidate(line: String): BReceiptItemCandidate? {
+        val removedPrice = line.replace(Regex("[0-9,]+\\s*원?"), " ")
+        val cleaned = removedPrice
+            .replace(Regex("[^가-힣a-zA-Z0-9\\s]"), " ")
+            .trim()
+            .replace(Regex("\\s+"), " ")
+
+        if (cleaned.length < 2) return null
+
+        val amount = Regex("(\\d+\\s?(g|kg|ml|l|개|구|봉))", RegexOption.IGNORE_CASE)
+            .find(line)
+            ?.value
+
+        val name = cleaned
+            .split(" ")
+            .filter { it.length >= 2 }
+            .joinToString(" ")
+            .trim()
+
+        if (name.isBlank()) return null
+
+        return BReceiptItemCandidate(
+            name = name,
+            amountText = amount
+        )
+    }
+}
+===== AndroidManifest.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Swtermproject">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+</manifest>===== app/build.gradle.kts =====
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
+}
+
+android {
+    namespace = "com.example.swtermproject"
+    compileSdk = 34
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    defaultConfig {
+        applicationId = "com.example.swtermproject"
+        minSdk = 30
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+
+dependencies {
+    // Room DB
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    // ViewModel / LiveData
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    // TensorFlow Lite
+    implementation("org.tensorflow:tensorflow-lite:2.16.1")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.1")
+    implementation("io.coil-kt:coil:2.5.0")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("com.airbnb.android:lottie:6.4.0")
+}===== gradle/libs.versions.toml =====
+[versions]
+agp = "8.7.3"
+kotlin = "1.9.24"
+coreKtx = "1.13.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.1"
+material = "1.13.0"
+activity = "1.9.3"
+constraintlayout = "2.2.1"
+
+camerax = "1.3.4"
+mlkitBarcode = "17.3.0"
+mlkitTextRecognition = "16.0.1"
+
+room = "2.6.1"
+lifecycle = "2.8.7"
+work = "2.9.1"
+retrofit = "2.11.0"
+tensorflowLite = "2.16.1"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+
+mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcode" }
+mlkit-text-recognition-korean = { group = "com.google.mlkit", name = "text-recognition-korean", version.ref = "mlkitTextRecognition" }
+
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+tensorflow-lite = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tensorflowLite" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

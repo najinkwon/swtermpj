@@ -71,6 +71,18 @@ class BIngredientViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    fun updateIngredient(ingredient: BIngredient) {
+        viewModelScope.launch {
+            runCatching {
+                repository.updateIngredient(ingredient)
+            }.onSuccess {
+                _message.value = "재료 정보가 수정되었습니다."
+            }.onFailure {
+                _message.value = it.message ?: "재료 정보 수정에 실패했습니다."
+            }
+        }
+    }
+
     fun deleteIngredient(id: Long) {
         viewModelScope.launch {
             repository.deleteIngredient(id)

@@ -60,9 +60,10 @@
             android:layout_marginBottom="18dp">
 
             <TextView
+                android:id="@+id/textReceiptResultSummary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="총 3개의 재료를 찾았어요"
+                android:text="총 0개의 재료를 찾았어요"
                 android:textColor="@color/text_main"
                 android:textStyle="bold"
                 android:textSize="20sp" />
@@ -79,149 +80,18 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/cardReceiptMilk"
+            android:id="@+id/layoutReceiptItems"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_card"
-            android:elevation="3dp"
-            android:padding="18dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginBottom="14dp">
-
-            <TextView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:gravity="center"
-                android:text="🥛"
-                android:textSize="26sp"
-                android:background="@drawable/bg_chip" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginLeft="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="우유"
-                    android:textColor="@color/text_main"
-                    android:textStyle="bold"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="유제품 · 100%"
-                    android:textColor="@color/text_sub"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/cardReceiptEgg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_card"
-            android:elevation="3dp"
-            android:padding="18dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginBottom="14dp">
-
-            <TextView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:gravity="center"
-                android:text="🥚"
-                android:textSize="26sp"
-                android:background="@drawable/bg_chip" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginLeft="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="계란"
-                    android:textColor="@color/text_main"
-                    android:textStyle="bold"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="단백질 · 100%"
-                    android:textColor="@color/text_sub"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/cardReceiptOnion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_card"
-            android:elevation="3dp"
-            android:padding="18dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
-
-            <TextView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:gravity="center"
-                android:text="🧅"
-                android:textSize="26sp"
-                android:background="@drawable/bg_chip" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginLeft="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="양파"
-                    android:textColor="@color/text_main"
-                    android:textStyle="bold"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="채소 · 100%"
-                    android:textColor="@color/text_sub"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
+            android:orientation="vertical" />
 
         <Button
             android:id="@+id/btnAddReceiptItems"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:text="냉장고에 모두 추가"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 

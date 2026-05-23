@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.ui.shopping
+package com.example.swtermproject.ui.shopping
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,78 +6,83 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.R
-import com.example.swtermproject.data.model.ATempIngredientStore
 import com.example.swtermproject.data.model.ShoppingItem
+import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.viewmodel.BIngredientViewModel
+import kotlinx.coroutines.launch
 
 class AShoppingFragment : Fragment() {
+
+    private val viewModel: BIngredientViewModel by viewModels()
+
+    private lateinit var summary: TextView
+    private lateinit var mainMessage: TextView
+    private lateinit var subMessage: TextView
+    private lateinit var recyclerView: RecyclerView
+
+    private val shoppingList = mutableListOf<ShoppingItem>()
+    private lateinit var adapter: AShoppingAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         val view = inflater.inflate(
             R.layout.fragment_shopping,
             container,
             false
         )
 
-        val summary =
-            view.findViewById<TextView>(
-                R.id.textShoppingSummary
-            )
+        summary = view.findViewById(R.id.textShoppingSummary)
+        mainMessage = view.findViewById(R.id.textShoppingMainMessage)
+        subMessage = view.findViewById(R.id.textShoppingSubMessage)
+        recyclerView = view.findViewById(R.id.recyclerShopping)
 
-        val mainMessage =
-            view.findViewById<TextView>(
-                R.id.textShoppingMainMessage
-            )
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val subMessage =
-            view.findViewById<TextView>(
-                R.id.textShoppingSubMessage
-            )
+        adapter = AShoppingAdapter(shoppingList)
+        recyclerView.adapter = adapter
 
-        val recyclerView =
-            view.findViewById<RecyclerView>(
-                R.id.recyclerShopping
-            )
+        return view
+    }
 
-        recyclerView.layoutManager =
-            LinearLayoutManager(requireContext())
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeIngredients()
+    }
 
-        val shoppingList =
-            mutableListOf<ShoppingItem>()
-
-        ATempIngredientStore.ingredients.forEach { ingredient ->
-
-            if (ingredient.percent <= 20) {
-
-                val emoji = when (ingredient.category) {
-
-                    "채소" -> "🥬"
-
-                    "유제품" -> "🥛"
-
-                    "단백질" -> "🍖"
-
-                    "조미료/소스" -> "🥫"
-
-                    else -> "🛒"
+    private fun observeIngredients() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.ingredients.collect { ingredients ->
+                    updateShoppingList(ingredients)
                 }
+            }
+        }
+    }
 
+    private fun updateShoppingList(ingredients: List<BIngredient>) {
+        shoppingList.clear()
+
+        ingredients
+            .filter { it.stockPercent <= 20 }
+            .forEach { ingredient ->
                 shoppingList.add(
                     ShoppingItem(
-                        emoji = emoji,
+                        emoji = emojiForCategory(ingredient.category),
                         name = ingredient.name,
-                        percent = ingredient.percent
+                        percent = ingredient.stockPercent.coerceIn(0, 100)
                     )
                 )
             }
-        }
 
         summary.text =
             "현재 ${shoppingList.size}개의 재료 구매를 추천해요"
@@ -96,9 +101,16 @@ class AShoppingFragment : Fragment() {
                 "부족한 재료만 모아서 보여드릴게요"
             }
 
-        recyclerView.adapter =
-            AShoppingAdapter(shoppingList)
+        adapter.notifyDataSetChanged()
+    }
 
-        return view
+    private fun emojiForCategory(category: String): String {
+        return when (category) {
+            "채소" -> "🥬"
+            "유제품" -> "🥛"
+            "단백질" -> "🍖"
+            "조미료/소스" -> "🥫"
+            else -> "🛒"
+        }
     }
 }

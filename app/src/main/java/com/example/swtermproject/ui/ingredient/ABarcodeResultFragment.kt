@@ -1,8 +1,6 @@
 package com.example.swtermproject.ui.ingredient
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,15 +11,25 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.airbnb.lottie.LottieAnimationView
+import androidx.lifecycle.lifecycleScope
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
-import com.example.swtermproject.data.model.ATempIngredientStore
-import com.example.swtermproject.data.model.Ingredient
+import com.example.swtermproject.data.local.BAppDatabase
+import com.example.swtermproject.data.remote.barcode.BBarcodeProduct
+import com.example.swtermproject.data.remote.barcode.BFoodsafetyBarcodeClient
+import com.example.swtermproject.data.repository.BBarcodeRepository
+import com.example.swtermproject.data.repository.BIngredientRepository
+import com.example.swtermproject.domain.model.BIngredient
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ABarcodeResultFragment : Fragment() {
 
     private var barcode: String = ""
+    private var currentProduct: BBarcodeProduct? = null
+
+    private val barcodeRepository =
+        BBarcodeRepository(BFoodsafetyBarcodeClient.api)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,25 +52,32 @@ class ABarcodeResultFragment : Fragment() {
         val productCard = view.findViewById<LinearLayout>(R.id.productCard)
         val errorCard = view.findViewById<LinearLayout>(R.id.errorCard)
 
-        val lottieLoading = view.findViewById<LottieAnimationView>(R.id.lottieLoading)
+        val lottieLoading = view.findViewById<View>(R.id.lottieLoading)
         val progressFallback = view.findViewById<ProgressBar>(R.id.progressFallback)
 
-        setupOptionalLoadingLottie(lottieLoading, progressFallback)
+        setupLoadingFallback(lottieLoading, progressFallback)
 
         val textBarcodeNumber = view.findViewById<TextView>(R.id.textBarcodeNumber)
+        val textProductEmoji = view.findViewById<TextView>(R.id.textProductEmoji)
         val textProductName = view.findViewById<TextView>(R.id.textProductName)
         val textCompany = view.findViewById<TextView>(R.id.textCompany)
         val textProductCategory = view.findViewById<TextView>(R.id.textProductCategory)
+        val textErrorMessage = view.findViewById<TextView>(R.id.textErrorMessage)
 
         val btnAdd = view.findViewById<Button>(R.id.btnAddBarcodeIngredient)
         val btnRetry = view.findViewById<Button>(R.id.btnRetryBarcode)
         val btnManualInput = view.findViewById<Button>(R.id.btnManualInput)
+
+        val ingredientRepository = BIngredientRepository(
+            BAppDatabase.getDatabase(requireContext()).ingredientDao()
+        )
 
         contentLayout.visibility = View.INVISIBLE
 
         fun showLoading() {
             loadingLayout.visibility = View.VISIBLE
             contentLayout.visibility = View.INVISIBLE
+            btnAdd.isEnabled = false
         }
 
         fun showContent() {
@@ -74,32 +89,58 @@ class ABarcodeResultFragment : Fragment() {
             contentLayout.startAnimation(fadeIn)
         }
 
+        fun showProduct(product: BBarcodeProduct) {
+            currentProduct = product
+
+            productCard.visibility = View.VISIBLE
+            errorCard.visibility = View.GONE
+
+            textProductEmoji.text = emojiForCategory(product.category)
+            textProductName.text = product.name
+            textCompany.text = product.company
+            textProductCategory.text = product.category
+
+            btnAdd.isEnabled = true
+        }
+
+        fun showError(message: String) {
+            currentProduct = null
+
+            productCard.visibility = View.GONE
+            errorCard.visibility = View.VISIBLE
+            textErrorMessage.text = message
+
+            btnAdd.isEnabled = false
+        }
+
         fun loadProduct() {
             showLoading()
+            textBarcodeNumber.text = "바코드 번호: $barcode"
 
-            Handler(Looper.getMainLooper()).postDelayed({
-                textBarcodeNumber.text = "바코드 번호: $barcode"
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
 
-                val product = getDummyProduct(barcode)
+                val result = runCatching {
+                    barcodeRepository.searchProduct(barcode)
+                }
 
-                if (product == null) {
-                    productCard.visibility = View.GONE
-                    errorCard.visibility = View.VISIBLE
+                val product = result.getOrNull()
+
+                if (product != null) {
+                    showProduct(product)
                 } else {
-                    productCard.visibility = View.VISIBLE
-                    errorCard.visibility = View.GONE
+                    val message = result.exceptionOrNull()?.message
+                        ?: "식품안전나라 API에서 해당 바코드 상품 정보를 찾지 못했어요. 직접 입력으로 등록해 주세요."
 
-                    textProductName.text = product.name
-                    textCompany.text = product.company
-                    textProductCategory.text = product.category
+                    showError(message)
                 }
 
                 showContent()
-            }, 800)
+            }
         }
 
         btnAdd.setOnClickListener {
-            val product = getDummyProduct(barcode)
+            val product = currentProduct
 
             if (product == null) {
                 Toast.makeText(
@@ -110,23 +151,39 @@ class ABarcodeResultFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val isNewItem = ATempIngredientStore.addIngredient(
-                Ingredient(
-                    name = product.name,
-                    category = product.category,
-                    percent = 100
-                )
-            )
+            btnAdd.isEnabled = false
 
-            val message = if (isNewItem) {
-                "${product.name} 추가 완료!"
-            } else {
-                "${product.name} 재고 갱신 완료!"
+            viewLifecycleOwner.lifecycleScope.launch {
+                runCatching {
+                    ingredientRepository.addIngredient(
+                        BIngredient(
+                            name = product.name,
+                            category = product.category,
+                            initialAmount = 1.0,
+                            currentAmount = 1.0,
+                            unit = "개",
+                            expiryDate = "",
+                            storageType = "냉장"
+                        )
+                    )
+                }.onSuccess {
+                    Toast.makeText(
+                        requireContext(),
+                        "${product.name} 추가 완료!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    (activity as MainActivity).openIngredientList()
+                }.onFailure {
+                    btnAdd.isEnabled = true
+
+                    Toast.makeText(
+                        requireContext(),
+                        it.message ?: "상품 추가에 실패했습니다",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-
-            (activity as MainActivity).openIngredientList()
         }
 
         btnRetry.setOnClickListener {
@@ -142,54 +199,23 @@ class ABarcodeResultFragment : Fragment() {
         return view
     }
 
-    private fun setupOptionalLoadingLottie(
-        lottieView: LottieAnimationView,
+    private fun emojiForCategory(category: String): String {
+        return when (category) {
+            "채소" -> "🥬"
+            "유제품" -> "🥛"
+            "단백질" -> "🥚"
+            "조미료/소스" -> "🥫"
+            else -> "📦"
+        }
+    }
+
+    private fun setupLoadingFallback(
+        lottieView: View,
         fallbackProgress: ProgressBar
     ) {
-        val resId = resources.getIdentifier(
-            "lottie_loading",
-            "raw",
-            requireContext().packageName
-        )
-
-        if (resId != 0) {
-            lottieView.setAnimation(resId)
-            lottieView.visibility = View.VISIBLE
-            fallbackProgress.visibility = View.GONE
-            lottieView.playAnimation()
-        } else {
-            lottieView.visibility = View.GONE
-            fallbackProgress.visibility = View.VISIBLE
-        }
+        lottieView.visibility = View.GONE
+        fallbackProgress.visibility = View.VISIBLE
     }
-
-    private fun getDummyProduct(barcode: String): BarcodeProduct? {
-        return when {
-            barcode.startsWith("880") -> {
-                BarcodeProduct(
-                    name = "서울우유 1L",
-                    company = "서울우유협동조합",
-                    category = "유제품"
-                )
-            }
-
-            barcode.startsWith("490") -> {
-                BarcodeProduct(
-                    name = "수입 식품",
-                    company = "수입사 정보",
-                    category = "기타"
-                )
-            }
-
-            else -> null
-        }
-    }
-
-    data class BarcodeProduct(
-        val name: String,
-        val company: String,
-        val category: String
-    )
 
     companion object {
         fun newInstance(barcode: String): ABarcodeResultFragment {

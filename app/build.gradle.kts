@@ -1,7 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use {
+        localProperties.load(it)
+    }
 }
 
 android {
@@ -10,6 +21,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -18,6 +30,15 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        val foodSafetyApiKey =
+            localProperties.getProperty("FOODSAFETY_API_KEY", "")
+
+        buildConfigField(
+            "String",
+            "FOODSAFETY_API_KEY",
+            "\"$foodSafetyApiKey\""
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -31,10 +52,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -59,14 +82,17 @@ dependencies {
 
     // TensorFlow Lite
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
@@ -76,4 +102,5 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.airbnb.android:lottie:6.4.0")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
 }
