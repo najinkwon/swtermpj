@@ -1,5 +1,7 @@
 package com.example.swtermproject.ui.ingredient
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
@@ -220,37 +222,21 @@ class ABarcodeResultFragment : Fragment() {
 
             btnAdd.isEnabled = false
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                runCatching {
-                    ingredientRepository.addIngredient(
-                        BIngredient(
-                            name = product.name,
-                            category = product.category,
-                            initialAmount = initialAmount,
-                            currentAmount = currentAmount,
-                            unit = unit,
-                            expiryDate = expiryDate,
-                            storageType = storageType
-                        )
-                    )
-                }.onSuccess {
-                    Toast.makeText(
-                        requireContext(),
-                        "${product.name} 추가 완료!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+            val incomingIngredient = BIngredient(
+                name = product.name,
+                category = product.category,
+                initialAmount = initialAmount,
+                currentAmount = currentAmount,
+                unit = unit,
+                expiryDate = expiryDate,
+                storageType = storageType
+            )
 
-                    (activity as MainActivity).openIngredientList()
-                }.onFailure {
-                    btnAdd.isEnabled = true
-
-                    Toast.makeText(
-                        requireContext(),
-                        it.message ?: "상품 추가에 실패했습니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+            handleBarcodeIngredientSave(
+                repository = ingredientRepository,
+                incomingIngredient = incomingIngredient,
+                button = btnAdd
+            )
         }
 
         btnRetry.setOnClickListener {
@@ -258,12 +244,186 @@ class ABarcodeResultFragment : Fragment() {
         }
 
         btnManualInput.setOnClickListener {
-            (activity as MainActivity).openIngredientInput()
+            openIngredientInputSafely()
         }
 
         loadProduct()
 
         return view
+    }
+
+    private fun openIngredientInputSafely() {
+        val hostActivity = activity
+
+        if (hostActivity is MainActivity) {
+            hostActivity.openIngredientInput()
+            return
+        }
+
+        val intent = Intent(requireContext(), MainActivity::class.java).apply {
+            putExtra(
+                MainActivity.EXTRA_START_DESTINATION,
+                MainActivity.DEST_INGREDIENT_INPUT
+            )
+        }
+
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
+    private fun openIngredientListSafely() {
+        val hostActivity = activity
+
+        if (hostActivity is MainActivity) {
+            hostActivity.openIngredientList()
+            return
+        }
+
+        val intent = Intent(requireContext(), MainActivity::class.java).apply {
+            putExtra(
+                MainActivity.EXTRA_START_DESTINATION,
+                MainActivity.DEST_INGREDIENT_LIST
+            )
+        }
+
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
+    private fun handleBarcodeIngredientSave(
+        repository: BIngredientRepository,
+        incomingIngredient: BIngredient,
+        button: Button
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching {
+                repository.findSimilarIngredientByName(incomingIngredient.name)
+            }.onSuccess { similar ->
+                if (similar == null) {
+                    saveBarcodeIngredient(
+                        repository = repository,
+                        incomingIngredient = incomingIngredient,
+                        button = button,
+                        forceNew = false
+                    )
+                } else {
+                    showBarcodeMergeDialog(
+                        repository = repository,
+                        existingIngredient = similar,
+                        incomingIngredient = incomingIngredient,
+                        button = button
+                    )
+                }
+            }.onFailure {
+                button.isEnabled = true
+
+                Toast.makeText(
+                    requireContext(),
+                    it.message ?: "중복 재료 확인에 실패했습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun showBarcodeMergeDialog(
+        repository: BIngredientRepository,
+        existingIngredient: BIngredient,
+        incomingIngredient: BIngredient,
+        button: Button
+    ) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("비슷한 재료가 이미 있어요")
+            .setMessage(
+                "기존 재료: ${existingIngredient.name}\n" +
+                    "새 재료: ${incomingIngredient.name}\n\n" +
+                    "같은 재료로 보고 수량을 합칠까요?"
+            )
+            .setPositiveButton("병합") { _, _ ->
+                mergeBarcodeIngredient(
+                    repository = repository,
+                    existingIngredient = existingIngredient,
+                    incomingIngredient = incomingIngredient,
+                    button = button
+                )
+            }
+            .setNegativeButton("새로 추가") { _, _ ->
+                saveBarcodeIngredient(
+                    repository = repository,
+                    incomingIngredient = incomingIngredient,
+                    button = button,
+                    forceNew = true
+                )
+            }
+            .setOnCancelListener {
+                button.isEnabled = true
+            }
+            .show()
+    }
+
+    private fun mergeBarcodeIngredient(
+        repository: BIngredientRepository,
+        existingIngredient: BIngredient,
+        incomingIngredient: BIngredient,
+        button: Button
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching {
+                repository.mergeIngredientWithExisting(
+                    existingId = existingIngredient.id,
+                    incoming = incomingIngredient
+                )
+            }.onSuccess {
+                Toast.makeText(
+                    requireContext(),
+                    "${existingIngredient.name}에 수량을 합쳤어요",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                openIngredientListSafely()
+            }.onFailure {
+                button.isEnabled = true
+
+                Toast.makeText(
+                    requireContext(),
+                    it.message ?: "재료 병합에 실패했습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun saveBarcodeIngredient(
+        repository: BIngredientRepository,
+        incomingIngredient: BIngredient,
+        button: Button,
+        forceNew: Boolean
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching {
+                if (forceNew) {
+                    repository.addIngredientAsNew(incomingIngredient)
+                } else {
+                    repository.addIngredient(incomingIngredient)
+                }
+            }.onSuccess {
+                Toast.makeText(
+                    requireContext(),
+                    "${incomingIngredient.name} 추가 완료!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                openIngredientListSafely()
+            }.onFailure {
+                button.isEnabled = true
+
+                Toast.makeText(
+                    requireContext(),
+                    it.message ?: "상품 추가에 실패했습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun setupSpinner(

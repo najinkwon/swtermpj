@@ -21,6 +21,12 @@ import com.example.swtermproject.ui.shopping.AShoppingFragment
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_START_DESTINATION = "extra_start_destination"
+        const val DEST_INGREDIENT_LIST = "ingredient_list"
+        const val DEST_INGREDIENT_INPUT = "ingredient_input"
+    }
+
     private lateinit var tabHome: LinearLayout
     private lateinit var tabIngredient: LinearLayout
     private lateinit var tabRecipe: LinearLayout
@@ -44,8 +50,7 @@ class MainActivity : AppCompatActivity() {
         initBottomTabs()
 
         if (savedInstanceState == null) {
-            replaceFragment(AHomeFragment())
-            selectTab("home")
+            handleStartDestination()
         }
 
         tabHome.setOnClickListener {
@@ -66,6 +71,25 @@ class MainActivity : AppCompatActivity() {
         tabNotification.setOnClickListener {
             replaceFragment(ANotificationFragment())
             selectTab("notification")
+        }
+    }
+
+    private fun handleStartDestination() {
+        when (intent.getStringExtra(EXTRA_START_DESTINATION)) {
+            DEST_INGREDIENT_INPUT -> {
+                replaceFragment(AIngredientInputFragment())
+                selectTab("ingredient")
+            }
+
+            DEST_INGREDIENT_LIST -> {
+                replaceFragment(AIngredientListFragment())
+                selectTab("ingredient")
+            }
+
+            else -> {
+                replaceFragment(AHomeFragment())
+                selectTab("home")
+            }
         }
     }
 

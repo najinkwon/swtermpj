@@ -20,6 +20,9 @@ interface BIngredientDao {
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     suspend fun getIngredientById(id: Long): BIngredientEntity?
 
+    @Query("SELECT * FROM ingredients WHERE name = :name COLLATE NOCASE LIMIT 1")
+    suspend fun getIngredientByName(name: String): BIngredientEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIngredient(ingredient: BIngredientEntity): Long
 

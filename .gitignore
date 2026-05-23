@@ -46,3 +46,5 @@ __pycache__/
 !app/src/main/assets/ml/ingredient_classifier.tflite
 !app/src/main/assets/ml/labels.txt
 !app/src/main/assets/ml/vocabulary.json
+# temporary debug/export files
+*.txt

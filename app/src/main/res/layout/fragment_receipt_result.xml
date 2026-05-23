@@ -79,6 +79,14 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btnAddReceiptCandidate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="인식 후보 직접 추가"
+            android:textSize="15sp"
+            android:layout_marginBottom="12dp" />
+
         <LinearLayout
             android:id="@+id/layoutReceiptItems"
             android:layout_width="match_parent"
@@ -89,7 +97,7 @@
             android:id="@+id/btnAddReceiptItems"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="냉장고에 모두 추가"
+            android:text="선택한 재료 냉장고에 추가"
             android:textSize="16sp"
             android:layout_marginTop="8dp" />
 

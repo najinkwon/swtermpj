@@ -22,6 +22,14 @@ class BIngredientViewModel(application: Application) : AndroidViewModel(applicat
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message
 
+    private val _similarIngredient = MutableStateFlow<SimilarIngredientState?>(null)
+    val similarIngredient: StateFlow<SimilarIngredientState?> = _similarIngredient
+
+    data class SimilarIngredientState(
+        val existing: BIngredient,
+        val incoming: BIngredient
+    )
+
     init {
         observeIngredients()
     }
@@ -76,23 +84,63 @@ class BIngredientViewModel(application: Application) : AndroidViewModel(applicat
     ) {
         viewModelScope.launch {
             runCatching {
-                repository.addIngredient(
-                    BIngredient(
-                        name = name,
-                        category = category,
-                        initialAmount = initialAmount,
-                        currentAmount = currentAmount,
-                        unit = unit,
-                        expiryDate = expiryDate,
-                        storageType = storageType
-                    )
+                val incoming = BIngredient(
+                    name = name,
+                    category = category,
+                    initialAmount = initialAmount,
+                    currentAmount = currentAmount,
+                    unit = unit,
+                    expiryDate = expiryDate,
+                    storageType = storageType
                 )
-            }.onSuccess {
+
+                val similar = repository.findSimilarIngredientByName(name)
+
+                if (similar != null) {
+                    _similarIngredient.value = SimilarIngredientState(
+                        existing = similar,
+                        incoming = incoming
+                    )
+                    return@launch
+                }
+
+                repository.addIngredient(incoming)
                 _message.value = "재료가 추가되었습니다."
             }.onFailure {
                 _message.value = it.message ?: "재료 추가에 실패했습니다."
             }
         }
+    }
+
+    fun resolveSimilarIngredient(merge: Boolean) {
+        val state = _similarIngredient.value ?: return
+        _similarIngredient.value = null
+
+        viewModelScope.launch {
+            runCatching {
+                if (merge) {
+                    repository.mergeIngredientWithExisting(
+                        existingId = state.existing.id,
+                        incoming = state.incoming
+                    )
+                } else {
+                    repository.addIngredientAsNew(state.incoming)
+                }
+            }.onSuccess {
+                _message.value =
+                    if (merge) {
+                        "기존 재료와 병합했습니다."
+                    } else {
+                        "새 재료로 추가했습니다."
+                    }
+            }.onFailure {
+                _message.value = it.message ?: "재료 추가에 실패했습니다."
+            }
+        }
+    }
+
+    fun clearSimilarIngredient() {
+        _similarIngredient.value = null
     }
 
     fun updateCurrentAmount(id: Long, currentAmount: Double) {

@@ -1,5 +1,6 @@
 package com.example.swtermproject.ui.ingredient
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
@@ -161,6 +162,35 @@ class AIngredientInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeMessage()
+        observeSimilarIngredient()
+    }
+
+    private fun observeSimilarIngredient() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.similarIngredient.collect { state ->
+                    if (state == null) return@collect
+
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("비슷한 재료가 이미 있어요")
+                        .setMessage(
+                            "기존 재료: ${state.existing.name}\n" +
+                                "새 재료: ${state.incoming.name}\n\n" +
+                                "같은 재료로 보고 수량을 합칠까요?"
+                        )
+                        .setPositiveButton("병합") { _, _ ->
+                            viewModel.resolveSimilarIngredient(merge = true)
+                        }
+                        .setNegativeButton("새로 추가") { _, _ ->
+                            viewModel.resolveSimilarIngredient(merge = false)
+                        }
+                        .setOnCancelListener {
+                            viewModel.clearSimilarIngredient()
+                        }
+                        .show()
+                }
+            }
+        }
     }
 
     private fun setupSpinner(
