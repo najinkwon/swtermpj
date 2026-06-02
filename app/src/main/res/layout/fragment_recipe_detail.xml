@@ -167,7 +167,16 @@
                 android:textStyle="bold"
                 android:background="@drawable/bg_outline_button"
                 android:textColor="@color/primary_green_dark"
-                android:layout_marginTop="22dp" />
+                android:layout_marginTop="22dp" 
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
             <Button
                 android:id="@+id/btnShopping"
@@ -178,7 +187,16 @@
                 android:textStyle="bold"
                 android:background="@drawable/bg_primary_button"
                 android:textColor="@color/white"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="12dp" 
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
         </LinearLayout>
 

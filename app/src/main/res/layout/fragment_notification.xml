@@ -51,32 +51,82 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="@drawable/bg_chip_white"
-        android:paddingLeft="15dp"
-        android:paddingRight="13dp"
+        android:padding="15dp"
         android:layout_marginBottom="15dp"
         android:elevation="0dp">
 
-        <TextView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="알림을 누르면 관련 화면으로 바로 이동해요"
-            android:textColor="@color/text_sub"
-            android:textSize="13sp"
-            android:singleLine="true"
-            android:ellipsize="end" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:gravity="center"
-            android:text="✨"
-            android:textSize="20sp"
-            android:background="@drawable/bg_chip" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알림을 누르면 관련 화면으로 바로 이동해요"
+                android:textColor="@color/text_sub"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:gravity="center"
+                android:text="✨"
+                android:textSize="20sp"
+                android:background="@drawable/bg_chip" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutNotificationActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <Button
+                android:id="@+id/btnMarkAllRead"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="모두 읽음"
+                android:textSize="13sp" 
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+            <Button
+                android:id="@+id/btnResetDeletedNotifications"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="삭제 초기화"
+                android:textSize="13sp"
+                android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+        </LinearLayout>
 
     </LinearLayout>
 

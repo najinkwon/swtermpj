@@ -122,6 +122,14 @@
             android:layout_height="54dp"
             android:text="영수증 인식 시작"
             android:textSize="16sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
             android:layout_marginTop="22dp" />
 
         <Button
@@ -130,6 +138,14 @@
             android:layout_height="54dp"
             android:text="샘플 결과 확인"
             android:textSize="16sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
             android:layout_marginTop="12dp" />
 
     </LinearLayout>

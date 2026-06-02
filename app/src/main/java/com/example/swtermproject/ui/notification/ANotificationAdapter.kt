@@ -1,4 +1,4 @@
-﻿package com.example.swtermproject.ui.notification
+package com.example.swtermproject.ui.notification
 
 import android.view.LayoutInflater
 import android.view.View
@@ -59,6 +59,11 @@ class ANotificationAdapter(
             else -> "✅"
         }
 
+        val isEmptyState = item.title == "냉장고 상태가 좋아요"
+
+        holder.btnDelete.visibility =
+            if (isEmptyState) View.GONE else View.VISIBLE
+
         if (item.isRead) {
             holder.root.alpha = 0.72f
             holder.title.setTextColor(textSub)
@@ -72,13 +77,25 @@ class ANotificationAdapter(
         }
 
         holder.root.setOnClickListener {
+            val adapterPosition = holder.bindingAdapterPosition
+
+            if (adapterPosition == RecyclerView.NO_POSITION) {
+                return@setOnClickListener
+            }
+
             item.isRead = true
-            notifyItemChanged(holder.adapterPosition)
+            notifyItemChanged(adapterPosition)
             onItemClick(item)
         }
 
         holder.btnDelete.setOnClickListener {
-            onDeleteClick(holder.adapterPosition)
+            val adapterPosition = holder.bindingAdapterPosition
+
+            if (adapterPosition == RecyclerView.NO_POSITION) {
+                return@setOnClickListener
+            }
+
+            onDeleteClick(adapterPosition)
         }
 
         holder.itemView.alpha = 0f

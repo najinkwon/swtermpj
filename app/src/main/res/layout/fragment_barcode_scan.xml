@@ -123,6 +123,14 @@
             android:layout_height="54dp"
             android:text="바코드 스캔 시작"
             android:textSize="16sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
             android:layout_marginTop="22dp" />
 
         <Button
@@ -131,6 +139,14 @@
             android:layout_height="54dp"
             android:text="샘플 바코드로 조회 확인"
             android:textSize="16sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
             android:layout_marginTop="12dp" />
 
     </LinearLayout>

@@ -243,6 +243,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:text="입력한 정보로 냉장고에 추가"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                     android:textSize="16sp" />
 
             </LinearLayout>
@@ -283,6 +291,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:text="다시 조회하기"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                     android:textSize="16sp" />
 
                 <Button
@@ -291,6 +307,14 @@
                     android:layout_height="54dp"
                     android:text="직접 입력하기"
                     android:textSize="16sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                     android:layout_marginTop="12dp" />
 
             </LinearLayout>

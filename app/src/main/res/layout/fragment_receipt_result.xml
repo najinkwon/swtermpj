@@ -85,6 +85,14 @@
             android:layout_height="50dp"
             android:text="인식 후보 직접 추가"
             android:textSize="15sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
             android:layout_marginBottom="12dp" />
 
         <LinearLayout
@@ -99,6 +107,14 @@
             android:layout_height="54dp"
             android:text="선택한 재료 냉장고에 추가"
             android:textSize="16sp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>
