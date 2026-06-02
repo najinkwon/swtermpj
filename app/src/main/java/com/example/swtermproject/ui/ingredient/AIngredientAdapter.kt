@@ -60,13 +60,25 @@ class AIngredientAdapter(
 
         holder.textName.text = ingredient.name
         holder.textCategory.text = ingredient.category
-        holder.textPercent.text = "$percent%"
-        holder.textExpireDay.text =
-            if (ingredient.expiryDate.isBlank()) {
-                "미입력"
-            } else {
-                "D-$expireDay"
-            }
+
+        if (percent >= 95) {
+            holder.textPercent.visibility = View.GONE
+        } else {
+            holder.textPercent.visibility = View.VISIBLE
+            holder.textPercent.text =
+                if (percent <= 20) {
+                    "부족"
+                } else {
+                    "$percent%"
+                }
+        }
+
+        if (ingredient.expiryDate.isBlank()) {
+            holder.textExpireDay.visibility = View.GONE
+        } else {
+            holder.textExpireDay.visibility = View.VISIBLE
+            holder.textExpireDay.text = "D-$expireDay"
+        }
 
         val warningColor = ContextCompat.getColor(context, R.color.accent_red)
         val safeColor = ContextCompat.getColor(context, R.color.primary_green_dark)
@@ -92,6 +104,24 @@ class AIngredientAdapter(
 
         holder.btnFavorite.text =
             if (ingredient.favorite) "★" else "☆"
+
+        holder.btnFavorite.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (ingredient.favorite) {
+                    R.color.accent_coral
+                } else {
+                    R.color.text_hint
+                }
+            )
+        )
+
+        holder.btnDelete.setTextColor(
+            ContextCompat.getColor(
+                context,
+                R.color.text_hint
+            )
+        )
 
         holder.textSelect.visibility =
             if (selectionMode) View.VISIBLE else View.GONE
