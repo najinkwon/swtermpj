@@ -58,6 +58,44 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/layoutSelectionBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_stat_red"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textSelectionCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0개 선택됨"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:textSize="15sp" />
+
+                <Button
+                    android:id="@+id/btnDeleteSelected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="선택 삭제"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnCancelSelection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="취소"
+                    android:textSize="13sp"
+                    android:layout_marginLeft="8dp" />
+
+            </LinearLayout>
+
             <EditText
                 android:id="@+id/editSearch"
                 android:layout_width="match_parent"

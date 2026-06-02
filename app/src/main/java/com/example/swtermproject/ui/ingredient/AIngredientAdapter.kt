@@ -20,10 +20,15 @@ class AIngredientAdapter(
     private val onDeleteClick: (Int) -> Unit,
     private val onAmountChanged: (ingredientId: Long, currentAmount: Double) -> Unit,
     private val onIngredientUpdated: (BIngredient) -> Unit,
-    private val onDataChanged: () -> Unit
+    private val onDataChanged: () -> Unit,
+    private val onSelectionChanged: (Set<Long>) -> Unit
 ) : RecyclerView.Adapter<AIngredientAdapter.ViewHolder>() {
 
+    private var selectionMode = false
+    private val selectedIds = mutableSetOf<Long>()
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textSelect: TextView = view.findViewById(R.id.textIngredientSelect)
         val textIcon: TextView = view.findViewById(R.id.textIngredientIcon)
         val textName: TextView = view.findViewById(R.id.textIngredientName)
         val textCategory: TextView = view.findViewById(R.id.textIngredientCategory)
@@ -51,17 +56,23 @@ class AIngredientAdapter(
 
         val percent = ingredient.stockPercent.coerceIn(0, 100)
         val expireDay = calculateExpireDay(ingredient.expiryDate)
+        val isSelected = selectedIds.contains(ingredient.id)
 
         holder.textName.text = ingredient.name
         holder.textCategory.text = ingredient.category
         holder.textPercent.text = "$percent%"
-        holder.textExpireDay.text = "D-$expireDay"
+        holder.textExpireDay.text =
+            if (ingredient.expiryDate.isBlank()) {
+                "미입력"
+            } else {
+                "D-$expireDay"
+            }
 
         val warningColor = ContextCompat.getColor(context, R.color.accent_red)
         val safeColor = ContextCompat.getColor(context, R.color.primary_green_dark)
 
         holder.textExpireDay.setTextColor(
-            if (expireDay <= 3) warningColor else safeColor
+            if (expireDay <= 3 && ingredient.expiryDate.isNotBlank()) warningColor else safeColor
         )
 
         holder.textIcon.text = when (ingredient.category) {
@@ -82,30 +93,63 @@ class AIngredientAdapter(
         holder.btnFavorite.text =
             if (ingredient.favorite) "★" else "☆"
 
+        holder.textSelect.visibility =
+            if (selectionMode) View.VISIBLE else View.GONE
+
+        holder.textSelect.alpha =
+            if (isSelected) 1f else 0.25f
+
+        holder.itemView.setBackgroundResource(
+            if (isSelected) {
+                R.drawable.bg_stat_mint
+            } else {
+                R.drawable.bg_card
+            }
+        )
+
+        holder.btnDelete.visibility =
+            if (selectionMode) View.GONE else View.VISIBLE
+
+        holder.btnFavorite.visibility =
+            if (selectionMode) View.GONE else View.VISIBLE
+
         holder.btnFavorite.setOnClickListener {
             val updated = ingredient.copy(favorite = !ingredient.favorite)
             onIngredientUpdated(updated)
             onDataChanged()
         }
 
+        holder.itemView.setOnLongClickListener {
+            if (!selectionMode) {
+                selectionMode = true
+            }
+
+            toggleSelection(ingredient.id)
+            true
+        }
+
         holder.itemView.setOnClickListener {
-            AIngredientDetailBottomSheet(
-                ingredient = ingredient,
-                expireDay = expireDay,
-                onAmountChanged = { newCurrentAmount ->
-                    onAmountChanged(ingredient.id, newCurrentAmount)
-                },
-                onIngredientUpdated = { updatedIngredient ->
-                    onIngredientUpdated(updatedIngredient)
-                },
-                onChanged = {
-                    notifyDataSetChanged()
-                    onDataChanged()
-                }
-            ).show(
-                activity.supportFragmentManager,
-                "ingredient_detail"
-            )
+            if (selectionMode) {
+                toggleSelection(ingredient.id)
+            } else {
+                AIngredientDetailBottomSheet(
+                    ingredient = ingredient,
+                    expireDay = expireDay,
+                    onAmountChanged = { newCurrentAmount ->
+                        onAmountChanged(ingredient.id, newCurrentAmount)
+                    },
+                    onIngredientUpdated = { updatedIngredient ->
+                        onIngredientUpdated(updatedIngredient)
+                    },
+                    onChanged = {
+                        notifyDataSetChanged()
+                        onDataChanged()
+                    }
+                ).show(
+                    activity.supportFragmentManager,
+                    "ingredient_detail"
+                )
+            }
         }
 
         holder.btnDelete.setOnClickListener {
@@ -118,8 +162,34 @@ class AIngredientAdapter(
         holder.itemView.alpha = 0f
         holder.itemView.animate()
             .alpha(1f)
-            .setDuration(300)
+            .setDuration(220)
             .start()
+    }
+
+    fun exitSelectionMode() {
+        selectionMode = false
+        selectedIds.clear()
+        onSelectionChanged(selectedIds.toSet())
+        notifyDataSetChanged()
+    }
+
+    fun getSelectedIds(): Set<Long> {
+        return selectedIds.toSet()
+    }
+
+    private fun toggleSelection(id: Long) {
+        if (selectedIds.contains(id)) {
+            selectedIds.remove(id)
+        } else {
+            selectedIds.add(id)
+        }
+
+        if (selectedIds.isEmpty()) {
+            selectionMode = false
+        }
+
+        onSelectionChanged(selectedIds.toSet())
+        notifyDataSetChanged()
     }
 
     private fun calculateExpireDay(expiryDate: String): Int {

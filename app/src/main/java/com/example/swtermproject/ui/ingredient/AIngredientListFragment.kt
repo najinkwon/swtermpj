@@ -45,6 +45,10 @@ class AIngredientListFragment : Fragment() {
     private lateinit var emptyLayout: LinearLayout
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var spinnerSort: Spinner
+    private lateinit var layoutSelectionBar: LinearLayout
+    private lateinit var textSelectionCount: android.widget.TextView
+    private lateinit var btnDeleteSelected: Button
+    private lateinit var btnCancelSelection: Button
 
     private lateinit var fabMain: FloatingActionButton
     private lateinit var fabMenuLayout: LinearLayout
@@ -83,6 +87,10 @@ class AIngredientListFragment : Fragment() {
         emptyLayout = view.findViewById(R.id.emptyLayout)
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
         spinnerSort = view.findViewById(R.id.spinnerSort)
+        layoutSelectionBar = view.findViewById(R.id.layoutSelectionBar)
+        textSelectionCount = view.findViewById(R.id.textSelectionCount)
+        btnDeleteSelected = view.findViewById(R.id.btnDeleteSelected)
+        btnCancelSelection = view.findViewById(R.id.btnCancelSelection)
         fabMain = view.findViewById(R.id.fabMain)
         fabMenuLayout = view.findViewById(R.id.fabMenuLayout)
 
@@ -111,6 +119,9 @@ class AIngredientListFragment : Fragment() {
             },
             onDataChanged = {
                 refreshList()
+            },
+            onSelectionChanged = { selectedIds ->
+                updateSelectionBar(selectedIds)
             }
         )
 
@@ -199,6 +210,14 @@ class AIngredientListFragment : Fragment() {
             refreshList()
         }
 
+        btnDeleteSelected.setOnClickListener {
+            showDeleteSelectedDialog()
+        }
+
+        btnCancelSelection.setOnClickListener {
+            adapter.exitSelectionMode()
+        }
+
         fabMain.setOnClickListener {
             toggleFabMenu()
         }
@@ -239,6 +258,38 @@ class AIngredientListFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun updateSelectionBar(selectedIds: Set<Long>) {
+        val count = selectedIds.size
+
+        layoutSelectionBar.visibility =
+            if (count > 0) View.VISIBLE else View.GONE
+
+        textSelectionCount.text = "${count}개 선택됨"
+
+        if (count > 0) {
+            closeFabMenu()
+        }
+    }
+
+    private fun showDeleteSelectedDialog() {
+        val selectedIds = adapter.getSelectedIds()
+
+        if (selectedIds.isEmpty()) return
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("선택 재료 삭제")
+            .setMessage("선택한 ${selectedIds.size}개의 재료를 삭제할까요?")
+            .setPositiveButton("삭제") { _, _ ->
+                selectedIds.forEach { id ->
+                    viewModel.deleteIngredient(id)
+                }
+
+                adapter.exitSelectionMode()
+            }
+            .setNegativeButton("취소", null)
+            .show()
     }
 
     private fun toggleFabMenu() {
