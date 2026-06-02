@@ -48,3 +48,4 @@ __pycache__/
 !app/src/main/assets/ml/vocabulary.json
 # temporary debug/export files
 *.txt
+.DS_Store

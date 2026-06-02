@@ -76,6 +76,35 @@ class AIngredientInputFragment : Fragment() {
             }
         }
 
+        editName.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    val suggestedCategory = suggestCategoryByName(
+                        s?.toString().orEmpty()
+                    )
+
+                    selectSpinnerItem(
+                        spinner = spinnerCategory,
+                        value = suggestedCategory
+                    )
+                }
+
+                override fun afterTextChanged(s: Editable?) {}
+            }
+        )
+
         editInitialAmount.addTextChangedListener(
             object : TextWatcher {
                 override fun beforeTextChanged(
@@ -189,6 +218,80 @@ class AIngredientInputFragment : Fragment() {
                         }
                         .show()
                 }
+            }
+        }
+    }
+
+    private fun suggestCategoryByName(name: String): String {
+        val normalized = name.trim()
+
+        return when {
+            normalized.contains("우유") ||
+                normalized.contains("치즈") ||
+                normalized.contains("요거트") ||
+                normalized.contains("요구르트") ||
+                normalized.contains("버터") ||
+                normalized.contains("크림") -> "유제품"
+
+            normalized.contains("계란") ||
+                normalized.contains("달걀") ||
+                normalized.contains("고기") ||
+                normalized.contains("닭") ||
+                normalized.contains("닭가슴살") ||
+                normalized.contains("소고기") ||
+                normalized.contains("쇠고기") ||
+                normalized.contains("돼지고기") ||
+                normalized.contains("참치") ||
+                normalized.contains("두부") ||
+                normalized.contains("햄") ||
+                normalized.contains("스팸") -> "단백질"
+
+            normalized.contains("양파") ||
+                normalized.contains("대파") ||
+                normalized.contains("쪽파") ||
+                normalized.contains("파") ||
+                normalized.contains("마늘") ||
+                normalized.contains("상추") ||
+                normalized.contains("양배추") ||
+                normalized.contains("토마토") ||
+                normalized.contains("오이") ||
+                normalized.contains("당근") ||
+                normalized.contains("감자") ||
+                normalized.contains("고구마") ||
+                normalized.contains("버섯") ||
+                normalized.contains("채소") ||
+                normalized.contains("야채") -> "채소"
+
+            normalized.contains("간장") ||
+                normalized.contains("고추장") ||
+                normalized.contains("된장") ||
+                normalized.contains("소스") ||
+                normalized.contains("케첩") ||
+                normalized.contains("케찹") ||
+                normalized.contains("마요네즈") ||
+                normalized.contains("드레싱") ||
+                normalized.contains("참기름") ||
+                normalized.contains("식용유") ||
+                normalized.contains("올리브유") ||
+                normalized.contains("소금") ||
+                normalized.contains("후추") ||
+                normalized.contains("설탕") ||
+                normalized.contains("고춧가루") -> "조미료/소스"
+
+            else -> "기타"
+        }
+    }
+
+    private fun selectSpinnerItem(
+        spinner: Spinner,
+        value: String
+    ) {
+        val adapter = spinner.adapter ?: return
+
+        for (index in 0 until adapter.count) {
+            if (adapter.getItem(index).toString() == value) {
+                spinner.setSelection(index)
+                return
             }
         }
     }
