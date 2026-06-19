@@ -120,7 +120,7 @@
                     android:id="@+id/textIngredients"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="• 계란"
+                    android:text="• 계란 1개 필요"
                     android:textSize="16sp"
                     android:textColor="@color/text_sub"
                     android:lineSpacingExtra="8dp"
@@ -165,8 +165,8 @@
                 android:text="유튜브 레시피 보기"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:background="@drawable/bg_outline_button"
-                android:textColor="@color/primary_green_dark"
+                android:background="@drawable/bg_primary_button"
+                android:textColor="@color/white"
                 android:layout_marginTop="22dp" />
 
             <Button
@@ -178,6 +178,17 @@
                 android:textStyle="bold"
                 android:background="@drawable/bg_primary_button"
                 android:textColor="@color/white"
+                android:layout_marginTop="12dp" />
+
+            <Button
+                android:id="@+id/btnCookDone"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="요리했어요"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_outline_button"
+                android:textColor="@color/primary_green_dark"
                 android:layout_marginTop="12dp" />
 
         </LinearLayout>

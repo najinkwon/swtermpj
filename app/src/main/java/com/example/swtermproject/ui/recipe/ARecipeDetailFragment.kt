@@ -1,5 +1,6 @@
 package com.example.swtermproject.ui.recipe
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -17,15 +18,26 @@ import com.example.swtermproject.data.local.BAppDatabase
 import com.example.swtermproject.data.repository.BIngredientRepository
 import com.example.swtermproject.domain.model.BIngredient
 import com.example.swtermproject.domain.model.BRecipe
+import com.example.swtermproject.domain.model.BRecipeIngredientStatus
 import com.example.swtermproject.recipe.BRecipeDataSource
 import com.example.swtermproject.recipe.BRecipeScorer
 import com.example.swtermproject.ui.shopping.AShoppingFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class ARecipeDetailFragment : Fragment() {
 
     private var recipeName: String = "계란볶음밥"
     private val currentMissingIngredients = mutableListOf<String>()
+
+    private lateinit var ingredientRepository: BIngredientRepository
+
+    private lateinit var textReason: TextView
+    private lateinit var textMatch: TextView
+    private lateinit var textIngredients: TextView
+    private lateinit var btnCookDone: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,16 +58,21 @@ class ARecipeDetailFragment : Fragment() {
         val recipe = BRecipeDataSource.recipes.find { it.title == recipeName }
             ?: BRecipeDataSource.recipes.first()
 
+        ingredientRepository = BIngredientRepository(
+            BAppDatabase.getDatabase(requireContext()).ingredientDao()
+        )
+
         val textImageEmoji = view.findViewById<TextView>(R.id.textRecipeImageEmoji)
         val textTitle = view.findViewById<TextView>(R.id.textRecipeTitle)
-        val textReason = view.findViewById<TextView>(R.id.textRecipeReason)
-        val textMatch = view.findViewById<TextView>(R.id.textMatch)
+        textReason = view.findViewById(R.id.textRecipeReason)
+        textMatch = view.findViewById(R.id.textMatch)
         val textCookTime = view.findViewById<TextView>(R.id.textCookTime)
         val textDifficulty = view.findViewById<TextView>(R.id.textDifficulty)
-        val textIngredients = view.findViewById<TextView>(R.id.textIngredients)
+        textIngredients = view.findViewById(R.id.textIngredients)
         val textSteps = view.findViewById<TextView>(R.id.textSteps)
         val btnYoutube = view.findViewById<Button>(R.id.btnYoutube)
         val btnShopping = view.findViewById<Button>(R.id.btnShopping)
+        btnCookDone = view.findViewById(R.id.btnCookDone)
 
         textImageEmoji.text = emojiForRecipe(recipe)
         textTitle.text = "${emojiForRecipe(recipe)} ${recipe.title}"
@@ -64,26 +81,14 @@ class ARecipeDetailFragment : Fragment() {
         textCookTime.text = cookTimeForRecipe(recipe)
         textDifficulty.text = difficultyForRecipe(recipe)
 
-        textIngredients.text = (recipe.mainIngredients + recipe.subIngredients + recipe.seasonings)
-            .joinToString("\n") { "• $it" }
+        textIngredients.text = BRecipeScorer.getRequirements(recipe)
+            .joinToString("\n") { requirement ->
+                "• ${requirement.name} ${formatAmount(requirement.amount)}${requirement.unit} 필요"
+            }
 
         textSteps.text = recipe.description
 
-        val ingredientRepository = BIngredientRepository(
-            BAppDatabase.getDatabase(requireContext()).ingredientDao()
-        )
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val ingredients = ingredientRepository.getAllIngredients()
-            val scoredRecipe = BRecipeScorer.scoreRecipe(recipe, ingredients)
-            bindRecipeMatch(
-                recipe = scoredRecipe,
-                ownedIngredients = ingredients,
-                textReason = textReason,
-                textMatch = textMatch,
-                textIngredients = textIngredients
-            )
-        }
+        loadRecipeMatch(recipe)
 
         btnYoutube.setOnClickListener {
             val intent = Intent(
@@ -100,7 +105,7 @@ class ARecipeDetailFragment : Fragment() {
             if (currentMissingIngredients.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
-                    "이 레시피는 부족한 재료가 없어요",
+                    "이 레시피는 부족한 필수 재료가 없어요",
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
@@ -111,7 +116,27 @@ class ARecipeDetailFragment : Fragment() {
             }
         }
 
+        btnCookDone.setOnClickListener {
+            showCookDoneConfirmDialog(recipe)
+        }
+
         return view
+    }
+
+    private fun loadRecipeMatch(recipe: BRecipe) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                val ingredients = ingredientRepository.getAllIngredients()
+                val scoredRecipe = BRecipeScorer.scoreRecipe(recipe, ingredients)
+
+                scoredRecipe to ingredients
+            }
+
+            bindRecipeMatch(
+                recipe = result.first,
+                ownedIngredients = result.second
+            )
+        }
     }
 
     private fun openRecipeShopping(
@@ -140,35 +165,58 @@ class ARecipeDetailFragment : Fragment() {
             .commit()
     }
 
+    private fun updateCookDoneButtonStyle(canCook: Boolean) {
+        if (canCook) {
+            btnCookDone.text = "요리했어요"
+            btnCookDone.setBackgroundResource(R.drawable.bg_primary_button)
+            btnCookDone.setTextColor(android.graphics.Color.WHITE)
+            btnCookDone.alpha = 1.0f
+        } else {
+            btnCookDone.text = "요리했어요"
+            btnCookDone.setBackgroundResource(R.drawable.bg_outline_button)
+            btnCookDone.setTextColor(
+                resources.getColor(R.color.primary_green_dark, null)
+            )
+            btnCookDone.alpha = 1.0f
+        }
+    }
+
     private fun bindRecipeMatch(
         recipe: BRecipe,
-        ownedIngredients: List<BIngredient>,
-        textReason: TextView,
-        textMatch: TextView,
-        textIngredients: TextView
+        ownedIngredients: List<BIngredient>
     ) {
-        val requiredIngredients =
-            recipe.mainIngredients + recipe.subIngredients + recipe.seasonings
+        val statuses =
+            if (recipe.ingredientStatuses.isNotEmpty()) {
+                recipe.ingredientStatuses
+            } else {
+                BRecipeScorer.scoreRecipe(recipe, ownedIngredients).ingredientStatuses
+            }
 
-        val requiredForPercent =
-            recipe.mainIngredients + recipe.subIngredients
+        val essentialStatuses = statuses.filter { it.requirement.essential }
+        val essentialMainAndSub = essentialStatuses.filter {
+            it.requirement.group == "main" || it.requirement.group == "sub"
+        }
+
+        val missingEssential = essentialStatuses
+            .filterNot { it.isEnough }
+
+        val canCook = missingEssential.isEmpty()
+        updateCookDoneButtonStyle(canCook)
 
         currentMissingIngredients.clear()
-        currentMissingIngredients.addAll(recipe.missingIngredients.distinct())
-
-        val missingSet = recipe.missingIngredients.toSet()
+        currentMissingIngredients.addAll(
+            missingEssential
+                .map { it.requirement.name }
+                .distinct()
+        )
 
         val matchPercent =
-            if (requiredForPercent.isEmpty()) {
+            if (essentialMainAndSub.isEmpty()) {
                 100
             } else {
-                val missingCount = recipe.missingIngredients
-                    .distinct()
-                    .count { it in requiredForPercent }
+                val enoughCount = essentialMainAndSub.count { it.isEnough }
 
-                val ownedCount = (requiredForPercent.size - missingCount).coerceAtLeast(0)
-
-                ((ownedCount.toDouble() / requiredForPercent.size.toDouble()) * 100.0)
+                ((enoughCount.toDouble() / essentialMainAndSub.size.toDouble()) * 100.0)
                     .toInt()
                     .coerceIn(0, 100)
             }
@@ -176,22 +224,154 @@ class ARecipeDetailFragment : Fragment() {
         textMatch.text = "재료 ${matchPercent}%"
 
         textReason.text =
-            if (recipe.missingIngredients.isEmpty()) {
-                "현재 냉장고 재료만으로 만들기 좋은 레시피예요."
+            if (missingEssential.isEmpty()) {
+                "필수 재료가 충분해요. 요리 후 '요리했어요'를 누르면 사용량만큼 재고가 차감돼요."
             } else {
-                "부족 재료: ${recipe.missingIngredients.joinToString(", ")}"
+                "부족 재료: ${
+                    missingEssential.joinToString(", ") {
+                        "${it.requirement.name} ${formatAmount(it.missingAmount)}${it.requirement.unit}"
+                    }
+                }"
             }
 
-        textIngredients.text = requiredIngredients.joinToString("\n") { required ->
-            val owned = ownedIngredients.any { ingredient ->
-                ingredient.name.contains(required, ignoreCase = true) ||
-                    required.contains(ingredient.name, ignoreCase = true)
+        textIngredients.text = statuses.joinToString("\n") { status ->
+            formatIngredientStatusLine(status)
+        }
+    }
+
+    private fun formatIngredientStatusLine(status: BRecipeIngredientStatus): String {
+        val requirement = status.requirement
+        val requiredText = "${formatAmount(requirement.amount)}${requirement.unit}"
+
+        val label =
+            when (requirement.group) {
+                "main" -> "주재료"
+                "sub" -> "부재료"
+                "seasoning" -> "양념"
+                else -> "재료"
             }
 
-            when {
-                required in missingSet -> "• $required  ❌ 부족"
-                owned -> "• $required  ✅ 보유"
-                else -> "• $required  ◻ 선택"
+        return when {
+            status.isEnough -> {
+                val ownedText = "${formatAmount(status.ownedAmount)}${status.ownedUnit}"
+                "• ${requirement.name} $requiredText 필요 / 보유 $ownedText  ✅"
+            }
+
+            status.isOwned && !status.isUnitCompatible -> {
+                val ownedText = "${formatAmount(status.ownedAmount)}${status.ownedUnit}"
+                "• ${requirement.name} $requiredText 필요 / 보유 $ownedText  ⚠ 단위 확인 필요"
+            }
+
+            !requirement.essential -> {
+                "• ${requirement.name} $requiredText 필요  ◻ 선택 $label"
+            }
+
+            else -> {
+                "• ${requirement.name} $requiredText 필요  ❌ 부족"
+            }
+        }
+    }
+
+    private fun showCookDoneConfirmDialog(recipe: BRecipe) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                val ingredients = ingredientRepository.getAllIngredients()
+                val scoredRecipe = BRecipeScorer.scoreRecipe(recipe, ingredients)
+
+                scoredRecipe to ingredients
+            }
+
+            val scoredRecipe = result.first
+            val ingredients = result.second
+            val statuses = scoredRecipe.ingredientStatuses
+
+            val missingEssential = statuses.filter {
+                it.requirement.essential && !it.isEnough
+            }
+
+            if (missingEssential.isNotEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    "필수 재료가 부족해서 재고를 차감할 수 없어요",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                bindRecipeMatch(
+                    recipe = scoredRecipe,
+                    ownedIngredients = ingredients
+                )
+                return@launch
+            }
+
+            val consumableStatuses = statuses.filter {
+                it.isEnough &&
+                        it.isUnitCompatible &&
+                        it.ownedIngredientId != null
+            }
+
+            if (consumableStatuses.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    "차감할 재료가 없습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+
+            val message = consumableStatuses.joinToString("\n") { status ->
+                "- ${status.requirement.name}: ${formatAmount(status.requirement.amount)}${status.requirement.unit} 차감"
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("요리했어요?")
+                .setMessage(
+                    "이 레시피에 사용된 재료를 냉장고 재고에서 차감할게요.\n\n$message"
+                )
+                .setPositiveButton("차감하기") { _, _ ->
+                    consumeRecipeIngredients(recipe, consumableStatuses)
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        }
+    }
+
+    private fun consumeRecipeIngredients(
+        recipe: BRecipe,
+        statuses: List<BRecipeIngredientStatus>
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    statuses.forEach { status ->
+                        val ingredientId = status.ownedIngredientId
+                            ?: return@forEach
+
+                        val newAmount =
+                            (status.ownedAmount - status.requirement.amount)
+                                .coerceAtLeast(0.0)
+
+                        ingredientRepository.updateCurrentAmount(
+                            id = ingredientId,
+                            currentAmount = newAmount
+                        )
+                    }
+                }
+            }
+
+            result.onSuccess {
+                Toast.makeText(
+                    requireContext(),
+                    "요리에 사용한 재료를 차감했어요",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                loadRecipeMatch(recipe)
+            }.onFailure {
+                Toast.makeText(
+                    requireContext(),
+                    it.message ?: "재고 차감에 실패했습니다",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -206,6 +386,8 @@ class ARecipeDetailFragment : Fragment() {
             source.contains("두부") -> "🥘"
             source.contains("규동") -> "🍱"
             source.contains("오므라이스") -> "🍳"
+            source.contains("샐러드") -> "🥗"
+            source.contains("샌드위치") -> "🥪"
             else -> "🍽️"
         }
     }
@@ -217,7 +399,8 @@ class ARecipeDetailFragment : Fragment() {
             recipe.title.contains("두부") -> "15분"
             recipe.title.contains("파스타") -> "20분"
             recipe.title.contains("오므라이스") -> "20분"
-            recipe.title.contains("규동") -> "20분"
+            recipe.title.contains("샐러드") -> "10분"
+            recipe.title.contains("샌드위치") -> "10분"
             else -> "15분"
         }
     }
@@ -226,7 +409,19 @@ class ARecipeDetailFragment : Fragment() {
         return when {
             recipe.title.contains("간장계란밥") -> "쉬움"
             recipe.title.contains("계란볶음밥") -> "쉬움"
+            recipe.title.contains("샐러드") -> "쉬움"
+            recipe.title.contains("샌드위치") -> "쉬움"
             else -> "보통"
+        }
+    }
+
+    private fun formatAmount(value: Double): String {
+        return if (value % 1.0 == 0.0) {
+            value.toInt().toString()
+        } else {
+            String.format(Locale.KOREA, "%.1f", value)
+                .trimEnd('0')
+                .trimEnd('.')
         }
     }
 

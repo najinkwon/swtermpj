@@ -29,7 +29,9 @@ class RecipeAdapter(
         return ViewHolder(view)
     }
 
-    override fun getItemCount(): Int = recipeList.size
+    override fun getItemCount(): Int {
+        return recipeList.size
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val recipe = recipeList[position]
@@ -44,13 +46,5 @@ class RecipeAdapter(
         holder.itemView.setOnClickListener {
             onClick(recipe)
         }
-
-        holder.itemView.alpha = 0f
-        holder.itemView.translationY = 40f
-        holder.itemView.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(320)
-            .start()
     }
 }

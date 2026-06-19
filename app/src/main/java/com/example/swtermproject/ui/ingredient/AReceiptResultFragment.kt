@@ -24,6 +24,9 @@ import com.example.swtermproject.R
 import com.example.swtermproject.data.local.BAppDatabase
 import com.example.swtermproject.data.repository.BIngredientRepository
 import com.example.swtermproject.domain.model.BIngredient
+import com.example.swtermproject.ocr.BAmountNormalizer
+import com.example.swtermproject.ocr.BIngredientDictionary
+import com.example.swtermproject.ocr.BReceiptItemCandidate
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Locale
@@ -43,32 +46,42 @@ class AReceiptResultFragment : Fragment() {
         val currentAmount: Double,
         val unit: String,
         val expiryDate: String,
-        val storageType: String
+        val storageType: String,
+        val amountSource: String = "unknown"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val received = arguments?.getStringArrayList(ARG_ITEM_NAMES)
+        val receivedNames = arguments?.getStringArrayList(ARG_ITEM_NAMES)
+            ?: arrayListOf()
+
+        val receivedCategories = arguments?.getStringArrayList(ARG_ITEM_CATEGORIES)
+            ?: arrayListOf()
+
+        val receivedAmounts = arguments?.getDoubleArray(ARG_ITEM_AMOUNTS)
+
+        val receivedUnits = arguments?.getStringArrayList(ARG_ITEM_UNITS)
             ?: arrayListOf()
 
         candidates.clear()
+
         candidates.addAll(
-            received
-                .map { it.trim() }
-                .filter { it.isNotBlank() }
-                .distinct()
-                .map { name ->
-                    ReceiptCandidate(
-                        name = name,
-                        category = categoryForName(name),
-                        initialAmount = 1.0,
-                        currentAmount = 1.0,
-                        unit = "개",
-                        expiryDate = "",
-                        storageType = "냉장"
+            receivedNames
+                .mapIndexed { index, rawName ->
+                    val amountArg = receivedAmounts
+                        ?.getOrNull(index)
+                        ?.takeIf { it > 0.0 }
+
+                    createCandidateFromArgument(
+                        rawName = rawName,
+                        categoryArg = receivedCategories.getOrNull(index),
+                        amountArg = amountArg,
+                        unitArg = receivedUnits.getOrNull(index)
                     )
                 }
+                .filter { it.name.isNotBlank() }
+                .distinctBy { it.name }
         )
     }
 
@@ -107,7 +120,8 @@ class AReceiptResultFragment : Fragment() {
                     currentAmount = 1.0,
                     unit = "개",
                     expiryDate = "",
-                    storageType = "냉장"
+                    storageType = "냉장",
+                    amountSource = "manual"
                 )
             )
         }
@@ -130,6 +144,60 @@ class AReceiptResultFragment : Fragment() {
         }
 
         return view
+    }
+
+    private fun createCandidateFromArgument(
+        rawName: String,
+        categoryArg: String?,
+        amountArg: Double?,
+        unitArg: String?
+    ): ReceiptCandidate {
+        val rawText = rawName.trim()
+
+        val dictionaryEntry = BIngredientDictionary.findBest(rawText)
+        val normalizedAmount = BAmountNormalizer.extractFromText(rawText)
+
+        val finalName = dictionaryEntry?.canonical
+            ?: rawText
+                .replace(
+                    Regex("\\d+(\\.\\d+)?\\s*(g|kg|ml|l|L|개|입|봉|팩|묶음|통|병|캔|ea|EA|근|구|알)")
+                    , ""
+                )
+                .replace(Regex("\\d+\\s*/\\s*\\d*"), "")
+                .trim()
+
+        val finalCategory = normalizeCategory(
+            categoryArg
+                ?: dictionaryEntry?.category
+                ?: categoryForName(finalName)
+        )
+
+        val unit = when {
+            !unitArg.isNullOrBlank() -> unitArg
+            normalizedAmount != null -> normalizedAmount.unit
+            else -> BAmountNormalizer.defaultUnitForIngredient(finalName)
+        }
+
+        val amount = when {
+            amountArg != null && amountArg > 0.0 -> amountArg
+            normalizedAmount != null && normalizedAmount.amount > 0.0 -> normalizedAmount.amount
+            else -> BAmountNormalizer.defaultAmountForUnit(unit)
+        }
+
+        return ReceiptCandidate(
+            name = finalName,
+            category = finalCategory,
+            initialAmount = amount,
+            currentAmount = amount,
+            unit = unit,
+            expiryDate = "",
+            storageType = "냉장",
+            amountSource = when {
+                amountArg != null -> "receipt"
+                normalizedAmount != null -> normalizedAmount.source
+                else -> "default"
+            }
+        )
     }
 
     private fun processReceiptCandidateSave(
@@ -191,8 +259,8 @@ class AReceiptResultFragment : Fragment() {
             .setTitle("비슷한 재료가 이미 있어요")
             .setMessage(
                 "기존 재료: ${existingIngredient.name}\n" +
-                    "새 재료: ${incomingIngredient.name}\n\n" +
-                    "같은 재료로 보고 수량을 합칠까요?"
+                        "새 재료: ${incomingIngredient.name}\n\n" +
+                        "같은 재료로 보고 수량을 합칠까요?"
             )
             .setPositiveButton("병합") { _, _ ->
                 mergeReceiptCandidate(
@@ -363,7 +431,13 @@ class AReceiptResultFragment : Fragment() {
                     candidate.expiryDate
                 }
 
-            text = "${candidate.category} · ${formatAmount(candidate.currentAmount)}/${formatAmount(candidate.initialAmount)}${candidate.unit} · $expiryText · ${candidate.storageType}"
+            val amountText = formatAmountWithUnit(
+                currentAmount = candidate.currentAmount,
+                initialAmount = candidate.initialAmount,
+                unit = candidate.unit
+            )
+
+            text = "${candidate.category} · $amountText · $expiryText · ${candidate.storageType}"
             textSize = 13f
             setTextColor(resources.getColor(R.color.text_sub, null))
             setPadding(0, 4.dp(), 0, 0)
@@ -474,7 +548,7 @@ class AReceiptResultFragment : Fragment() {
             setSingleLine(true)
         }
 
-        val units = listOf("개", "g", "ml", "봉", "팩")
+        val units = listOf("g", "개", "ml", "봉", "팩")
         val spinnerUnit = Spinner(context).apply {
             adapter = ArrayAdapter(
                 context,
@@ -565,7 +639,8 @@ class AReceiptResultFragment : Fragment() {
                             currentAmount = currentAmount,
                             unit = spinnerUnit.selectedItem.toString(),
                             expiryDate = editExpiryDate.text.toString().trim(),
-                            storageType = spinnerStorage.selectedItem.toString()
+                            storageType = spinnerStorage.selectedItem.toString(),
+                            amountSource = "manual"
                         )
 
                         if (targetIndex == null) {
@@ -655,36 +730,57 @@ class AReceiptResultFragment : Fragment() {
     }
 
     private fun categoryForName(name: String): String {
+        val dictionaryEntry = BIngredientDictionary.findBest(name)
+        if (dictionaryEntry != null) {
+            return normalizeCategory(dictionaryEntry.category)
+        }
+
         return when {
             name.contains("우유") ||
-                name.contains("치즈") ||
-                name.contains("요거트") ||
-                name.contains("요구르트") -> "유제품"
+                    name.contains("치즈") ||
+                    name.contains("요거트") ||
+                    name.contains("요구르트") -> "유제품"
 
             name.contains("계란") ||
-                name.contains("달걀") ||
-                name.contains("고기") ||
-                name.contains("닭") ||
-                name.contains("돼지") ||
-                name.contains("소고기") ||
-                name.contains("참치") ||
-                name.contains("두부") -> "단백질"
+                    name.contains("달걀") ||
+                    name.contains("고기") ||
+                    name.contains("닭") ||
+                    name.contains("돼지") ||
+                    name.contains("소고기") ||
+                    name.contains("참치") ||
+                    name.contains("두부") ||
+                    name.contains("가슴살") -> "단백질"
 
             name.contains("양파") ||
-                name.contains("대파") ||
-                name.contains("파") ||
-                name.contains("마늘") ||
-                name.contains("상추") ||
-                name.contains("채소") ||
-                name.contains("야채") -> "채소"
+                    name.contains("대파") ||
+                    name.contains("파") ||
+                    name.contains("마늘") ||
+                    name.contains("상추") ||
+                    name.contains("양상추") ||
+                    name.contains("양배추") ||
+                    name.contains("적양배추") ||
+                    name.contains("채소") ||
+                    name.contains("야채") -> "채소"
 
             name.contains("간장") ||
-                name.contains("고추장") ||
-                name.contains("된장") ||
-                name.contains("소스") ||
-                name.contains("드레싱") -> "조미료/소스"
+                    name.contains("고추장") ||
+                    name.contains("된장") ||
+                    name.contains("소스") ||
+                    name.contains("드레싱") -> "조미료/소스"
 
             else -> "기타"
+        }
+    }
+
+    private fun normalizeCategory(category: String): String {
+        return when (category.trim()) {
+            "조미료" -> "조미료/소스"
+            "소스" -> "조미료/소스"
+            "육류" -> "단백질"
+            "해산물" -> "단백질"
+            "가공식품" -> "기타"
+            "과일" -> "기타"
+            else -> category.trim().ifBlank { "기타" }
         }
     }
 
@@ -698,11 +794,21 @@ class AReceiptResultFragment : Fragment() {
         }
     }
 
+    private fun formatAmountWithUnit(
+        currentAmount: Double,
+        initialAmount: Double,
+        unit: String
+    ): String {
+        return "${formatAmount(currentAmount)}$unit / ${formatAmount(initialAmount)}$unit"
+    }
+
     private fun formatAmount(value: Double): String {
         return if (value % 1.0 == 0.0) {
             value.toInt().toString()
         } else {
-            value.toString()
+            String.format(Locale.KOREA, "%.1f", value)
+                .trimEnd('0')
+                .trimEnd('.')
         }
     }
 
@@ -712,6 +818,9 @@ class AReceiptResultFragment : Fragment() {
 
     companion object {
         private const val ARG_ITEM_NAMES = "item_names"
+        private const val ARG_ITEM_CATEGORIES = "item_categories"
+        private const val ARG_ITEM_AMOUNTS = "item_amounts"
+        private const val ARG_ITEM_UNITS = "item_units"
 
         fun newInstance(names: List<String>): AReceiptResultFragment {
             val fragment = AReceiptResultFragment()
@@ -720,6 +829,45 @@ class AReceiptResultFragment : Fragment() {
                 ARG_ITEM_NAMES,
                 ArrayList(names)
             )
+            fragment.arguments = bundle
+            return fragment
+        }
+
+        fun newInstanceFromCandidates(
+            candidates: List<BReceiptItemCandidate>
+        ): AReceiptResultFragment {
+            val fragment = AReceiptResultFragment()
+            val bundle = Bundle()
+
+            bundle.putStringArrayList(
+                ARG_ITEM_NAMES,
+                ArrayList(candidates.map { it.name })
+            )
+
+            bundle.putStringArrayList(
+                ARG_ITEM_CATEGORIES,
+                ArrayList(candidates.map { it.category })
+            )
+
+            bundle.putDoubleArray(
+                ARG_ITEM_AMOUNTS,
+                candidates.map {
+                    val amount = it.amount ?: it.amountGram ?: 0.0
+                    if (amount > 0.0) amount else 0.0
+                }.toDoubleArray()
+            )
+
+            bundle.putStringArrayList(
+                ARG_ITEM_UNITS,
+                ArrayList(
+                    candidates.map {
+                        it.unit
+                            ?: if ((it.amountGram ?: 0.0) > 0.0) "g"
+                            else BAmountNormalizer.defaultUnitForIngredient(it.name)
+                    }
+                )
+            )
+
             fragment.arguments = bundle
             return fragment
         }

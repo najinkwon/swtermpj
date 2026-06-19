@@ -3,195 +3,181 @@ package com.example.swtermproject.ocr
 object BReceiptItemExtractor {
 
     private val ignoredKeywords = listOf(
-        "합계", "총액", "총 합계", "결제", "결제금액", "받을금액", "받은금액",
-        "카드", "신용", "체크", "승인", "승인번호", "카드번호", "일시불",
-        "영수증", "전자영수증", "현금영수증", "교환", "환불",
-        "부가세", "부가가치세", "과세", "면세", "공급가", "세액",
-        "거스름돈", "거래", "거래일시", "판매", "판매자",
-        "전화", "tel", "사업자", "사업자번호", "대표", "주소", "점포", "매장",
-        "일시", "날짜", "시간", "금액", "수량", "단가", "품명",
-        "포인트", "적립", "쿠폰", "할인", "행사", "멤버십",
-        "봉투", "배달", "주문", "테이블", "고객", "문의",
-        "subtotal", "total", "amount", "card", "cash", "change", "tax"
+        "합계", "카드", "승인", "영수증", "부가세", "과세", "면세", "거스름돈",
+        "전화", "사업자", "대표", "주소", "일시", "금액", "수량", "단가", "상품코드",
+        "포인트", "회원", "현금", "결제", "취소", "교환", "환불", "매장", "점포",
+        "고객", "발행", "계산", "공급가액", "받기", "구매", "부가", "잔액",
+        "메트로", "장안점", "남양주점", "청암점", "창동점", "강남점",
+        "emart", "e-mart", "이마트", "http", "https", "www", ".com", ".co.kr", "url",
+        "정부", "방침", "7월1일", "취소시", "소비자", "분실", "보관", "바랍니다",
+        "현금결제", "현금 결제", "영수증이 없으면", "교환/환불",
+        "pos", "cashier", "tel", "fax", "no.", "카드번호", "신세계포인트"
     )
 
-    private val foodKeywords = listOf(
-        "우유", "치즈", "요거트", "요구르트", "버터", "크림",
-        "계란", "달걀", "두부", "고기", "닭", "닭가슴살", "소고기", "쇠고기", "돼지고기", "참치", "햄", "스팸",
-        "양파", "대파", "쪽파", "파", "마늘", "다진마늘", "상추", "양배추", "토마토", "오이", "당근", "감자", "고구마", "버섯", "채소", "야채",
-        "김치", "밥", "햇반", "즉석밥", "면", "라면", "파스타", "스파게티", "식빵", "빵",
-        "간장", "고추장", "된장", "소스", "케첩", "케찹", "마요네즈", "드레싱", "참기름", "식용유", "올리브유", "소금", "후추", "설탕", "고춧가루"
+    private val removeMarketingWords = listOf(
+        "국산", "국내산", "수입산", "수입", "냉장", "냉동", "신선", "친환경",
+        "유기농", "무농약", "손질", "세척", "깐", "햇", "특", "대용량", "소포장",
+        "행사", "특가", "할인", "프리미엄", "소단량", "한팩", "한봉",
+        "이마트", "노브랜드", "피코크", "초이스"
     )
 
-    private val unitRegex =
-        Regex("(\\d+(\\.\\d+)?\\s?(g|kg|ml|l|L|개|봉|팩|입|단|병|캔))")
-
-    private val priceRegex =
-        Regex("(^|\\s)[0-9]{1,3}(,[0-9]{3})+(\\s*원?)?($|\\s)|(^|\\s)[0-9]{3,7}\\s*원?($|\\s)")
+    private val receiptEndKeywords = listOf(
+        "부가세", "과세", "면세", "합계", "받기", "카드", "포인트", "회원"
+    )
 
     fun extractCandidates(lines: List<String>): List<BReceiptItemCandidate> {
-        return lines
+        val productLines = cropProductArea(lines)
+
+        return productLines
+            .asSequence()
             .map { it.trim() }
             .filter { it.isNotBlank() }
-            .filterNot { isDefinitelyNotItemLine(it) }
-            .mapNotNull { extractCandidate(it) }
-            .filter { isUsableCandidate(it.name) }
-            .distinctBy { normalizeForDistinct(it.name) }
-            .take(20)
+            .filterNot { isClearlyNotFoodLine(it) }
+            .mapNotNull { line -> extractCandidate(line) }
+            .distinctBy { BIngredientDictionary.normalizeForMatch(it.name) }
+            .toList()
+    }
+
+    private fun cropProductArea(lines: List<String>): List<String> {
+        val cleanedLines = lines
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+
+        val headerIndex = cleanedLines.indexOfFirst { line ->
+            val compact = compact(line)
+            compact.contains("상품코드") ||
+                    compact.contains("단가수량금액") ||
+                    compact.contains("상품명")
+        }
+
+        val targetLines =
+            if (headerIndex >= 0 && headerIndex + 1 < cleanedLines.size) {
+                cleanedLines.drop(headerIndex + 1)
+            } else {
+                cleanedLines
+            }
+
+        val result = mutableListOf<String>()
+        var foundAtLeastOneFood = false
+
+        for (line in targetLines) {
+            val compactLine = compact(line)
+
+            if (foundAtLeastOneFood && receiptEndKeywords.any { compactLine.contains(compact(it)) }) {
+                break
+            }
+
+            val cleaned = cleanReceiptLine(line)
+            val entry = BIngredientDictionary.findBest(cleaned)
+
+            if (entry != null) {
+                foundAtLeastOneFood = true
+                result.add(line)
+            }
+        }
+
+        return result
     }
 
     private fun extractCandidate(line: String): BReceiptItemCandidate? {
-        val amountText = unitRegex.find(line)?.value
+        val normalizedAmount = BAmountNormalizer.extractFromText(line)
 
-        val withoutPrice = removePriceAndReceiptNoise(line)
-        val cleaned = cleanNameText(withoutPrice)
+        val cleaned = cleanReceiptLine(line)
+        if (cleaned.length < 2) return null
 
-        if (cleaned.isBlank()) return null
+        val entry = BIngredientDictionary.findBest(cleaned) ?: return null
 
-        val candidateName = chooseCandidateName(cleaned)
+        val unit =
+            normalizedAmount?.unit
+                ?: BAmountNormalizer.defaultUnitForIngredient(entry.canonical)
 
-        if (candidateName.isBlank()) return null
+        val amount =
+            normalizedAmount?.amount
+                ?: BAmountNormalizer.defaultAmountForUnit(unit)
 
         return BReceiptItemCandidate(
-            name = candidateName,
-            amountText = amountText
+            name = entry.canonical,
+            amountText = normalizedAmount?.amountText,
+            amount = amount,
+            unit = unit,
+            amountGram = if (unit == "g") amount else null,
+            category = entry.category,
+            amountSource = normalizedAmount?.source ?: "default"
         )
     }
 
-    private fun isDefinitelyNotItemLine(line: String): Boolean {
-        val lower = line.lowercase()
-        val compact = line.replace(" ", "")
+    private fun cleanReceiptLine(line: String): String {
+        var text = line
 
-        if (ignoredKeywords.any { lower.contains(it.lowercase()) }) {
+        text = text.replace(Regex("[0-9]{8,}"), " ")
+        text = text.replace(Regex("[0-9,]+\\s*원"), " ")
+        text = text.replace(Regex("\\b[0-9,]{3,}\\b"), " ")
+        text = text.replace(Regex("\\([^)]*\\)"), " ")
+        text = text.replace(Regex("\\[[^]]*]"), " ")
+        text = text.replace(Regex("^[A-Za-z]{0,5}\\d{1,6}\\s*"), " ")
+        text = text.replace(Regex("\\d+\\s*/\\s*\\d*"), " ")
+        text = text.replace(
+            Regex("\\d+(\\.\\d+)?\\s*(g|kg|ml|l|L|개|입|봉|팩|묶음|통|병|캔|ea|EA|단|매|구|알|근)"),
+            " "
+        )
+        text = text.replace(Regex("[^가-힣a-zA-Z0-9\\s]"), " ")
+
+        removeMarketingWords.forEach { word ->
+            text = text.replace(word, " ")
+        }
+
+        return text
+            .replace(Regex("\\s+"), " ")
+            .trim()
+    }
+
+    private fun isClearlyNotFoodLine(line: String): Boolean {
+        val original = line.trim()
+        val lower = original.lowercase()
+        val compactLine = compact(original)
+
+        if (original.isBlank()) return true
+
+        if (ignoredKeywords.any { keyword ->
+                lower.contains(keyword.lowercase()) ||
+                        compactLine.contains(compact(keyword))
+            }
+        ) {
             return true
         }
 
-        if (compact.length <= 1) {
+        if (Regex("(http|https|www|\\.com|\\.co\\.kr)", RegexOption.IGNORE_CASE).containsMatchIn(original)) {
             return true
         }
 
-        if (compact.length > 28 && foodKeywords.none { compact.contains(it) }) {
+        if (Regex("^[가-힣\\s]{2,15}점$").containsMatchIn(original)) {
             return true
         }
 
-        val digitCount = compact.count { it.isDigit() }
-        val letterCount = compact.count { it.isLetter() }
-
-        if (digitCount >= 6 && letterCount <= 2) {
+        if (Regex("\\d{4}[-./]\\d{1,2}[-./]\\d{1,2}").containsMatchIn(original)) {
             return true
         }
 
-        if (Regex("^[-=*_]+$").matches(compact)) {
+        if (Regex("\\d{1,2}:\\d{2}").containsMatchIn(original)) {
             return true
         }
 
-        if (Regex("^[0-9,./:-]+$").matches(compact)) {
+        val digitCount = original.count { it.isDigit() }
+        if (original.isNotBlank() && digitCount >= original.length * 0.55) {
             return true
         }
 
-        if (Regex("^\\d{2,4}[./-]\\d{1,2}[./-]\\d{1,2}").containsMatchIn(compact)) {
-            return true
-        }
-
-        if (Regex("\\d{2}:\\d{2}").containsMatchIn(compact)) {
+        if (Regex("^[0-9,\\s]+$").matches(original)) {
             return true
         }
 
         return false
     }
 
-    private fun removePriceAndReceiptNoise(line: String): String {
-        return line
-            .replace(priceRegex, " ")
-            .replace(Regex("\\b[0-9]{8,}\\b"), " ")
-            .replace(Regex("\\b[0-9]{2,4}-[0-9]{2,4}-[0-9]{4}\\b"), " ")
-            .replace(Regex("\\b[0-9]{3}-[0-9]{2}-[0-9]{5}\\b"), " ")
-    }
-
-    private fun cleanNameText(value: String): String {
-        return value
-            .replace(Regex("\\([^)]*\\)"), " ")
-            .replace(Regex("\\[[^]]*]"), " ")
-            .replace(Regex("[*#@%~+=|<>]"), " ")
-            .replace(Regex("[^가-힣a-zA-Z0-9\\s./-]"), " ")
-            .replace(unitRegex, " ")
-            .replace(Regex("\\b[0-9]+\\b"), " ")
-            .replace(Regex("\\s+"), " ")
-            .trim()
-    }
-
-    private fun chooseCandidateName(cleaned: String): String {
-        val tokens = cleaned
-            .split(" ")
-            .map { it.trim() }
-            .filter { it.length >= 2 }
-            .filterNot { token -> ignoredKeywords.any { token.contains(it, ignoreCase = true) } }
-
-        if (tokens.isEmpty()) return ""
-
-        val joined = tokens.joinToString(" ").trim()
-
-        val matchedFoodKeyword = foodKeywords.firstOrNull { keyword ->
-            joined.contains(keyword, ignoreCase = true)
-        }
-
-        if (matchedFoodKeyword != null) {
-            return shortenAroundKeyword(
-                text = joined,
-                keyword = matchedFoodKeyword
-            )
-        }
-
-        return joined
-    }
-
-    private fun shortenAroundKeyword(
-        text: String,
-        keyword: String
-    ): String {
-        val tokens = text.split(" ").filter { it.isNotBlank() }
-
-        val keywordIndex = tokens.indexOfFirst { it.contains(keyword, ignoreCase = true) }
-
-        if (keywordIndex < 0) {
-            return text.take(20).trim()
-        }
-
-        val start = (keywordIndex - 1).coerceAtLeast(0)
-        val end = (keywordIndex + 2).coerceAtMost(tokens.size)
-
-        return tokens
-            .subList(start, end)
-            .joinToString(" ")
-            .trim()
-    }
-
-    private fun isUsableCandidate(name: String): Boolean {
-        val compact = name.replace(" ", "")
-
-        if (compact.length < 2) return false
-        if (compact.length > 22) return false
-
-        val koreanCount = compact.count { it in '가'..'힣' }
-        val englishCount = compact.count { it.isLetter() && it !in '가'..'힣' }
-
-        if (koreanCount == 0 && englishCount < 2) return false
-
-        if (ignoredKeywords.any { compact.contains(it, ignoreCase = true) }) {
-            return false
-        }
-
-        if (Regex("^[0-9]+$").matches(compact)) {
-            return false
-        }
-
-        return true
-    }
-
-    private fun normalizeForDistinct(name: String): String {
-        return name
+    private fun compact(text: String): String {
+        return text
             .lowercase()
-            .replace(Regex("[^가-힣a-zA-Z0-9]"), "")
-            .trim()
+            .replace(Regex("\\s+"), "")
+            .replace(Regex("[^가-힣a-zA-Z0-9.]"), "")
     }
 }
