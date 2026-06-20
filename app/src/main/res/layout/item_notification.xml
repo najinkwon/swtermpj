@@ -2,29 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/notificationRoot"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="80dp"
     android:orientation="horizontal"
-    android:padding="14dp"
-    android:layout_marginBottom="12dp"
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:layout_marginBottom="8dp"
     android:background="@drawable/bg_card"
     android:elevation="0dp"
     android:gravity="center_vertical">
 
     <TextView
         android:id="@+id/textNotificationIcon"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:gravity="center"
-        android:text="⚠️"
-        android:textSize="23sp"
+        android:text="!"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_green_dark"
         android:background="@drawable/bg_chip"
-        android:layout_marginRight="13dp" />
+        android:layout_marginRight="12dp"
+        android:includeFontPadding="false" />
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingRight="8dp">
 
         <TextView
             android:id="@+id/textNotificationTitle"
@@ -32,7 +40,7 @@
             android:layout_height="wrap_content"
             android:text="우유 유통기한 임박"
             android:textColor="@color/text_main"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"
@@ -44,37 +52,49 @@
             android:layout_height="wrap_content"
             android:text="D-2 남았어요"
             android:textColor="@color/text_sub"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end"
-            android:layout_marginTop="6dp" />
+            android:layout_marginTop="6dp"
+            android:includeFontPadding="false" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/btnDeleteNotification"
+            android:layout_width="30dp"
+            android:layout_height="26dp"
+            android:gravity="center"
+            android:text="×"
+            android:textColor="@color/text_hint"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:includeFontPadding="false" />
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/textNotificationTime"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="방금 전"
-            android:textColor="@color/primary_green_dark"
+            android:layout_height="18dp"
+            android:gravity="center"
+            android:text="읽음"
+            android:textColor="@color/text_hint"
             android:textStyle="bold"
-            android:textSize="12sp"
-            android:background="@drawable/bg_chip"
-            android:paddingLeft="9dp"
-            android:paddingRight="9dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:layout_marginTop="8dp" />
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:includeFontPadding="false"
+            android:layout_marginBottom="1dp" />
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/btnDeleteNotification"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:gravity="center"
-        android:text="×"
-        android:textColor="@color/text_hint"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginLeft="8dp" />
 
 </LinearLayout>

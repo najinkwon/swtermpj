@@ -1,37 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/splashRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:background="@color/app_bg">
+    android:background="@color/white">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="🧊"
-        android:textSize="80sp" />
+        android:id="@+id/blobBlueTop"
+        android:layout_width="118dp"
+        android:layout_height="118dp"
+        android:layout_gravity="top|start"
+        android:layout_marginLeft="-28dp"
+        android:layout_marginTop="84dp"
+        android:background="@drawable/bg_blob_blue"
+        android:alpha="0.86" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Smart Refrigerator"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_main"
-        android:layout_marginTop="18dp" />
+        android:id="@+id/blobMintTop"
+        android:layout_width="86dp"
+        android:layout_height="86dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="62dp"
+        android:layout_marginRight="34dp"
+        android:background="@drawable/bg_blob_mint"
+        android:alpha="0.92" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/blobPinkTop"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="-18dp"
+        android:layout_marginLeft="52dp"
+        android:background="@drawable/bg_blob_pink"
+        android:alpha="0.88" />
+
+    <TextView
+        android:id="@+id/blobYellowRight"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="center|end"
+        android:layout_marginRight="-26dp"
+        android:layout_marginTop="-74dp"
+        android:background="@drawable/bg_blob_yellow"
+        android:alpha="0.94" />
+
+    <TextView
+        android:id="@+id/blobOrangeLeft"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center|start"
+        android:layout_marginLeft="38dp"
+        android:layout_marginTop="116dp"
+        android:background="@drawable/bg_blob_orange"
+        android:alpha="0.90" />
+
+    <TextView
+        android:id="@+id/blobBlueBottom"
+        android:layout_width="122dp"
+        android:layout_height="122dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="-34dp"
+        android:layout_marginBottom="92dp"
+        android:background="@drawable/bg_blob_blue"
+        android:alpha="0.72" />
+
+    <TextView
+        android:id="@+id/blobYellowBottom"
+        android:layout_width="74dp"
+        android:layout_height="74dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginLeft="56dp"
+        android:layout_marginBottom="84dp"
+        android:background="@drawable/bg_blob_yellow"
+        android:alpha="0.90" />
+
+    <LinearLayout
+        android:id="@+id/logoGroup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:alpha="0">
+
+        <TextView
+            android:id="@+id/textSplashTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="냉털매니저"
+            android:textColor="@color/text_main"
+            android:textSize="42sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.04"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fridge to Recipe"
+            android:textColor="@color/primary_green_dark"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            android:layout_marginTop="12dp"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:text="남은 재료로 오늘의 메뉴를 가볍게 추천해요"
+            android:textColor="@color/text_sub"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginTop="18dp"
+            android:includeFontPadding="false" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textSplashBottom"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="AI 냉장고 관리 시스템"
-        android:textSize="15sp"
-        android:textColor="@color/text_sub"
-        android:layout_marginTop="8dp" />
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:text="fresh · simple · smart"
+        android:textColor="@color/text_hint"
+        android:textSize="12sp"
+        android:letterSpacing="0.10"
+        android:layout_marginBottom="42dp"
+        android:alpha="0"
+        android:includeFontPadding="false" />
 
-    <ProgressBar
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_marginTop="34dp" />
-
-</LinearLayout>
+</FrameLayout>

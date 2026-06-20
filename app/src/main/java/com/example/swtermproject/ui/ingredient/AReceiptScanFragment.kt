@@ -85,6 +85,18 @@ class AReceiptScanFragment : Fragment() {
         btnStart = view.findViewById(R.id.btnStartReceiptScan)
         btnResult = view.findViewById(R.id.btnReceiptResult)
 
+        btnStart.backgroundTintList = null
+        btnStart.setBackgroundResource(R.drawable.bg_primary_button)
+        btnStart.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.white)
+        )
+
+        btnResult.backgroundTintList = null
+        btnResult.setBackgroundResource(R.drawable.bg_chip_white)
+        btnResult.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.primary_green_dark)
+        )
+
         btnStart.setOnClickListener {
             showScanOptionDialog()
         }

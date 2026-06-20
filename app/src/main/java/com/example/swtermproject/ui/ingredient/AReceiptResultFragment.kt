@@ -4,6 +4,9 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.graphics.Typeface
+import android.widget.DatePicker
+import android.graphics.drawable.ColorDrawable
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
@@ -89,6 +92,18 @@ class AReceiptResultFragment : Fragment() {
 
         val btnAddCandidate =
             view.findViewById<Button>(R.id.btnAddReceiptCandidate)
+
+        btnAddCandidate.backgroundTintList = null
+        btnAddCandidate.setBackgroundResource(R.drawable.bg_chip_white)
+        btnAddCandidate.setTextColor(
+            resources.getColor(R.color.primary_green_dark, null)
+        )
+
+        btnAdd.backgroundTintList = null
+        btnAdd.setBackgroundResource(R.drawable.bg_primary_button)
+        btnAdd.setTextColor(
+            resources.getColor(R.color.white, null)
+        )
 
         val repository = BIngredientRepository(
             BAppDatabase.getDatabase(requireContext()).ingredientDao()
@@ -187,33 +202,29 @@ class AReceiptResultFragment : Fragment() {
         existingIngredient: BIngredient,
         incomingIngredient: BIngredient
     ) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("비슷한 재료가 이미 있어요")
-            .setMessage(
-                "기존 재료: ${existingIngredient.name}\n" +
-                    "새 재료: ${incomingIngredient.name}\n\n" +
-                    "같은 재료로 보고 수량을 합칠까요?"
-            )
-            .setPositiveButton("병합") { _, _ ->
+        showReceiptSimilarIngredientDialog(
+            existingName = existingIngredient.name,
+            incomingName = incomingIngredient.name,
+            onMerge = {
                 mergeReceiptCandidate(
                     index = index,
                     repository = repository,
                     existingIngredient = existingIngredient,
                     incomingIngredient = incomingIngredient
                 )
-            }
-            .setNegativeButton("새로 추가") { _, _ ->
+            },
+            onAddNew = {
                 saveReceiptCandidate(
                     index = index,
                     repository = repository,
                     incomingIngredient = incomingIngredient,
                     forceNew = true
                 )
-            }
-            .setOnCancelListener {
+            },
+            onCancel = {
                 btnAdd.isEnabled = true
             }
-            .show()
+        )
     }
 
     private fun mergeReceiptCandidate(
@@ -288,7 +299,7 @@ class AReceiptResultFragment : Fragment() {
     }
 
     private fun renderItems() {
-        textSummary.text = "총 ${candidates.size}개의 재료 후보를 확인했어요"
+        textSummary.text = "총 ${candidates.size}개의 재료 후보를 찾았어요"
         layoutItems.removeAllViews()
 
         if (candidates.isEmpty()) {
@@ -311,82 +322,102 @@ class AReceiptResultFragment : Fragment() {
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(16.dp(), 16.dp(), 12.dp(), 16.dp())
+            setPadding(14.dp(), 12.dp(), 12.dp(), 12.dp())
             setBackgroundResource(R.drawable.bg_card)
-
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, 0, 0, 12.dp())
-            layoutParams = params
             elevation = 0f
+
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                86.dp()
+            ).apply {
+                setMargins(0, 0, 0, 9.dp())
+            }
         }
 
         val emoji = TextView(context).apply {
             text = emojiForCategory(candidate.category)
-            textSize = 24f
+            textSize = 21f
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setBackgroundResource(R.drawable.bg_chip)
             layoutParams = LinearLayout.LayoutParams(
-                50.dp(),
-                50.dp()
-            )
+                42.dp(),
+                42.dp()
+            ).apply {
+                setMargins(0, 0, 13.dp(), 0)
+            }
         }
 
         val textWrap = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_VERTICAL
 
-            val params = LinearLayout.LayoutParams(
+            layoutParams = LinearLayout.LayoutParams(
                 0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 1f
             )
-            params.setMargins(13.dp(), 0, 8.dp(), 0)
-            layoutParams = params
         }
 
         val title = TextView(context).apply {
             text = candidate.name
-            textSize = 19f
+            textSize = 18f
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
             setTypeface(null, Typeface.BOLD)
             setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
         }
 
-        val detail = TextView(context).apply {
+        val categoryText = TextView(context).apply {
+            text = "${candidate.category} · ${candidate.storageType}"
+            textSize = 12f
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            setPadding(0, 6.dp(), 0, 0)
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            includeFontPadding = false
+        }
+
+        val amountText = TextView(context).apply {
             val expiryText =
                 if (candidate.expiryDate.isBlank()) {
-                    "유통기한 미입력"
+                    "유통기한 없음"
                 } else {
                     candidate.expiryDate
                 }
 
-            text = "${candidate.category} · ${formatAmount(candidate.currentAmount)}/${formatAmount(candidate.initialAmount)}${candidate.unit} · $expiryText · ${candidate.storageType}"
-            textSize = 13f
-            setTextColor(resources.getColor(R.color.text_sub, null))
+            text = "${formatAmount(candidate.currentAmount)}/${formatAmount(candidate.initialAmount)}${candidate.unit} · $expiryText"
+            textSize = 12f
+            setTextColor(resources.getColor(R.color.text_hint, null))
             setPadding(0, 4.dp(), 0, 0)
-            maxLines = 2
+            maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
+            includeFontPadding = false
         }
 
         val buttonWrap = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
+            setPadding(10.dp(), 0, 0, 0)
         }
 
         val editButton = TextView(context).apply {
-            text = "정보"
+            text = "수정"
             textSize = 12f
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(resources.getColor(R.color.primary_green_dark, null))
-            setBackgroundResource(R.drawable.bg_chip)
-            setPadding(11.dp(), 6.dp(), 11.dp(), 6.dp())
+            setBackgroundResource(R.drawable.bg_chip_white)
+            setPadding(11.dp(), 0, 11.dp(), 0)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                30.dp()
+            )
             setOnClickListener {
                 showCandidateEditDialog(
-                    title = "재료 정보 입력",
+                    title = "재료 정보 수정",
                     targetIndex = index,
                     initialCandidate = candidate
                 )
@@ -398,16 +429,17 @@ class AReceiptResultFragment : Fragment() {
             textSize = 12f
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(resources.getColor(R.color.accent_red, null))
-            setBackgroundResource(R.drawable.bg_stat_red)
-            setPadding(11.dp(), 6.dp(), 11.dp(), 6.dp())
+            setBackgroundResource(R.drawable.bg_soft_red_chip)
+            setPadding(11.dp(), 0, 11.dp(), 0)
 
-            val params = LinearLayout.LayoutParams(
+            layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, 7.dp(), 0, 0)
-            layoutParams = params
+                30.dp()
+            ).apply {
+                setMargins(0, 7.dp(), 0, 0)
+            }
 
             setOnClickListener {
                 candidates.removeAt(index)
@@ -416,7 +448,8 @@ class AReceiptResultFragment : Fragment() {
         }
 
         textWrap.addView(title)
-        textWrap.addView(detail)
+        textWrap.addView(categoryText)
+        textWrap.addView(amountText)
 
         buttonWrap.addView(editButton)
         buttonWrap.addView(deleteButton)
@@ -595,23 +628,311 @@ class AReceiptResultFragment : Fragment() {
     private fun showDatePicker(editExpiryDate: EditText) {
         val calendar = Calendar.getInstance(Locale.KOREA)
 
-        val dialog = DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                val dateText = String.format(
-                    Locale.KOREA,
-                    "%04d-%02d-%02d",
-                    year,
-                    month + 1,
-                    dayOfMonth
-                )
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dp(), 22.dp(), 24.dp(), 20.dp())
+            setBackgroundResource(R.drawable.bg_card)
+        }
 
-                editExpiryDate.setText(dateText)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+        val title = TextView(requireContext()).apply {
+            text = "유통기한 선택"
+            textSize = 21f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+        }
+
+        val subtitle = TextView(requireContext()).apply {
+            text = "재료 후보의 유통기한을 선택해요"
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            setPadding(0, 8.dp(), 0, 12.dp())
+            includeFontPadding = false
+        }
+
+        val datePicker = DatePicker(requireContext()).apply {
+            init(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                null
+            )
+            calendarViewShown = true
+        }
+
+        val buttonRow = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 16.dp(), 0, 0)
+        }
+
+        val cancelButton = Button(requireContext()).apply {
+            text = "취소"
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.primary_green_dark, null))
+            setBackgroundResource(R.drawable.bg_dialog_outline_button)
+            backgroundTintList = null
+            stateListAnimator = null
+            elevation = 0f
+            minHeight = 0
+            minWidth = 0
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setPadding(0, 0, 0, 0)
+        }
+
+        val confirmButton = Button(requireContext()).apply {
+            text = "선택하기"
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.white, null))
+            setBackgroundResource(R.drawable.bg_primary_button)
+            backgroundTintList = null
+            stateListAnimator = null
+            elevation = 0f
+            minHeight = 0
+            minWidth = 0
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setPadding(0, 0, 0, 0)
+        }
+
+        buttonRow.addView(
+            cancelButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(0, 0, 7.dp(), 0)
+            }
         )
+
+        buttonRow.addView(
+            confirmButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(7.dp(), 0, 0, 0)
+            }
+        )
+
+        container.addView(title)
+        container.addView(subtitle)
+        container.addView(datePicker)
+        container.addView(buttonRow)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(container)
+            .create()
+
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        confirmButton.setOnClickListener {
+            val dateText = String.format(
+                Locale.KOREA,
+                "%04d-%02d-%02d",
+                datePicker.year,
+                datePicker.month + 1,
+                datePicker.dayOfMonth
+            )
+
+            editExpiryDate.setText(dateText)
+            dialog.dismiss()
+        }
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT)
+            )
+        }
+
+        dialog.show()
+    }
+
+    private fun showReceiptSimilarIngredientDialog(
+        existingName: String,
+        incomingName: String,
+        onMerge: () -> Unit,
+        onAddNew: () -> Unit,
+        onCancel: () -> Unit
+    ) {
+        val context = requireContext()
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dp(), 22.dp(), 24.dp(), 20.dp())
+            setBackgroundResource(R.drawable.bg_card)
+        }
+
+        val title = TextView(context).apply {
+            text = "비슷한 재료가 있어요"
+            textSize = 21f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+        }
+
+        val subtitle = TextView(context).apply {
+            text = "같은 재료인지 확인한 뒤 원하는 방식으로 저장해요"
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            setPadding(0, 8.dp(), 0, 18.dp())
+            includeFontPadding = false
+        }
+
+        val infoBox = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(18.dp(), 16.dp(), 18.dp(), 16.dp())
+            setBackgroundResource(R.drawable.bg_dialog_info_box)
+        }
+
+        fun makeInfoLabel(label: String): TextView {
+            return TextView(context).apply {
+                text = label
+                textSize = 12f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(resources.getColor(R.color.primary_green_dark, null))
+                includeFontPadding = false
+            }
+        }
+
+        fun makeInfoValue(value: String): TextView {
+            return TextView(context).apply {
+                text = value
+                textSize = 18f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(resources.getColor(R.color.text_main, null))
+                setPadding(0, 6.dp(), 0, 0)
+                includeFontPadding = false
+            }
+        }
+
+        val divider = View(context).apply {
+            setBackgroundColor(Color.parseColor("#E6EEE8"))
+        }
+
+        infoBox.addView(makeInfoLabel("기존 재료"))
+        infoBox.addView(makeInfoValue(existingName))
+        infoBox.addView(
+            divider,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1.dp()
+            ).apply {
+                setMargins(0, 14.dp(), 0, 0)
+            }
+        )
+        infoBox.addView(
+            makeInfoLabel("추가할 재료").apply {
+                setPadding(0, 12.dp(), 0, 0)
+            }
+        )
+        infoBox.addView(makeInfoValue(incomingName))
+
+        val guideText = TextView(context).apply {
+            text = "같은 재료라면 수량을 합치고, 아니라면 새 재료로 추가할 수 있어요."
+            textSize = 12f
+            setTextColor(resources.getColor(R.color.text_hint, null))
+            setPadding(2.dp(), 14.dp(), 2.dp(), 0)
+            setLineSpacing(2f, 1.0f)
+            includeFontPadding = false
+        }
+
+        val buttonRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 18.dp(), 0, 0)
+        }
+
+        val addNewButton = Button(context).apply {
+            text = "새로 추가"
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.primary_green_dark, null))
+            setBackgroundResource(R.drawable.bg_dialog_outline_button)
+            backgroundTintList = null
+            stateListAnimator = null
+            elevation = 0f
+            minHeight = 0
+            minWidth = 0
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setPadding(0, 0, 0, 0)
+        }
+
+        val mergeButton = Button(context).apply {
+            text = "수량 합치기"
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.white, null))
+            setBackgroundResource(R.drawable.bg_primary_button)
+            backgroundTintList = null
+            stateListAnimator = null
+            elevation = 0f
+            minHeight = 0
+            minWidth = 0
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setPadding(0, 0, 0, 0)
+        }
+
+        buttonRow.addView(
+            addNewButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(0, 0, 7.dp(), 0)
+            }
+        )
+
+        buttonRow.addView(
+            mergeButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(7.dp(), 0, 0, 0)
+            }
+        )
+
+        container.addView(title)
+        container.addView(subtitle)
+        container.addView(infoBox)
+        container.addView(guideText)
+        container.addView(buttonRow)
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(container)
+            .create()
+
+        addNewButton.setOnClickListener {
+            onAddNew()
+            dialog.dismiss()
+        }
+
+        mergeButton.setOnClickListener {
+            onMerge()
+            dialog.dismiss()
+        }
+
+        dialog.setOnCancelListener {
+            onCancel()
+        }
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT)
+            )
+        }
 
         dialog.show()
     }
@@ -620,7 +941,10 @@ class AReceiptResultFragment : Fragment() {
         return TextView(requireContext()).apply {
             this.text = text
             textSize = 13f
-            setPadding(0, 14, 0, 4)
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+            setPadding(0, 14.dp(), 0, 6.dp())
         }
     }
 

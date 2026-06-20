@@ -65,7 +65,7 @@
                 android:orientation="vertical"
                 android:padding="22dp"
                 android:background="@drawable/bg_card"
-                android:elevation="3dp">
+                android:elevation="0dp">
 
                 <TextView
                     android:id="@+id/textProductEmoji"
@@ -262,7 +262,7 @@
                 android:orientation="vertical"
                 android:padding="24dp"
                 android:background="@drawable/bg_card"
-                android:elevation="3dp"
+                android:elevation="0dp"
                 android:visibility="gone">
 
                 <TextView

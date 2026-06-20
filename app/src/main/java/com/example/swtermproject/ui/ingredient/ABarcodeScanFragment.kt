@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.swtermproject.R
 import com.example.swtermproject.ui.activity.BarcodeResultActivity
@@ -27,6 +28,18 @@ class ABarcodeScanFragment : Fragment() {
 
         val btnStart = view.findViewById<Button>(R.id.btnStartBarcode)
         val btnResult = view.findViewById<Button>(R.id.btnBarcodeResult)
+
+        btnStart.backgroundTintList = null
+        btnStart.setBackgroundResource(R.drawable.bg_primary_button)
+        btnStart.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.white)
+        )
+
+        btnResult.backgroundTintList = null
+        btnResult.setBackgroundResource(R.drawable.bg_chip_white)
+        btnResult.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.primary_green_dark)
+        )
 
         btnStart.setOnClickListener {
             startBarcodeScanner()

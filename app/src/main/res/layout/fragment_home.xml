@@ -13,7 +13,7 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="22dp"
-        android:paddingBottom="96dp">
+        android:paddingBottom="100dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,7 +41,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="남은 재료로 오늘의 레시피를 추천해요"
+                    android:text="남은 재료로 오늘의 메뉴를 추천해요"
                     android:textSize="14sp"
                     android:textColor="@color/text_sub"
                     android:layout_marginTop="7dp"
@@ -54,33 +54,37 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:gravity="center"
-                android:text="🧊"
-                android:textSize="23sp"
-                android:background="@drawable/bg_chip" />
+                android:text="냉"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_green_dark"
+                android:background="@drawable/bg_chip"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="96dp"
+            android:layout_height="112dp"
             android:background="@drawable/bg_card"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="16dp"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
             android:elevation="0dp"
-            android:layout_marginTop="18dp">
+            android:layout_marginTop="20dp">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:paddingRight="12dp">
+                android:paddingRight="14dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="안녕하세요 👋"
+                    android:text="냉장고를 가볍게 정리해요"
                     android:textSize="21sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
@@ -89,22 +93,24 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="오늘도 신선한 하루 보내세요!"
+                    android:text="재료 상태와 추천 메뉴를 한눈에 확인하세요"
                     android:textSize="14sp"
                     android:textColor="@color/text_sub"
-                    android:layout_marginTop="7dp"
-                    android:singleLine="true"
+                    android:layout_marginTop="9dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     android:includeFontPadding="false" />
 
             </LinearLayout>
 
             <TextView
-                android:layout_width="54dp"
-                android:layout_height="54dp"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
                 android:gravity="center"
-                android:text="🥬"
-                android:textSize="27sp"
-                android:background="@drawable/bg_chip" />
+                android:text="🥗"
+                android:textSize="28sp"
+                android:background="@drawable/bg_chip"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
@@ -117,11 +123,12 @@
             <LinearLayout
                 android:id="@+id/cardTotal"
                 android:layout_width="0dp"
-                android:layout_height="92dp"
+                android:layout_height="96dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="13dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="12dp"
                 android:background="@drawable/bg_stat_mint"
                 android:layout_marginRight="7dp"
                 android:clickable="true"
@@ -132,10 +139,13 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:gravity="center"
-                    android:text="📦"
-                    android:textSize="22sp"
+                    android:text="재"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_green_dark"
                     android:background="@drawable/bg_chip_white"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="10dp"
+                    android:includeFontPadding="false" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -157,10 +167,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="27sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_main"
-                        android:layout_marginTop="7dp"
+                        android:layout_marginTop="6dp"
                         android:includeFontPadding="false" />
 
                 </LinearLayout>
@@ -170,11 +180,12 @@
             <LinearLayout
                 android:id="@+id/cardFavorite"
                 android:layout_width="0dp"
-                android:layout_height="92dp"
+                android:layout_height="96dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="13dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="12dp"
                 android:background="@drawable/bg_stat_peach"
                 android:layout_marginLeft="7dp"
                 android:clickable="true"
@@ -185,10 +196,13 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:gravity="center"
-                    android:text="⭐"
-                    android:textSize="22sp"
+                    android:text="★"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_coral"
                     android:background="@drawable/bg_chip_white"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="10dp"
+                    android:includeFontPadding="false" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -210,10 +224,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="27sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/accent_coral"
-                        android:layout_marginTop="7dp"
+                        android:layout_marginTop="6dp"
                         android:includeFontPadding="false" />
 
                 </LinearLayout>
@@ -231,11 +245,12 @@
             <LinearLayout
                 android:id="@+id/cardLowStock"
                 android:layout_width="0dp"
-                android:layout_height="92dp"
+                android:layout_height="96dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="13dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="12dp"
                 android:background="@drawable/bg_stat_red"
                 android:layout_marginRight="7dp"
                 android:clickable="true"
@@ -246,10 +261,13 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:gravity="center"
-                    android:text="🛒"
-                    android:textSize="22sp"
+                    android:text="!"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_red"
                     android:background="@drawable/bg_chip_white"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="10dp"
+                    android:includeFontPadding="false" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -271,10 +289,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="27sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/accent_red"
-                        android:layout_marginTop="7dp"
+                        android:layout_marginTop="6dp"
                         android:includeFontPadding="false" />
 
                 </LinearLayout>
@@ -284,11 +302,12 @@
             <LinearLayout
                 android:id="@+id/cardExpire"
                 android:layout_width="0dp"
-                android:layout_height="92dp"
+                android:layout_height="96dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="13dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="12dp"
                 android:background="@drawable/bg_stat_yellow"
                 android:layout_marginLeft="7dp"
                 android:clickable="true"
@@ -299,10 +318,13 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:gravity="center"
-                    android:text="⏰"
-                    android:textSize="22sp"
+                    android:text="D"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_orange"
                     android:background="@drawable/bg_chip_white"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="10dp"
+                    android:includeFontPadding="false" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -324,10 +346,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="27sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/accent_orange"
-                        android:layout_marginTop="7dp"
+                        android:layout_marginTop="6dp"
                         android:includeFontPadding="false" />
 
                 </LinearLayout>
@@ -340,14 +362,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="13dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="AI 추천 레시피"
+                android:text="오늘의 추천"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
@@ -356,16 +378,16 @@
             <TextView
                 android:id="@+id/buttonMoreRecipe"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="34dp"
+                android:gravity="center"
                 android:text="더보기"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="@color/primary_green_dark"
-                android:background="@drawable/bg_chip"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp" />
+                android:background="@drawable/bg_chip_white"
+                android:paddingLeft="13dp"
+                android:paddingRight="13dp"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 

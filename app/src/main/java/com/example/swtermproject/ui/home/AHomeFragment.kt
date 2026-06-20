@@ -22,7 +22,6 @@ import com.example.swtermproject.domain.model.BRecipe
 import com.example.swtermproject.recipe.BRecipeDataSource
 import com.example.swtermproject.recipe.BRecipeScorer
 import com.example.swtermproject.ui.ingredient.AIngredientListFragment
-import com.example.swtermproject.ui.recipe.RecipeAdapter
 import com.example.swtermproject.viewmodel.BHomeViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -39,7 +38,7 @@ class AHomeFragment : Fragment() {
     private lateinit var textLowStock: TextView
     private lateinit var textExpire: TextView
 
-    private lateinit var recipeAdapter: RecipeAdapter
+    private lateinit var recipeAdapter: HomeRecipeAdapter
     private val homeRecipes = mutableListOf<Recipe>()
 
     override fun onCreateView(
@@ -68,7 +67,7 @@ class AHomeFragment : Fragment() {
 
         recyclerRecipe.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        recipeAdapter = RecipeAdapter(homeRecipes) { recipe ->
+        recipeAdapter = HomeRecipeAdapter(homeRecipes) { recipe ->
             (activity as MainActivity).openRecipeDetail(recipe.title)
         }
 

@@ -130,7 +130,7 @@ class ANotificationFragment : Fragment() {
                 notifications.add(
                     NotificationItem(
                         title = lowStockTitle,
-                        message = "현재 ${stockPercent}% 남아있어요. 재구매를 추천해요.",
+                        message = "현재 ${stockPercent}% 남았어요. 장보기 목록에서 확인해요.",
                         time = "방금 전",
                         isRead = readNotificationKeys.contains(lowStockKey)
                     )
@@ -145,7 +145,7 @@ class ANotificationFragment : Fragment() {
                 notifications.add(
                     NotificationItem(
                         title = expireTitle,
-                        message = "D-${expireDay} 남았어요. 빨리 소비하는 걸 추천해요.",
+                        message = "D-${expireDay} 남았어요. 먼저 사용해보세요.",
                         time = "방금 전",
                         isRead = readNotificationKeys.contains(expireKey)
                     )
@@ -157,7 +157,7 @@ class ANotificationFragment : Fragment() {
             notifications.add(
                 NotificationItem(
                     title = "냉장고 상태가 좋아요",
-                    message = "현재 부족하거나 유통기한이 임박한 재료가 없어요.",
+                    message = "지금은 확인할 알림이 없어요.",
                     time = "현재",
                     isRead = true
                 )
@@ -231,7 +231,7 @@ class ANotificationFragment : Fragment() {
         summary.text =
             when {
                 realNotifications.isEmpty() -> {
-                    "알림이 없습니다"
+                    "확인할 알림이 없어요"
                 }
 
                 unreadCount == 0 -> {

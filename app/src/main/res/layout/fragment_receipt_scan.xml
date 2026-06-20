@@ -9,19 +9,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="22dp">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="108dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="18dp">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingRight="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -29,62 +33,75 @@
                     android:text="영수증 스캔"
                     android:textColor="@color/text_main"
                     android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="구매한 재료를 한 번에 등록해요"
+                    android:text="구매한 재료를 한 번에 찾아요"
                     android:textColor="@color/text_sub"
                     android:textSize="14sp"
-                    android:layout_marginTop="6dp" />
+                    android:layout_marginTop="7dp"
+                    android:includeFontPadding="false" />
 
             </LinearLayout>
 
             <TextView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:gravity="center"
                 android:text="🧾"
-                android:textSize="24sp"
-                android:background="@drawable/bg_chip" />
+                android:textSize="22sp"
+                android:background="@drawable/bg_chip"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="260dp"
+            android:layout_height="224dp"
             android:orientation="vertical"
             android:gravity="center"
-            android:background="@drawable/bg_stat_mint"
-            android:padding="24dp">
+            android:background="@drawable/bg_card"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:elevation="0dp">
 
             <TextView
-                android:layout_width="86dp"
-                android:layout_height="86dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 android:gravity="center"
-                android:text="🧾"
-                android:textSize="44sp"
-                android:background="@drawable/bg_chip_white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="영수증 사진을 인식할 준비가 됐어요"
-                android:textColor="@color/text_main"
+                android:text="✓"
+                android:textSize="34sp"
                 android:textStyle="bold"
-                android:textSize="19sp"
-                android:layout_marginTop="18dp" />
+                android:textColor="@color/primary_green_dark"
+                android:background="@drawable/bg_chip"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="영수증 사진을 선택하면 OCR로 재료 후보를 찾아요"
+                android:text="영수증 사진을 준비해주세요"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="21sp"
+                android:gravity="center"
+                android:layout_marginTop="18dp"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="사진을 선택하면 OCR로 재료 후보를 추출해요"
                 android:textColor="@color/text_sub"
                 android:textSize="14sp"
                 android:gravity="center"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginTop="8dp" />
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="9dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
@@ -92,27 +109,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:elevation="3dp"
-            android:padding="20dp"
-            android:layout_marginTop="18dp">
+            android:background="@drawable/bg_dialog_info_box"
+            android:elevation="0dp"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:layout_marginTop="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="인식 항목"
+                android:text="잘 인식되게 찍는 법"
                 android:textColor="@color/text_main"
                 android:textStyle="bold"
-                android:textSize="19sp" />
+                android:textSize="18sp"
+                android:includeFontPadding="false" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="• 상품명\n• 구매 수량\n• 카테고리 자동 분류\n• 냉장고 일괄 추가"
+                android:text="• 영수증 전체가 보이게 촬영해요\n• 글자가 흐리지 않게 밝은 곳에서 찍어요\n• 인식 후 후보를 수정하고 저장할 수 있어요"
                 android:textColor="@color/text_sub"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:lineSpacingExtra="6dp"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="12dp"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
@@ -121,32 +143,36 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:text="영수증 인식 시작"
-            android:textSize="16sp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-            android:layout_marginTop="22dp" />
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_primary_button"
+            android:backgroundTint="@null"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:layout_marginTop="20dp" />
 
         <Button
             android:id="@+id/btnReceiptResult"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="50dp"
             android:text="샘플 결과 확인"
-            android:textSize="16sp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-            android:layout_marginTop="12dp" />
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_green_dark"
+            android:background="@drawable/bg_chip_white"
+            android:backgroundTint="@null"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 

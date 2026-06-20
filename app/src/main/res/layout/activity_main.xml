@@ -18,7 +18,7 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:background="@drawable/bg_bottom_bar"
-        android:elevation="14dp"
+        android:elevation="0dp"
         android:paddingTop="7dp"
         android:paddingBottom="7dp">
 

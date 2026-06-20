@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -53,21 +54,53 @@ class ARecipeDetailFragment : Fragment() {
         val textCookTime = view.findViewById<TextView>(R.id.textCookTime)
         val textDifficulty = view.findViewById<TextView>(R.id.textDifficulty)
         val textIngredients = view.findViewById<TextView>(R.id.textIngredients)
+        val layoutIngredientCard = view.findViewById<LinearLayout>(R.id.layoutIngredientCard)
+        val textIngredientToggle = view.findViewById<TextView>(R.id.textIngredientToggle)
         val textSteps = view.findViewById<TextView>(R.id.textSteps)
         val btnYoutube = view.findViewById<Button>(R.id.btnYoutube)
         val btnShopping = view.findViewById<Button>(R.id.btnShopping)
 
         textImageEmoji.text = emojiForRecipe(recipe)
-        textTitle.text = "${emojiForRecipe(recipe)} ${recipe.title}"
+        textTitle.text = recipe.title
         textReason.text = "냉장고 재료를 기준으로 매칭률을 계산하고 있어요."
         textMatch.text = "계산 중"
         textCookTime.text = cookTimeForRecipe(recipe)
         textDifficulty.text = difficultyForRecipe(recipe)
 
         textIngredients.text = (recipe.mainIngredients + recipe.subIngredients + recipe.seasonings)
-            .joinToString("\n") { "• $it" }
+            .joinToString("\n") { "$it  ·  확인 중" }
 
         textSteps.text = recipe.description
+
+        var isIngredientExpanded = false
+
+        fun updateIngredientExpandedState() {
+            textIngredients.visibility =
+                if (isIngredientExpanded) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+
+            textIngredientToggle.text =
+                if (isIngredientExpanded) {
+                    "접기 ˄"
+                } else {
+                    "펼치기 ˅"
+                }
+        }
+
+        layoutIngredientCard.setOnClickListener {
+            isIngredientExpanded = !isIngredientExpanded
+            updateIngredientExpandedState()
+        }
+
+        textIngredientToggle.setOnClickListener {
+            isIngredientExpanded = !isIngredientExpanded
+            updateIngredientExpandedState()
+        }
+
+        updateIngredientExpandedState()
 
         val ingredientRepository = BIngredientRepository(
             BAppDatabase.getDatabase(requireContext()).ingredientDao()
@@ -182,18 +215,70 @@ class ARecipeDetailFragment : Fragment() {
                 "부족 재료: ${recipe.missingIngredients.joinToString(", ")}"
             }
 
-        textIngredients.text = requiredIngredients.joinToString("\n") { required ->
-            val owned = ownedIngredients.any { ingredient ->
-                ingredient.name.contains(required, ignoreCase = true) ||
-                    required.contains(ingredient.name, ignoreCase = true)
+        val missingIngredients = requiredIngredients
+            .filter { required ->
+                required in missingSet
             }
 
-            when {
-                required in missingSet -> "• $required  ❌ 부족"
-                owned -> "• $required  ✅ 보유"
-                else -> "• $required  ◻ 선택"
+        val ownedRequiredIngredients = requiredIngredients
+            .filter { required ->
+                required !in missingSet &&
+                    ownedIngredients.any { ingredient ->
+                        ingredient.name.contains(required, ignoreCase = true) ||
+                            required.contains(ingredient.name, ignoreCase = true)
+                    }
             }
+
+        val optionalIngredients = requiredIngredients
+            .filter { required ->
+                required !in missingSet &&
+                    ownedRequiredIngredients.none { owned ->
+                        owned == required
+                    }
+            }
+
+        val ingredientSections = mutableListOf<String>()
+
+        if (missingIngredients.isNotEmpty()) {
+            ingredientSections.add(
+                buildString {
+                    append("부족한 재료\n")
+                    append(
+                        missingIngredients.joinToString("\n") { required ->
+                            "❌ $required"
+                        }
+                    )
+                }
+            )
         }
+
+        if (ownedRequiredIngredients.isNotEmpty()) {
+            ingredientSections.add(
+                buildString {
+                    append("보유한 재료\n")
+                    append(
+                        ownedRequiredIngredients.joinToString("\n") { required ->
+                            "✅ $required"
+                        }
+                    )
+                }
+            )
+        }
+
+        if (optionalIngredients.isNotEmpty()) {
+            ingredientSections.add(
+                buildString {
+                    append("선택 재료\n")
+                    append(
+                        optionalIngredients.joinToString("\n") { required ->
+                            "＋ $required"
+                        }
+                    )
+                }
+            )
+        }
+
+        textIngredients.text = ingredientSections.joinToString("\n\n")
     }
 
     private fun emojiForRecipe(recipe: BRecipe): String {

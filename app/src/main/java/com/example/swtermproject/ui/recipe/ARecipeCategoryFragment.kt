@@ -3,7 +3,6 @@ package com.example.swtermproject.ui.recipe
 import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,55 +51,17 @@ class ARecipeCategoryFragment : Fragment() {
             (activity as MainActivity).openRecipeList("기타")
         }
 
-        addAiRecommendButton(view)
+        btnAiRecommend = view.findViewById(R.id.btnAiRecommend)
+        btnAiRecommend.setOnClickListener {
+            requestAiRecommendation()
+        }
 
         return view
     }
 
-    private fun addAiRecommendButton(view: View) {
-        val scrollView = view as? ScrollView ?: return
-        val rootLayout = scrollView.getChildAt(0) as? LinearLayout ?: return
-
-        btnAiRecommend = Button(requireContext()).apply {
-            text = "AI 냉털 추천 받기"
-            textSize = 16f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(resources.getColor(R.color.white, null))
-            setBackgroundResource(R.drawable.bg_primary_button)
-            setOnClickListener {
-                requestAiRecommendation()
-            }
-        }
-
-        val buttonParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            56.dp()
-        ).apply {
-            setMargins(0, 22.dp(), 0, 0)
-        }
-
-        rootLayout.addView(btnAiRecommend, buttonParams)
-
-        val helperText = TextView(requireContext()).apply {
-            text = "현재 냉장고 재료를 기반으로 냉털 레시피를 추천해요"
-            textSize = 13f
-            gravity = Gravity.CENTER
-            setTextColor(resources.getColor(R.color.text_sub, null))
-            setPadding(0, 8.dp(), 0, 0)
-        }
-
-        rootLayout.addView(
-            helperText,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        )
-    }
-
     private fun requestAiRecommendation() {
         btnAiRecommend.isEnabled = false
-        btnAiRecommend.text = "냉털 레시피 생성 중..."
+        btnAiRecommend.text = "생성 중..."
 
         val ingredientRepository = BIngredientRepository(
             BAppDatabase.getDatabase(requireContext()).ingredientDao()
@@ -121,7 +82,7 @@ class ARecipeCategoryFragment : Fragment() {
             }
 
             btnAiRecommend.isEnabled = true
-            btnAiRecommend.text = "AI 냉털 추천 받기"
+            btnAiRecommend.text = "추천받기"
         }
     }
 
@@ -139,7 +100,7 @@ class ARecipeCategoryFragment : Fragment() {
         scrollView.addView(textView)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("AI 냉털 추천")
+            .setTitle("냉털 추천")
             .setView(scrollView)
             .setPositiveButton("확인", null)
             .show()

@@ -9,13 +9,77 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="22dp">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="108dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="18dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingRight="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="인식 결과"
+                    android:textColor="@color/text_main"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="찾은 재료를 확인하고 냉장고에 추가해요"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    android:layout_marginTop="7dp"
+                    android:includeFontPadding="false" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:text="✓"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_green_dark"
+                android:background="@drawable/bg_chip"
+                android:includeFontPadding="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="112dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="0dp">
+
+            <TextView
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:gravity="center"
+                android:text="🧾"
+                android:textSize="25sp"
+                android:background="@drawable/bg_chip"
+                android:layout_marginRight="14dp"
+                android:includeFontPadding="false" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -24,76 +88,60 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textReceiptResultSummary"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="인식 결과"
+                    android:text="총 0개의 재료 후보를 확인했어요"
                     android:textColor="@color/text_main"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textSize="19sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="영수증에서 찾은 재료를 확인하세요"
+                    android:text="확인 후 한 번에 냉장고에 저장해요"
                     android:textColor="@color/text_sub"
-                    android:textSize="14sp"
-                    android:layout_marginTop="6dp" />
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginTop="8dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false" />
 
             </LinearLayout>
-
-            <TextView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:gravity="center"
-                android:text="✅"
-                android:textSize="24sp"
-                android:background="@drawable/bg_chip" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_stat_mint"
-            android:padding="18dp"
-            android:layout_marginBottom="18dp">
-
-            <TextView
-                android:id="@+id/textReceiptResultSummary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="총 0개의 재료를 찾았어요"
-                android:textColor="@color/text_main"
-                android:textStyle="bold"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="확인 후 냉장고에 한 번에 추가할 수 있어요"
-                android:textColor="@color/text_sub"
-                android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginTop="6dp" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btnAddReceiptCandidate"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="인식 후보 직접 추가"
-            android:textSize="15sp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-            android:layout_marginBottom="12dp" />
+            android:layout_height="46dp"
+            android:text="후보 직접 추가"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_green_dark"
+            android:background="@drawable/bg_chip_white"
+            android:backgroundTint="@null"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="재료 후보"
+            android:textColor="@color/text_main"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:includeFontPadding="false" />
 
         <LinearLayout
             android:id="@+id/layoutReceiptItems"
@@ -106,16 +154,18 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:text="선택한 재료 냉장고에 추가"
-            android:textSize="16sp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-            android:layout_marginTop="8dp" />
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_primary_button"
+            android:backgroundTint="@null"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 

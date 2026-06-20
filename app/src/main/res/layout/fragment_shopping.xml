@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="20dp"
     android:background="@color/app_bg">
 
     <LinearLayout
@@ -16,12 +18,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingRight="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="부족 재료 장보기"
+                android:text="장보기"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
@@ -31,7 +34,7 @@
                 android:id="@+id/textShoppingSummary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="현재 구매 추천 재료"
+                android:text="지금 필요한 재료를 모았어요"
                 android:textSize="14sp"
                 android:textColor="@color/text_sub"
                 android:layout_marginTop="7dp"
@@ -44,29 +47,33 @@
             android:layout_height="48dp"
             android:gravity="center"
             android:text="🛒"
-            android:textSize="23sp"
-            android:background="@drawable/bg_chip" />
+            android:textSize="22sp"
+            android:background="@drawable/bg_chip"
+            android:includeFontPadding="false" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/shoppingSummaryCard"
         android:layout_width="match_parent"
-        android:layout_height="76dp"
+        android:layout_height="118dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_stat_mint"
-        android:padding="13dp"
-        android:layout_marginBottom="14dp">
+        android:background="@drawable/bg_card"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp"
+        android:layout_marginBottom="18dp"
+        android:elevation="0dp">
 
         <TextView
-            android:layout_width="46dp"
-            android:layout_height="46dp"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:gravity="center"
             android:text="🧺"
-            android:textSize="24sp"
-            android:background="@drawable/bg_chip_white"
-            android:layout_marginRight="12dp" />
+            android:textSize="26sp"
+            android:background="@drawable/bg_chip"
+            android:layout_marginRight="14dp"
+            android:includeFontPadding="false" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -76,26 +83,42 @@
 
             <TextView
                 android:id="@+id/textShoppingMainMessage"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="필요한 재료만 모았어요"
-                android:textSize="17sp"
+                android:text="필요한 재료만 담았어요"
+                android:textSize="19sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:includeFontPadding="false" />
 
             <TextView
                 android:id="@+id/textShoppingSubMessage"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="부족한 재료를 빠르게 구매해요"
+                android:text="부족한 재료를 빠르게 확인하고 검색해요"
                 android:textSize="13sp"
                 android:textColor="@color/text_sub"
-                android:layout_marginTop="5dp" />
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="8dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="구매 목록"
+        android:textColor="@color/text_main"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:includeFontPadding="false" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerShopping"
