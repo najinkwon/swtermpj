@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.swtermproject.R
+import com.example.swtermproject.ocr.BReceiptItemCandidate
 import com.example.swtermproject.ocr.BReceiptOcrManager
 import kotlinx.coroutines.launch
 
@@ -101,9 +102,38 @@ class AReceiptScanFragment : Fragment() {
             showScanOptionDialog()
         }
 
+        // 테스트용 버튼
         btnResult.setOnClickListener {
             moveToResult(
-                listOf("우유", "계란", "양파")
+                listOf(
+                    BReceiptItemCandidate(
+                        name = "우유",
+                        amountText = "1L",
+                        amount = 1000.0,
+                        unit = "ml",
+                        amountGram = null,
+                        category = "유제품",
+                        amountSource = "test"
+                    ),
+                    BReceiptItemCandidate(
+                        name = "계란",
+                        amountText = "10입",
+                        amount = 10.0,
+                        unit = "개",
+                        amountGram = null,
+                        category = "단백질",
+                        amountSource = "test"
+                    ),
+                    BReceiptItemCandidate(
+                        name = "닭가슴살",
+                        amountText = "300g",
+                        amount = 300.0,
+                        unit = "g",
+                        amountGram = 300.0,
+                        category = "단백질",
+                        amountSource = "test"
+                    )
+                )
             )
         }
 
@@ -161,14 +191,11 @@ class AReceiptScanFragment : Fragment() {
     private fun handleOcrResult(result: Result<String>) {
         result.onSuccess { rawText ->
             val candidates = ocrManager.extractItemsFromText(rawText)
-
-            val names = candidates
-                .map { it.name }
-                .filter { it.isNotBlank() }
-                .distinct()
+                .filter { it.name.isNotBlank() }
+                .distinctBy { it.name }
                 .take(12)
 
-            if (names.isEmpty()) {
+            if (candidates.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
                     "영수증에서 재료 후보를 찾지 못했어요",
@@ -177,7 +204,8 @@ class AReceiptScanFragment : Fragment() {
 
                 setLoading(false)
             } else {
-                moveToResult(names)
+                setLoading(false)
+                moveToResult(candidates)
             }
         }.onFailure {
             Toast.makeText(
@@ -202,11 +230,11 @@ class AReceiptScanFragment : Fragment() {
             }
     }
 
-    private fun moveToResult(names: List<String>) {
+    private fun moveToResult(candidates: List<BReceiptItemCandidate>) {
         parentFragmentManager.beginTransaction()
             .replace(
                 R.id.fragmentContainer,
-                AReceiptResultFragment.newInstance(names)
+                AReceiptResultFragment.newInstanceFromCandidates(candidates)
             )
             .addToBackStack(null)
             .commit()
