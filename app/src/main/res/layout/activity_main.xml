@@ -1,142 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_bg">
+    tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/customBottomBar" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/customBottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="82dp"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:background="@drawable/bg_bottom_bar"
-        android:elevation="0dp"
-        android:paddingLeft="18dp"
-        android:paddingRight="18dp"
-        android:paddingTop="9dp"
-        android:paddingBottom="8dp">
-
-        <LinearLayout
-            android:id="@+id/tabHome"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/iconHome"
-                android:layout_width="48dp"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:text="🏠"
-                android:textSize="22sp"
-                android:includeFontPadding="false" />
-
-            <TextView
-                android:id="@+id/textHome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="홈"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_green_dark"
-                android:layout_marginTop="5dp"
-                android:includeFontPadding="false" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tabIngredient"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/iconIngredient"
-                android:layout_width="48dp"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:text="🥬"
-                android:textSize="22sp"
-                android:includeFontPadding="false" />
-
-            <TextView
-                android:id="@+id/textIngredient"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="재료"
-                android:textSize="12sp"
-                android:textColor="@color/text_sub"
-                android:layout_marginTop="5dp"
-                android:includeFontPadding="false" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tabRecipe"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/iconRecipe"
-                android:layout_width="48dp"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:text="🍳"
-                android:textSize="22sp"
-                android:includeFontPadding="false" />
-
-            <TextView
-                android:id="@+id/textRecipe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="레시피"
-                android:textSize="12sp"
-                android:textColor="@color/text_sub"
-                android:layout_marginTop="5dp"
-                android:includeFontPadding="false" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tabNotification"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/iconNotification"
-                android:layout_width="48dp"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:text="🔔"
-                android:textSize="22sp"
-                android:includeFontPadding="false" />
-
-            <TextView
-                android:id="@+id/textNotification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="알림"
-                android:textSize="12sp"
-                android:textColor="@color/text_sub"
-                android:layout_marginTop="5dp"
-                android:includeFontPadding="false" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
