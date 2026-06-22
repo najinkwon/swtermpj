@@ -12,7 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
@@ -65,7 +65,7 @@ class AHomeFragment : Fragment() {
         val buttonMoreRecipe = view.findViewById<TextView>(R.id.buttonMoreRecipe)
         val recyclerRecipe = view.findViewById<RecyclerView>(R.id.recyclerRecipe)
 
-        recyclerRecipe.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerRecipe.layoutManager = LinearLayoutManager(requireContext())
 
         recipeAdapter = HomeRecipeAdapter(homeRecipes) { recipe ->
             (activity as MainActivity).openRecipeDetail(recipe.title)
@@ -198,7 +198,7 @@ class AHomeFragment : Fragment() {
 
         return when {
             source.contains("볶음밥") -> "🍳"
-            source.contains("밥") -> "🍚"
+            source.contains("🍚") -> "🍚"
             source.contains("파스타") -> "🍝"
             source.contains("두부") -> "🥘"
             source.contains("규동") -> "🍱"

@@ -48,8 +48,7 @@
             android:layout_height="48dp"
             android:gravity="center"
             android:text="🍳"
-            android:textSize="23sp"
-            android:background="@drawable/bg_chip" />
+            android:textSize="23sp" />
 
     </LinearLayout>
 

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fillViewport="false"
+    android:background="@android:color/transparent"
     android:scrollbars="none">
 
     <LinearLayout
@@ -12,15 +13,15 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="14dp"
-        android:paddingBottom="20dp"
-        android:background="@drawable/bg_card">
+        android:paddingBottom="22dp"
+        android:background="@drawable/bg_bottom_sheet_panel">
 
         <View
             android:layout_width="42dp"
             android:layout_height="4dp"
             android:layout_gravity="center"
             android:background="#DDE3DF"
-            android:layout_marginBottom="14dp" />
+            android:layout_marginBottom="16dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,12 +31,12 @@
 
             <TextView
                 android:id="@+id/textDetailEmoji"
-                android:layout_width="58dp"
-                android:layout_height="58dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:gravity="center"
                 android:text="🥛"
-                android:textSize="32sp"
-                android:background="@drawable/bg_chip" />
+                android:textSize="28sp"
+                android:includeFontPadding="false" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -49,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="서울우유"
-                    android:textSize="24sp"
+                    android:textSize="25sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
                     android:maxLines="1"
@@ -59,17 +60,17 @@
                 <TextView
                     android:id="@+id/textDetailCategory"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="28dp"
+                    android:gravity="center"
                     android:text="유제품"
                     android:textColor="@color/primary_green_dark"
                     android:textStyle="bold"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:background="@drawable/bg_chip"
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="9dp"
+                    android:includeFontPadding="false" />
 
             </LinearLayout>
 
@@ -79,9 +80,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_chip_white"
-            android:padding="14dp"
-            android:layout_marginTop="16dp">
+            android:background="@drawable/bg_bottom_sheet_subcard"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:layout_marginTop="18dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -95,7 +99,7 @@
                     android:text="현재 남은 양"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:includeFontPadding="false" />
 
                 <TextView
@@ -104,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:text="70%"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="#4CAF50"
                     android:includeFontPadding="false" />
 
@@ -114,10 +118,11 @@
                 android:id="@+id/progressIngredient"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_height="9dp"
                 android:max="100"
                 android:progress="70"
-                android:layout_marginTop="10dp" />
+                android:progressDrawable="@drawable/progress_stock"
+                android:layout_marginTop="12dp" />
 
         </LinearLayout>
 
@@ -125,8 +130,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_chip_white"
-            android:padding="14dp"
+            android:background="@drawable/bg_bottom_sheet_subcard"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
             android:layout_marginTop="10dp">
 
             <LinearLayout
@@ -141,7 +149,7 @@
                     android:text="유통기한 상태"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:includeFontPadding="false" />
 
                 <TextView
@@ -150,8 +158,8 @@
                     android:layout_height="wrap_content"
                     android:text="D-7"
                     android:textStyle="bold"
-                    android:textColor="#FF7043"
-                    android:textSize="16sp"
+                    android:textColor="@color/accent_orange"
+                    android:textSize="18sp"
                     android:includeFontPadding="false" />
 
             </LinearLayout>
@@ -160,18 +168,29 @@
                 android:id="@+id/progressExpire"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_height="9dp"
                 android:max="30"
                 android:progress="7"
-                android:layout_marginTop="10dp" />
+                android:progressDrawable="@drawable/progress_expire"
+                android:layout_marginTop="12dp" />
 
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="빠른 조정"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:layout_marginTop="17dp"
+            android:includeFontPadding="false" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="14dp">
+            android:layout_marginTop="11dp">
 
             <Button
                 android:id="@+id/btnUse10"
@@ -179,14 +198,16 @@
                 android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="-10%"
+                android:textColor="@color/accent_red"
+                android:textStyle="bold"
+                android:background="@drawable/bg_bottom_sheet_danger_button"
+                android:backgroundTint="@null"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
                 android:paddingTop="0dp"
                 android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
                 android:textSize="14sp" />
 
             <Button
@@ -195,17 +216,19 @@
                 android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="-30%"
+                android:textColor="@color/accent_red"
+                android:textStyle="bold"
+                android:background="@drawable/bg_bottom_sheet_danger_button"
+                android:backgroundTint="@null"
                 android:textSize="14sp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
                 android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:layout_marginRight="8dp" />
+                android:paddingBottom="0dp" />
 
             <Button
                 android:id="@+id/btnRefill"
@@ -213,58 +236,55 @@
                 android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="리필"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:background="@drawable/bg_bottom_sheet_primary_button"
+                android:backgroundTint="@null"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
                 android:paddingTop="0dp"
                 android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
                 android:textSize="14sp" />
 
         </LinearLayout>
 
-        <LinearLayout
+        <Button
+            android:id="@+id/btnEditIngredient"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp">
+            android:layout_height="50dp"
+            android:text="정보 수정"
+            android:textColor="@color/primary_green_dark"
+            android:textStyle="bold"
+            android:background="@drawable/bg_bottom_sheet_outline_button"
+            android:backgroundTint="@null"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:textSize="15sp"
+            android:layout_marginTop="14dp" />
 
-            <Button
-                android:id="@+id/btnEditIngredient"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="정보 수정"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:textSize="15sp" />
-
-            <Button
-                android:id="@+id/btnCloseBottom"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="닫기"
-                android:textSize="15sp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:layout_marginLeft="10dp" />
-
-        </LinearLayout>
+        <Button
+            android:id="@+id/btnCloseBottom"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="닫기"
+            android:textColor="@color/text_sub"
+            android:textStyle="bold"
+            android:background="@drawable/bg_bottom_sheet_outline_button"
+            android:backgroundTint="@null"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 

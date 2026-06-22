@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,6 +26,9 @@ class AShoppingFragment : Fragment() {
     private lateinit var summary: TextView
     private lateinit var mainMessage: TextView
     private lateinit var subMessage: TextView
+    private lateinit var emptyLayout: LinearLayout
+    private lateinit var emptyTitle: TextView
+    private lateinit var emptyMessage: TextView
     private lateinit var recyclerView: RecyclerView
 
     private val shoppingList = mutableListOf<ShoppingItem>()
@@ -55,6 +59,9 @@ class AShoppingFragment : Fragment() {
         summary = view.findViewById(R.id.textShoppingSummary)
         mainMessage = view.findViewById(R.id.textShoppingMainMessage)
         subMessage = view.findViewById(R.id.textShoppingSubMessage)
+        emptyLayout = view.findViewById(R.id.layoutShoppingEmpty)
+        emptyTitle = view.findViewById(R.id.textShoppingEmptyTitle)
+        emptyMessage = view.findViewById(R.id.textShoppingEmptyMessage)
         recyclerView = view.findViewById(R.id.recyclerShopping)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -125,6 +132,11 @@ class AShoppingFragment : Fragment() {
                 "부족한 재료만 모아서 보여드릴게요"
             }
 
+        updateEmptyState(
+            title = "구매할 재료가 없어요",
+            message = "재고가 충분해요. 부족해지면 여기에서 알려드릴게요."
+        )
+
         adapter.notifyDataSetChanged()
     }
 
@@ -167,14 +179,43 @@ class AShoppingFragment : Fragment() {
                 "부족 재료를 구매하면 이 레시피를 만들 수 있어요"
             }
 
+        updateEmptyState(
+            title = "바로 만들 수 있어요",
+            message = "이 레시피는 현재 냉장고 재료만으로 조리할 수 있어요."
+        )
+
         adapter.notifyDataSetChanged()
+    }
+
+    private fun updateEmptyState(
+        title: String,
+        message: String
+    ) {
+        val isEmpty = shoppingList.isEmpty()
+
+        emptyLayout.visibility =
+            if (isEmpty) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+        recyclerView.visibility =
+            if (isEmpty) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+        emptyTitle.text = title
+        emptyMessage.text = message
     }
 
     private fun emojiForCategory(category: String): String {
         return when (category) {
             "채소" -> "🥬"
             "유제품" -> "🥛"
-            "단백질" -> "🍖"
+            "단백질" -> "🥚"
             "조미료/소스" -> "🥫"
             else -> "🛒"
         }
@@ -218,8 +259,8 @@ class AShoppingFragment : Fragment() {
                 name.contains("고춧가루") ||
                 name.contains("된장") -> "🥫"
 
-            name.contains("밥") ||
-                name.contains("면") ||
+            name.contains("🍚") ||
+                name.contains("🍝") ||
                 name.contains("파스타") ||
                 name.contains("식빵") -> "🍚"
 

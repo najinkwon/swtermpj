@@ -28,7 +28,9 @@
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
             <TextView
                 android:id="@+id/textShoppingSummary"
@@ -38,7 +40,9 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_sub"
                 android:layout_marginTop="7dp"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
         </LinearLayout>
 
@@ -47,33 +51,41 @@
             android:layout_height="48dp"
             android:gravity="center"
             android:text="🛒"
-            android:textSize="22sp"
-            android:background="@drawable/bg_chip"
-            android:includeFontPadding="false" />
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_green_dark"
+            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/shoppingSummaryCard"
         android:layout_width="match_parent"
-        android:layout_height="118dp"
+        android:layout_height="112dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/bg_card"
         android:paddingLeft="18dp"
         android:paddingRight="18dp"
         android:layout_marginBottom="18dp"
-        android:elevation="0dp">
+        android:elevation="0dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:layout_width="54dp"
             android:layout_height="54dp"
             android:gravity="center"
             android:text="🧺"
-            android:textSize="26sp"
-            android:background="@drawable/bg_chip"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_green_dark"
             android:layout_marginRight="14dp"
-            android:includeFontPadding="false" />
+            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -89,9 +101,11 @@
                 android:textSize="19sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:ellipsize="end"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
             <TextView
                 android:id="@+id/textShoppingSubMessage"
@@ -104,7 +118,7 @@
                 android:layout_marginTop="8dp"
                 android:maxLines="2"
                 android:ellipsize="end"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="true" />
 
         </LinearLayout>
 
@@ -118,14 +132,79 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp"
-        android:includeFontPadding="false" />
+        android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerShopping"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="82dp" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerShopping"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="82dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutShoppingEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_card"
+            android:paddingLeft="22dp"
+            android:paddingRight="22dp"
+            android:paddingTop="34dp"
+            android:paddingBottom="34dp"
+            android:visibility="gone"
+            android:elevation="0dp">
+
+            <TextView
+                android:id="@+id/textShoppingEmptyIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:gravity="center"
+                android:text="✓"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_green_dark"
+                android:background="@drawable/bg_chip"
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/textShoppingEmptyTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="구매할 재료가 없어요"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="21sp"
+                android:gravity="center"
+                android:layout_marginTop="18dp"
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/textShoppingEmptyMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="재고가 충분해요. 부족해지면 여기에서 알려드릴게요."
+                android:textColor="@color/text_sub"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:lineSpacingExtra="5dp"
+                android:layout_marginTop="10dp"
+                android:includeFontPadding="true" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

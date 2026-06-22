@@ -83,8 +83,18 @@ class AIngredientAdapter(
         val warningColor = ContextCompat.getColor(context, R.color.accent_red)
         val safeColor = ContextCompat.getColor(context, R.color.primary_green_dark)
 
+        val isExpireUrgent = expireDay <= 3 && ingredient.expiryDate.isNotBlank()
+
         holder.textExpireDay.setTextColor(
-            if (expireDay <= 3 && ingredient.expiryDate.isNotBlank()) warningColor else safeColor
+            if (isExpireUrgent) warningColor else ContextCompat.getColor(context, R.color.accent_orange)
+        )
+
+        holder.textExpireDay.setBackgroundResource(
+            if (isExpireUrgent) {
+                R.drawable.bg_expire_urgent_pill
+            } else {
+                R.drawable.bg_expire_pill
+            }
         )
 
         holder.textIcon.text = when (ingredient.category) {
@@ -131,9 +141,9 @@ class AIngredientAdapter(
 
         holder.itemView.setBackgroundResource(
             if (isSelected) {
-                R.drawable.bg_stat_mint
+                R.drawable.bg_ingredient_selected
             } else {
-                R.drawable.bg_card
+                R.drawable.bg_ingredient_item
             }
         )
 

@@ -50,7 +50,6 @@
                 android:gravity="center"
                 android:text="🍳"
                 android:textSize="22sp"
-                android:background="@drawable/bg_chip"
                 android:includeFontPadding="false" />
 
         </LinearLayout>
@@ -70,7 +69,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="냉장고 재료로 추천받기"
+                android:text="냉장고 재료로 고르기"
                 android:textColor="@color/text_main"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -81,7 +80,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="보유한 재료를 기준으로 냉털 메뉴를 만들어드려요"
+                android:text="지금 있는 재료와 잘 맞는 메뉴를 먼저 보여드려요"
                 android:textColor="@color/text_sub"
                 android:textSize="13sp"
                 android:lineSpacingExtra="3dp"
@@ -94,7 +93,7 @@
                 android:id="@+id/btnAiRecommend"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
-                android:text="추천받기"
+                android:text="추천 메뉴 보기"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
@@ -128,7 +127,7 @@
             <LinearLayout
                 android:id="@+id/cardKorean"
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -139,12 +138,12 @@
                 android:layout_marginRight="7dp">
 
                 <TextView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🍚"
-                    android:textSize="25sp"
-                    android:background="@drawable/bg_chip_white"
+                    android:textSize="28sp"
+                   
                     android:includeFontPadding="false" />
 
                 <TextView
@@ -173,7 +172,7 @@
             <LinearLayout
                 android:id="@+id/cardWestern"
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -184,12 +183,12 @@
                 android:layout_marginLeft="7dp">
 
                 <TextView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🍝"
-                    android:textSize="25sp"
-                    android:background="@drawable/bg_chip_white"
+                    android:textSize="28sp"
+                   
                     android:includeFontPadding="false" />
 
                 <TextView
@@ -226,7 +225,7 @@
             <LinearLayout
                 android:id="@+id/cardJapanese"
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -237,12 +236,11 @@
                 android:layout_marginRight="7dp">
 
                 <TextView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🍱"
-                    android:textSize="25sp"
-                    android:background="@drawable/bg_chip"
+                    android:textSize="28sp"
                     android:includeFontPadding="false" />
 
                 <TextView
@@ -271,7 +269,7 @@
             <LinearLayout
                 android:id="@+id/cardEtc"
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -282,12 +280,12 @@
                 android:layout_marginLeft="7dp">
 
                 <TextView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🥗"
-                    android:textSize="25sp"
-                    android:background="@drawable/bg_chip_white"
+                    android:textSize="28sp"
+                   
                     android:includeFontPadding="false" />
 
                 <TextView

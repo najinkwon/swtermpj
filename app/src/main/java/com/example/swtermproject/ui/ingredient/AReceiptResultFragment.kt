@@ -172,14 +172,13 @@ class AReceiptResultFragment : Fragment() {
         val dictionaryEntry = BIngredientDictionary.findBest(rawText)
         val normalizedAmount = BAmountNormalizer.extractFromText(rawText)
 
-        val finalName = dictionaryEntry?.canonical
-            ?: rawText
-                .replace(
-                    Regex("\\d+(\\.\\d+)?\\s*(g|kg|ml|l|L|개|입|봉|팩|묶음|통|병|캔|ea|EA|근|구|알)")
-                    , ""
-                )
-                .replace(Regex("\\d+\\s*/\\s*\\d*"), "")
-                .trim()
+        val cleanedName = cleanReceiptCandidateName(rawText)
+
+        val dictionaryName = dictionaryEntry?.canonical
+            ?.trim()
+            .orEmpty()
+
+        val finalName = normalizeReceiptDisplayName(rawText)
 
         val finalCategory = normalizeCategory(
             categoryArg
@@ -200,7 +199,7 @@ class AReceiptResultFragment : Fragment() {
         }
 
         return ReceiptCandidate(
-            name = finalName,
+            name = finalSafeIngredientName(finalName),
             category = finalCategory,
             initialAmount = amount,
             currentAmount = amount,
@@ -213,6 +212,91 @@ class AReceiptResultFragment : Fragment() {
                 else -> "default"
             }
         )
+    }
+
+    private fun cleanReceiptCandidateName(rawText: String): String {
+        return rawText
+            .replace(
+                Regex("\\d+(\\.\\d+)?\\s*(g|kg|ml|l|L|개|입|봉|팩|묶음|통|병|캔|ea|EA|근|구|알)"),
+                ""
+            )
+            .replace(Regex("\\d+\\s*/\\s*\\d*"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+    }
+
+    private fun shouldKeepReceiptName(
+        rawName: String,
+        dictionaryName: String
+    ): Boolean {
+        if (rawName.isBlank()) {
+            return false
+        }
+
+        if (dictionaryName.isBlank()) {
+            return true
+        }
+
+        if (rawName == dictionaryName) {
+            return true
+        }
+
+        val rawKey = rawName
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+
+        val dictionaryKey = dictionaryName
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+
+        if (rawKey == dictionaryKey) {
+            return true
+        }
+
+        val mustKeepNames = setOf(
+            "닭가슴살",
+            "닭다리살",
+            "닭안심",
+            "닭날개",
+            "닭봉",
+            "닭볶음탕용",
+            "돼지고기",
+            "소고기",
+            "다짐육",
+            "돼지고기다짐육",
+            "소고기다짐육",
+            "대파",
+            "쪽파",
+            "양파",
+            "다진마늘",
+            "깐마늘",
+            "초코우유",
+            "딸기우유",
+            "바나나우유",
+            "두유",
+            "체다치즈",
+            "모짜렐라치즈",
+            "슬라이스치즈",
+            "식빵",
+            "파스타면",
+            "라면",
+            "쌀",
+            "밥"
+        )
+
+        if (rawKey in mustKeepNames) {
+            return true
+        }
+
+        if (
+            dictionaryKey.isNotBlank() &&
+            rawKey.length > dictionaryKey.length &&
+            rawKey.contains(dictionaryKey)
+        ) {
+            return true
+        }
+
+        return false
     }
 
     private fun processReceiptCandidateSave(
@@ -356,7 +440,7 @@ class AReceiptResultFragment : Fragment() {
 
     private fun ReceiptCandidate.toIngredient(): BIngredient {
         return BIngredient(
-            name = name,
+            name = forceKeepSpecificIngredientName(name),
             category = category,
             initialAmount = initialAmount,
             currentAmount = currentAmount,
@@ -390,29 +474,30 @@ class AReceiptResultFragment : Fragment() {
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(14.dp(), 12.dp(), 12.dp(), 12.dp())
+            minimumHeight = 104.dp()
+            setPadding(16.dp(), 14.dp(), 14.dp(), 14.dp())
             setBackgroundResource(R.drawable.bg_card)
             elevation = 0f
 
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                86.dp()
+                LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                setMargins(0, 0, 0, 9.dp())
+                setMargins(0, 0, 0, 10.dp())
             }
         }
 
         val emoji = TextView(context).apply {
             text = emojiForCategory(candidate.category)
-            textSize = 21f
+            textSize = 30f
             gravity = Gravity.CENTER
-            includeFontPadding = false
-            setBackgroundResource(R.drawable.bg_chip)
+            includeFontPadding = true
+            setBackgroundResource(R.drawable.bg_icon_clear)
             layoutParams = LinearLayout.LayoutParams(
-                42.dp(),
-                42.dp()
+                52.dp(),
+                52.dp()
             ).apply {
-                setMargins(0, 0, 13.dp(), 0)
+                setMargins(0, 0, 16.dp(), 0)
             }
         }
 
@@ -422,29 +507,29 @@ class AReceiptResultFragment : Fragment() {
 
             layoutParams = LinearLayout.LayoutParams(
                 0,
-                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
                 1f
             )
         }
 
         val title = TextView(context).apply {
-            text = candidate.name
-            textSize = 18f
+            text = finalSafeIngredientNameFromReceiptCandidate(candidate)
+            textSize = 20f
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
             setTypeface(null, Typeface.BOLD)
             setTextColor(resources.getColor(R.color.text_main, null))
-            includeFontPadding = false
+            includeFontPadding = true
         }
 
         val categoryText = TextView(context).apply {
             text = "${candidate.category} · ${candidate.storageType}"
-            textSize = 12f
+            textSize = 13f
             setTextColor(resources.getColor(R.color.text_sub, null))
-            setPadding(0, 6.dp(), 0, 0)
+            setPadding(0, 2.dp(), 0, 0)
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
-            includeFontPadding = false
+            includeFontPadding = true
         }
 
         val amountText = TextView(context).apply {
@@ -462,32 +547,32 @@ class AReceiptResultFragment : Fragment() {
             )
 
             text = "$amountText · $expiryText"
-            textSize = 12f
+            textSize = 13f
             setTextColor(resources.getColor(R.color.text_hint, null))
-            setPadding(0, 4.dp(), 0, 0)
+            setPadding(0, 2.dp(), 0, 0)
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
-            includeFontPadding = false
+            includeFontPadding = true
         }
 
         val buttonWrap = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(10.dp(), 0, 0, 0)
+            setPadding(12.dp(), 0, 0, 0)
         }
 
         val editButton = TextView(context).apply {
             text = "수정"
-            textSize = 12f
+            textSize = 13f
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
-            includeFontPadding = false
+            includeFontPadding = true
             setTextColor(resources.getColor(R.color.primary_green_dark, null))
             setBackgroundResource(R.drawable.bg_chip_white)
-            setPadding(11.dp(), 0, 11.dp(), 0)
+            setPadding(13.dp(), 0, 13.dp(), 0)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                30.dp()
+                34.dp()
             )
             setOnClickListener {
                 showCandidateEditDialog(
@@ -500,19 +585,19 @@ class AReceiptResultFragment : Fragment() {
 
         val deleteButton = TextView(context).apply {
             text = "삭제"
-            textSize = 12f
+            textSize = 13f
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
-            includeFontPadding = false
+            includeFontPadding = true
             setTextColor(resources.getColor(R.color.accent_red, null))
             setBackgroundResource(R.drawable.bg_soft_red_chip)
-            setPadding(11.dp(), 0, 11.dp(), 0)
+            setPadding(13.dp(), 0, 13.dp(), 0)
 
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                30.dp()
+                34.dp()
             ).apply {
-                setMargins(0, 7.dp(), 0, 0)
+                setMargins(0, 8.dp(), 0, 0)
             }
 
             setOnClickListener {
@@ -544,50 +629,85 @@ class AReceiptResultFragment : Fragment() {
 
         val container = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(42, 18, 42, 0)
+            setPadding(24.dp(), 22.dp(), 24.dp(), 20.dp())
+            setBackgroundResource(R.drawable.bg_card)
+        }
+
+        val titleView = TextView(context).apply {
+            text = title
+            textSize = 21f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+        }
+
+        val subtitleView = TextView(context).apply {
+            text = "인식된 재료 정보를 확인하고 필요한 값만 수정해요"
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            setPadding(0, 8.dp(), 0, 18.dp())
+            includeFontPadding = false
         }
 
         val editName = EditText(context).apply {
             hint = "재료명"
             setText(initialCandidate.name)
             inputType = InputType.TYPE_CLASS_TEXT
-            setSingleLine(true)
+            styleCandidateEditText(this)
         }
 
         val categories = listOf("채소", "유제품", "단백질", "조미료/소스", "기타")
         val spinnerCategory = Spinner(context).apply {
-            adapter = ArrayAdapter(
-                context,
-                android.R.layout.simple_spinner_dropdown_item,
-                categories
-            )
+            setupCandidateSpinner(this, categories)
             setSelection(
                 categories.indexOf(initialCandidate.category).takeIf { it >= 0 }
                     ?: categories.lastIndex
             )
         }
 
+        val amountRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
         val editInitialAmount = EditText(context).apply {
             hint = "구매량"
             setText(formatAmount(initialCandidate.initialAmount))
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setSingleLine(true)
+            styleCandidateEditText(this)
         }
 
         val editCurrentAmount = EditText(context).apply {
             hint = "현재 남은 양"
             setText(formatAmount(initialCandidate.currentAmount))
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setSingleLine(true)
+            styleCandidateEditText(this)
         }
+
+        amountRow.addView(
+            editInitialAmount,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(0, 0, 6.dp(), 0)
+            }
+        )
+
+        amountRow.addView(
+            editCurrentAmount,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(6.dp(), 0, 0, 0)
+            }
+        )
 
         val units = listOf("g", "개", "ml", "봉", "팩")
         val spinnerUnit = Spinner(context).apply {
-            adapter = ArrayAdapter(
-                context,
-                android.R.layout.simple_spinner_dropdown_item,
-                units
-            )
+            setupCandidateSpinner(this, units)
             setSelection(
                 units.indexOf(initialCandidate.unit).takeIf { it >= 0 } ?: 0
             )
@@ -599,7 +719,7 @@ class AReceiptResultFragment : Fragment() {
             inputType = InputType.TYPE_NULL
             isFocusable = false
             isClickable = true
-            setSingleLine(true)
+            styleCandidateEditText(this)
             setOnClickListener {
                 showDatePicker(this)
             }
@@ -607,97 +727,203 @@ class AReceiptResultFragment : Fragment() {
 
         val storageTypes = listOf("냉장", "냉동", "실온")
         val spinnerStorage = Spinner(context).apply {
-            adapter = ArrayAdapter(
-                context,
-                android.R.layout.simple_spinner_dropdown_item,
-                storageTypes
-            )
+            setupCandidateSpinner(this, storageTypes)
             setSelection(
                 storageTypes.indexOf(initialCandidate.storageType).takeIf { it >= 0 } ?: 0
             )
         }
 
-        container.addView(makeLabel("재료명"))
+        val buttonRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 20.dp(), 0, 0)
+        }
+
+        val cancelButton = makeCandidateDialogButton(
+            text = "취소",
+            textColor = R.color.primary_green_dark,
+            background = R.drawable.bg_dialog_outline_button
+        )
+
+        val saveButton = makeCandidateDialogButton(
+            text = "저장",
+            textColor = R.color.white,
+            background = R.drawable.bg_primary_button
+        )
+
+        buttonRow.addView(
+            cancelButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(0, 0, 7.dp(), 0)
+            }
+        )
+
+        buttonRow.addView(
+            saveButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                setMargins(7.dp(), 0, 0, 0)
+            }
+        )
+
+        container.addView(titleView)
+        container.addView(subtitleView)
+
+        container.addView(makeCandidateFieldLabel("재료명"))
         container.addView(editName)
-        container.addView(makeLabel("카테고리"))
+
+        container.addView(makeCandidateFieldLabel("카테고리"))
         container.addView(spinnerCategory)
-        container.addView(makeLabel("구매량"))
-        container.addView(editInitialAmount)
-        container.addView(makeLabel("현재 남은 양"))
-        container.addView(editCurrentAmount)
-        container.addView(makeLabel("단위"))
+
+        container.addView(makeCandidateFieldLabel("수량"))
+        container.addView(amountRow)
+
+        container.addView(makeCandidateFieldLabel("단위"))
         container.addView(spinnerUnit)
-        container.addView(makeLabel("유통기한"))
+
+        container.addView(makeCandidateFieldLabel("유통기한"))
         container.addView(editExpiryDate)
-        container.addView(makeLabel("보관 방식"))
+
+        container.addView(makeCandidateFieldLabel("보관 방식"))
         container.addView(spinnerStorage)
 
-        AlertDialog.Builder(context)
-            .setTitle(title)
+        container.addView(buttonRow)
+
+        val dialog = AlertDialog.Builder(context)
             .setView(container)
-            .setPositiveButton("저장", null)
-            .setNegativeButton("취소", null)
             .create()
-            .apply {
-                setOnShowListener {
-                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        val name = editName.text.toString().trim()
-                        val initialAmount = editInitialAmount.text.toString().toDoubleOrNull()
-                        val currentAmount = editCurrentAmount.text.toString().toDoubleOrNull()
 
-                        if (name.isBlank()) {
-                            Toast.makeText(context, "재료명을 입력하세요", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
 
-                        if (initialAmount == null || initialAmount <= 0.0) {
-                            Toast.makeText(context, "구매량을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
+        saveButton.setOnClickListener {
+            val name = finalSafeIngredientName(editName.text.toString().trim())
+            val initialAmount = editInitialAmount.text.toString().toDoubleOrNull()
+            val currentAmount = editCurrentAmount.text.toString().toDoubleOrNull()
 
-                        if (currentAmount == null || currentAmount < 0.0) {
-                            Toast.makeText(context, "현재 남은 양을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
+            if (name.isBlank()) {
+                Toast.makeText(context, "재료명을 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                        if (currentAmount > initialAmount) {
-                            Toast.makeText(context, "현재 남은 양은 구매량보다 클 수 없습니다", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
+            if (initialAmount == null || initialAmount <= 0.0) {
+                Toast.makeText(context, "구매량을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                        val updated = ReceiptCandidate(
-                            name = name,
-                            category = spinnerCategory.selectedItem.toString(),
-                            initialAmount = initialAmount,
-                            currentAmount = currentAmount,
-                            unit = spinnerUnit.selectedItem.toString(),
-                            expiryDate = editExpiryDate.text.toString().trim(),
-                            storageType = spinnerStorage.selectedItem.toString(),
-                            amountSource = "manual"
-                        )
+            if (currentAmount == null || currentAmount < 0.0) {
+                Toast.makeText(context, "현재 남은 양을 올바르게 입력하세요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                        if (targetIndex == null) {
-                            if (candidates.any { it.name.equals(updated.name, ignoreCase = true) }) {
-                                Toast.makeText(
-                                    context,
-                                    "이미 추가된 후보입니다",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@setOnClickListener
-                            }
+            if (currentAmount > initialAmount) {
+                Toast.makeText(context, "현재 남은 양은 구매량보다 클 수 없습니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                            candidates.add(updated)
-                        } else if (targetIndex in candidates.indices) {
-                            candidates[targetIndex] = updated
-                        }
+            val updated = ReceiptCandidate(
+                name = forceKeepSpecificIngredientName(name),
+                category = spinnerCategory.selectedItem.toString(),
+                initialAmount = initialAmount,
+                currentAmount = currentAmount,
+                unit = spinnerUnit.selectedItem.toString(),
+                expiryDate = editExpiryDate.text.toString().trim(),
+                storageType = spinnerStorage.selectedItem.toString(),
+                amountSource = "manual"
+            )
 
-                        renderItems()
-                        dismiss()
-                    }
+            if (targetIndex == null) {
+                if (candidates.any { it.name.equals(updated.name, ignoreCase = true) }) {
+                    Toast.makeText(
+                        context,
+                        "이미 추가된 후보입니다",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
                 }
 
-                show()
+                candidates.add(updated)
+            } else if (targetIndex in candidates.indices) {
+                candidates[targetIndex] = updated
             }
+
+            renderItems()
+            dialog.dismiss()
+        }
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT)
+            )
+        }
+
+        dialog.show()
+    }
+
+    private fun makeCandidateFieldLabel(text: String): TextView {
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+            setPadding(2.dp(), 13.dp(), 0, 6.dp())
+        }
+    }
+
+    private fun styleCandidateEditText(editText: EditText) {
+        editText.setTextColor(resources.getColor(R.color.text_main, null))
+        editText.setHintTextColor(resources.getColor(R.color.text_hint, null))
+        editText.textSize = 15f
+        editText.setSingleLine(true)
+        editText.setBackgroundResource(R.drawable.bg_input_field)
+        editText.setPadding(14.dp(), 0, 14.dp(), 0)
+    }
+
+    private fun setupCandidateSpinner(
+        spinner: Spinner,
+        items: List<String>
+    ) {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.item_spinner_selected,
+            items
+        )
+
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
+        spinner.adapter = adapter
+        spinner.setBackgroundResource(R.drawable.bg_input_field)
+        spinner.setPadding(12.dp(), 0, 12.dp(), 0)
+    }
+
+    private fun makeCandidateDialogButton(
+        text: String,
+        textColor: Int,
+        background: Int
+    ): Button {
+        return Button(requireContext()).apply {
+            this.text = text
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(textColor, null))
+            setBackgroundResource(background)
+            backgroundTintList = null
+            stateListAnimator = null
+            elevation = 0f
+            minHeight = 0
+            minWidth = 0
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setPadding(0, 0, 0, 0)
+        }
     }
 
     private fun showDatePicker(editExpiryDate: EditText) {
@@ -1196,4 +1422,196 @@ class AReceiptResultFragment : Fragment() {
             return fragment
         }
     }
+    private fun forceKeepSpecificIngredientName(name: String): String {
+        val key = name
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+            .trim()
+
+        return when (key) {
+            "닭가슴", "닭가슴살", "닭가슴살구이", "닭가슴살슬라이스", "닭가슴살큐브" -> "닭가슴살"
+            "닭다리", "닭다리살" -> "닭다리살"
+            "닭안심" -> "닭안심"
+            "닭날개" -> "닭날개"
+            "닭봉" -> "닭봉"
+            "닭고기" -> "닭고기"
+            "닭" -> "닭"
+
+            "대파" -> "대파"
+            "쪽파" -> "쪽파"
+            "양파" -> "양파"
+            "파" -> "파"
+
+            "다진마늘" -> "다진마늘"
+            "깐마늘" -> "깐마늘"
+            "마늘" -> "마늘"
+
+            "초코우유" -> "초코우유"
+            "딸기우유" -> "딸기우유"
+            "바나나우유" -> "바나나우유"
+            "두유" -> "두유"
+            "우유" -> "우유"
+
+            "달걀", "계란" -> "계란"
+
+            else -> name.trim()
+        }
+    }
+
+    private fun preferSpecificReceiptName(
+        rawName: String,
+        currentName: String
+    ): String {
+        val rawKey = rawName
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+            .trim()
+
+        val currentKey = currentName
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+            .trim()
+
+        return when {
+            rawKey in setOf(
+                "닭가슴", "닭가슴살", "닭가슴살구이", "닭가슴살슬라이스", "닭가슴살큐브",
+                "닭다리살", "닭안심", "닭날개", "닭봉",
+                "대파", "쪽파", "양파",
+                "다진마늘", "깐마늘",
+                "초코우유", "딸기우유", "바나나우유", "두유",
+                "체다치즈", "모짜렐라치즈", "슬라이스치즈"
+            ) -> forceKeepSpecificIngredientName(rawName)
+
+            rawKey.length > currentKey.length &&
+                currentKey.isNotBlank() &&
+                rawKey.contains(currentKey) -> forceKeepSpecificIngredientName(rawName)
+
+            else -> forceKeepSpecificIngredientName(currentName.ifBlank { rawName })
+        }
+    }
+
+    private fun finalSafeIngredientName(name: String): String {
+        val cleaned = name
+            .replace(Regex("\\d+(\\.\\d+)?\\s*(g|kg|ml|l|L|개|입|봉|팩|묶음|통|병|캔|ea|EA|근|구|알)"), "")
+            .replace(Regex("\\d+\\s*/\\s*\\d*"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+
+        val key = cleaned
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+
+        return when (key) {
+            "닭가슴", "닭가슴살", "닭가슴살구이", "닭가슴살슬라이스", "닭가슴살큐브", "냉장닭가슴살", "냉동닭가슴살", "훈제닭가슴살", "수비드닭가슴살" -> "닭가슴살"
+            "가슴살" -> "닭가슴살"
+            "닭다리", "닭다리살" -> "닭다리살"
+            "닭안심", "닭안심살" -> "닭안심"
+            "닭날개" -> "닭날개"
+            "닭봉" -> "닭봉"
+            "닭고기" -> "닭고기"
+            "닭" -> "닭"
+
+            "달걀", "계란" -> "계란"
+
+            "대파" -> "대파"
+            "쪽파" -> "쪽파"
+            "양파" -> "양파"
+            "파" -> "파"
+
+            "다진마늘" -> "다진마늘"
+            "깐마늘" -> "깐마늘"
+            "마늘" -> "마늘"
+
+            "초코우유" -> "초코우유"
+            "딸기우유" -> "딸기우유"
+            "바나나우유" -> "바나나우유"
+            "두유" -> "두유"
+            "우유" -> "우유"
+
+            else -> cleaned
+        }
+    }
+
+
+    private fun finalSafeIngredientNameFromReceiptCandidate(candidate: ReceiptCandidate): String {
+        val raw = candidate.name.trim()
+
+        val key = raw
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+
+        return when {
+            key.contains("닭가슴살") -> "닭가슴살"
+            key.contains("닭가슴") -> "닭가슴살"
+            key.contains("가슴살") -> "닭가슴살"
+            key.contains("닭다리살") -> "닭다리살"
+            key.contains("닭안심") -> "닭안심"
+            key.contains("닭날개") -> "닭날개"
+            key.contains("닭봉") -> "닭봉"
+            else -> finalSafeIngredientName(raw)
+        }
+    }
+
+    private fun finalSafeIngredientNameFromCandidate(candidate: BReceiptItemCandidate): String {
+        val raw = candidate.name.orEmpty().trim()
+        val amountText = candidate.amountText.orEmpty().trim()
+
+        val combinedKey = "$raw $amountText"
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+
+        return when {
+            combinedKey.contains("닭가슴살") -> "닭가슴살"
+            combinedKey.contains("닭가슴") -> "닭가슴살"
+            combinedKey.contains("가슴살") -> "닭가슴살"
+            combinedKey.contains("닭다리살") -> "닭다리살"
+            combinedKey.contains("닭안심") -> "닭안심"
+            combinedKey.contains("닭날개") -> "닭날개"
+            combinedKey.contains("닭봉") -> "닭봉"
+            else -> finalSafeIngredientName(raw)
+        }
+    }
+
+    private fun normalizeReceiptDisplayName(rawName: String): String {
+        val cleaned = rawName
+            .replace(Regex("\\d+(\\.\\d+)?\\s*(g|kg|ml|l|L|개|입|봉|팩|묶음|통|병|캔|ea|EA|근|구|알)"), "")
+            .replace(Regex("\\d+\\s*/\\s*\\d*"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+
+        val key = cleaned
+            .replace("\\s".toRegex(), "")
+            .lowercase()
+
+        return when (key) {
+            "달걀" -> "계란"
+            "계란" -> "계란"
+
+            "닭가슴", "닭가슴살", "닭가슴살구이", "닭가슴살슬라이스", "닭가슴살큐브", "가슴살" -> "닭가슴살"
+            "닭다리", "닭다리살" -> "닭다리살"
+            "닭안심", "닭안심살" -> "닭안심"
+            "닭날개" -> "닭날개"
+            "닭봉" -> "닭봉"
+            "닭고기" -> "닭고기"
+            "닭" -> "닭"
+
+            "대파" -> "대파"
+            "쪽파" -> "쪽파"
+            "양파" -> "양파"
+            "파" -> "파"
+
+            "다진마늘" -> "다진마늘"
+            "깐마늘" -> "깐마늘"
+            "마늘" -> "마늘"
+
+            "초코우유" -> "초코우유"
+            "딸기우유" -> "딸기우유"
+            "바나나우유" -> "바나나우유"
+            "두유" -> "두유"
+            "우유" -> "우유"
+
+            else -> cleaned
+        }
+    }
+
 }

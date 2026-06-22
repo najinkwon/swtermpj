@@ -1,96 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="154dp"
-    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    android:minHeight="116dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:background="@drawable/bg_card"
-    android:paddingLeft="12dp"
-    android:paddingRight="12dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
     android:elevation="0dp"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
     android:layout_marginBottom="10dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+    <TextView
+        android:id="@+id/textHomeRecipeEmoji"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:gravity="center"
+        android:text="🍳"
+        android:textSize="36sp"
+        android:layout_marginRight="16dp"
+        android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
-        <TextView
-            android:id="@+id/textHomeRecipeEmoji"
-            android:layout_width="58dp"
-            android:layout_height="58dp"
-            android:gravity="center"
-            android:text="🍳"
-            android:textSize="29sp"
-            android:background="@drawable/bg_recipe_thumb"
-            android:includeFontPadding="false" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingRight="8dp">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:layout_marginLeft="10dp">
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/textHomeRecipeTitle"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="계란찜"
-                android:textSize="17sp"
+                android:layout_weight="1"
+                android:text="오야코동"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_main"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:ellipsize="end"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
             <TextView
                 android:id="@+id/textHomeRecipeTime"
                 android:layout_width="wrap_content"
-                android:layout_height="24dp"
+                android:layout_height="30dp"
                 android:gravity="center"
                 android:text="15분"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_main"
-                android:background="@drawable/bg_chip_white"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
-                android:layout_marginTop="8dp"
-                android:includeFontPadding="false" />
+                android:textColor="@color/text_sub"
+                android:background="@drawable/bg_soft_green_pill"
+                android:paddingLeft="11dp"
+                android:paddingRight="11dp"
+                android:layout_marginLeft="8dp"
+                android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/textHomeRecipeReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="부족: 밥, 양파, 대파"
+            android:textSize="14sp"
+            android:textColor="@color/text_sub"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginTop="4dp"
+            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
+
+        <TextView
+            android:id="@+id/textHomeRecipeMatch"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="재료 40%"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_match_chip"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:layout_marginTop="6dp"
+            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
+
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/textHomeRecipeReason"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="부족 재료가 있어요"
-        android:textSize="12sp"
-        android:textColor="@color/text_sub"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:layout_marginTop="10dp"
-        android:includeFontPadding="false" />
-
-    <TextView
-        android:id="@+id/textHomeRecipeMatch"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:gravity="center"
-        android:text="재료 40%"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:background="@drawable/bg_match_chip"
-        android:layout_marginTop="11dp"
-        android:includeFontPadding="false" />
 
 </LinearLayout>

@@ -49,3 +49,4 @@ __pycache__/
 # temporary debug/export files
 *.txt
 .DS_Store
+.DS_Store

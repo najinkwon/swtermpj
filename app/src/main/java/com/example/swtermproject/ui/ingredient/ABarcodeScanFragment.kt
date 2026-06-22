@@ -46,7 +46,7 @@ class ABarcodeScanFragment : Fragment() {
         }
 
         btnResult.setOnClickListener {
-            moveToResult("8801115111111")
+            moveToResult("8801791000147")
         }
 
         return view
