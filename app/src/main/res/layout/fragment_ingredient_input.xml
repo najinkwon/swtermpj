@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="22dp"
+        android:paddingRight="22dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="116dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingRight="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="재료 추가"
+                    android:textSize="31sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:letterSpacing="-0.03"
+                    android:includeFontPadding="true" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="직접 입력하거나 스캔으로 빠르게 등록해요"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_sub"
+                    android:layout_marginTop="4dp"
+                    android:includeFontPadding="true" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:gravity="center"
+                android:text="🥬"
+                android:textSize="30sp"
+                android:includeFontPadding="true" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_form_section"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="빠른 등록"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main"
+                android:includeFontPadding="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="영수증이나 바코드로 기본 정보를 먼저 불러올 수 있어요."
+                android:textSize="13sp"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="4dp"
+                android:includeFontPadding="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="15dp">
+
+                <Button
+                    android:id="@+id/btnReceiptScan"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_weight="1"
+                    android:text="🧾 영수증"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_green_dark"
+                    android:background="@drawable/bg_quick_action_receipt"
+                    android:backgroundTint="@null"
+                    android:stateListAnimator="@null"
+                    android:elevation="0dp"
+                    android:layout_marginRight="6dp"
+                    android:includeFontPadding="true" />
+
+                <Button
+                    android:id="@+id/btnBarcodeScan"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_weight="1"
+                    android:text="📦 바코드"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_green_dark"
+                    android:background="@drawable/bg_quick_action_barcode"
+                    android:backgroundTint="@null"
+                    android:stateListAnimator="@null"
+                    android:elevation="0dp"
+                    android:layout_marginLeft="6dp"
+                    android:includeFontPadding="true" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_form_section"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="20dp"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="직접 입력"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main"
+                android:includeFontPadding="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="재료명"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="16dp"
+                android:includeFontPadding="true" />
+
+            <EditText
+                android:id="@+id/editIngredientName"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="예: 우유, 계란, 바나나"
+                android:textSize="15sp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:background="@drawable/bg_input_field"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:singleLine="true"
+                android:layout_marginTop="7dp"
+                android:includeFontPadding="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="카테고리"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="14dp"
+                android:includeFontPadding="true" />
+
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_marginTop="7dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="14dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginRight="6dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="처음 수량"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_sub"
+                        android:includeFontPadding="true" />
+
+                    <EditText
+                        android:id="@+id/editInitialAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:hint="1"
+                        android:inputType="numberDecimal"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_main"
+                        android:textColorHint="@color/text_hint"
+                        android:background="@drawable/bg_input_field"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:singleLine="true"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="true" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="6dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="현재 수량"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_sub"
+                        android:includeFontPadding="true" />
+
+                    <EditText
+                        android:id="@+id/editCurrentAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:hint="1"
+                        android:inputType="numberDecimal"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_main"
+                        android:textColorHint="@color/text_hint"
+                        android:background="@drawable/bg_input_field"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:singleLine="true"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="true" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="단위"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="14dp"
+                android:includeFontPadding="true" />
+
+            <Spinner
+                android:id="@+id/spinnerUnit"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_marginTop="7dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="유통기한"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="14dp"
+                android:includeFontPadding="true" />
+
+            <EditText
+                android:id="@+id/editExpiryDate"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="YYYY-MM-DD"
+                android:textSize="15sp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:background="@drawable/bg_input_field"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:singleLine="true"
+                android:focusable="false"
+                android:clickable="true"
+                android:layout_marginTop="7dp"
+                android:includeFontPadding="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="보관 위치"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="14dp"
+                android:includeFontPadding="true" />
+
+            <Spinner
+                android:id="@+id/spinnerStorage"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_marginTop="7dp" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="재료 저장하기"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_primary_button"
+                android:backgroundTint="@null"
+                android:stateListAnimator="@null"
+                android:elevation="0dp"
+                android:layout_marginTop="22dp"
+                android:includeFontPadding="true" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

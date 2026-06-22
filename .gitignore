@@ -32,3 +32,21 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Python virtual environment
+ml-training/.venv/
+ml-training/__pycache__/
+ml-training/*.pyc
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Keep generated ML model files
+!app/src/main/assets/ml/ingredient_classifier.tflite
+!app/src/main/assets/ml/labels.txt
+!app/src/main/assets/ml/vocabulary.json
+# temporary debug/export files
+*.txt
+.DS_Store
+.DS_Store

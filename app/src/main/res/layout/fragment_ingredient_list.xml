@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@color/app_bg">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="냉장고 재료"
+                        android:textColor="@color/text_main"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="검색하고 정렬해서 냉장고를 관리해요"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14sp"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="true" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="🧊"
+                    android:textSize="23sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSelectionBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_stat_red"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textSelectionCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0개 선택됨"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:textSize="15sp" />
+
+                <Button
+                    android:id="@+id/btnDeleteSelected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="선택 삭제"
+                    android:textSize="13sp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+                <Button
+                    android:id="@+id/btnCancelSelection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="취소"
+                    android:textSize="13sp"
+                    android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/editSearch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="재료 이름 검색"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:background="@drawable/bg_card"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_hint"
+                android:textSize="15sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnFilterAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="전체"
+                        android:textSize="13sp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+                    <Button
+                        android:id="@+id/btnFilterVegetable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="채소"
+                        android:textSize="13sp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+                    <Button
+                        android:id="@+id/btnFilterDairy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="유제품"
+                        android:textSize="13sp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+                    <Button
+                        android:id="@+id/btnFilterProtein"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="단백질"
+                        android:textSize="13sp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <Spinner
+                android:id="@+id/spinnerSort"
+                android:layout_width="152dp"
+                android:layout_height="38dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp" />
+
+            <LinearLayout
+                android:id="@+id/emptyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="36dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textEmptyEmoji"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🥲"
+                    android:textSize="56sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="재료가 없어요"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:layout_marginTop="14dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="새 재료를 추가해보세요"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_sub"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerIngredient"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingTop="14dp"
+                android:paddingBottom="118dp" />
+
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/fabMenuLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:orientation="vertical"
+        android:gravity="end"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="96dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnAddManual"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="직접 추가"
+            android:textSize="14sp"
+            android:layout_marginBottom="9dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+        <Button
+            android:id="@+id/btnAddBarcode"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="바코드 스캔"
+            android:textSize="14sp"
+            android:layout_marginBottom="9dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+        <Button
+            android:id="@+id/btnAddReceipt"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="영수증 스캔"
+            android:textSize="14sp"
+            android:layout_marginBottom="9dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/primary_green"
+        android:tint="@color/white"
+        android:src="@android:drawable/ic_input_add" />
+
+</FrameLayout>
