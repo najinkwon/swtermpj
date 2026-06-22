@@ -27,7 +27,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="레시피 카테고리"
+                    android:text="레시피"
                     android:textColor="@color/text_main"
                     android:textSize="30sp"
                     android:textStyle="bold"
@@ -36,7 +36,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="오늘은 어떤 요리를 해볼까요?"
+                    android:text="오늘 먹고 싶은 메뉴를 골라보세요"
                     android:textColor="@color/text_sub"
                     android:textSize="14sp"
                     android:layout_marginTop="7dp"
@@ -49,10 +49,75 @@
                 android:layout_height="48dp"
                 android:gravity="center"
                 android:text="🍳"
-                android:textSize="23sp"
-                android:background="@drawable/bg_chip" />
+                android:textSize="22sp"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:layout_marginBottom="20dp"
+            android:elevation="0dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="냉장고 재료로 고르기"
+                android:textColor="@color/text_main"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="지금 있는 재료와 잘 맞는 메뉴를 먼저 보여드려요"
+                android:textColor="@color/text_sub"
+                android:textSize="13sp"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="8dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:includeFontPadding="false" />
+
+            <Button
+                android:id="@+id/btnAiRecommend"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:text="추천 메뉴 보기"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_primary_button"
+                android:backgroundTint="@null"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:layout_marginTop="16dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="카테고리로 보기"
+            android:textColor="@color/text_main"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:includeFontPadding="false" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,7 +127,7 @@
             <LinearLayout
                 android:id="@+id/cardKorean"
                 android:layout_width="0dp"
-                android:layout_height="170dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -73,38 +138,41 @@
                 android:layout_marginRight="7dp">
 
                 <TextView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🍚"
-                    android:textSize="30sp"
-                    android:background="@drawable/bg_chip_white" />
+                    android:textSize="28sp"
+                   
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="한식"
                     android:textColor="@color/text_main"
-                    android:textSize="22sp"
+                    android:textSize="21sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="16dp"
                     android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="집밥 느낌으로\n든든하게"
+                    android:text="든든한 집밥 메뉴"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
                     android:textColor="@color/text_sub"
                     android:textSize="13sp"
-                    android:lineSpacingExtra="3dp"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="7dp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/cardWestern"
                 android:layout_width="0dp"
-                android:layout_height="170dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -115,31 +183,34 @@
                 android:layout_marginLeft="7dp">
 
                 <TextView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🍝"
-                    android:textSize="30sp"
-                    android:background="@drawable/bg_chip_white" />
+                    android:textSize="28sp"
+                   
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="양식"
                     android:textColor="@color/text_main"
-                    android:textSize="22sp"
+                    android:textSize="21sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="16dp"
                     android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="파스타와 브런치처럼\n가볍게"
+                    android:text="가벼운 브런치 메뉴"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
                     android:textColor="@color/text_sub"
                     android:textSize="13sp"
-                    android:lineSpacingExtra="3dp"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="7dp" />
 
             </LinearLayout>
 
@@ -149,12 +220,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="14dp">
+            android:layout_marginTop="12dp">
 
             <LinearLayout
                 android:id="@+id/cardJapanese"
                 android:layout_width="0dp"
-                android:layout_height="170dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -165,38 +236,40 @@
                 android:layout_marginRight="7dp">
 
                 <TextView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🍱"
-                    android:textSize="30sp"
-                    android:background="@drawable/bg_chip" />
+                    android:textSize="28sp"
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="일식"
                     android:textColor="@color/text_main"
-                    android:textSize="22sp"
+                    android:textSize="21sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="16dp"
                     android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="깔끔하고 담백한\n한 끼"
+                    android:text="깔끔한 한 끼 메뉴"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
                     android:textColor="@color/text_sub"
                     android:textSize="13sp"
-                    android:lineSpacingExtra="3dp"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="7dp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/cardEtc"
                 android:layout_width="0dp"
-                android:layout_height="170dp"
+                android:layout_height="142dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="15dp"
@@ -207,31 +280,34 @@
                 android:layout_marginLeft="7dp">
 
                 <TextView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     android:gravity="center"
                     android:text="🥗"
-                    android:textSize="30sp"
-                    android:background="@drawable/bg_chip_white" />
+                    android:textSize="28sp"
+                   
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="기타"
                     android:textColor="@color/text_main"
-                    android:textSize="22sp"
+                    android:textSize="21sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="16dp"
                     android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="간식과 샐러드까지\n다양하게"
+                    android:text="간식부터 샐러드까지"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
                     android:textColor="@color/text_sub"
                     android:textSize="13sp"
-                    android:lineSpacingExtra="3dp"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="7dp" />
 
             </LinearLayout>
 

@@ -31,11 +31,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="재료 목록"
+                        android:text="냉장고 재료"
                         android:textColor="@color/text_main"
                         android:textSize="30sp"
                         android:textStyle="bold"
-                        android:includeFontPadding="false" />
+                        android:includeFontPadding="true" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
                         android:textColor="@color/text_sub"
                         android:textSize="14sp"
                         android:layout_marginTop="7dp"
-                        android:includeFontPadding="false" />
+                        android:includeFontPadding="true" />
 
                 </LinearLayout>
 
@@ -53,8 +53,7 @@
                     android:layout_height="48dp"
                     android:gravity="center"
                     android:text="🧊"
-                    android:textSize="23sp"
-                    android:background="@drawable/bg_chip" />
+                    android:textSize="23sp" />
 
             </LinearLayout>
 
@@ -84,7 +83,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="38dp"
                     android:text="선택 삭제"
-                    android:textSize="13sp" />
+                    android:textSize="13sp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
                 <Button
                     android:id="@+id/btnCancelSelection"
@@ -92,7 +100,16 @@
                     android:layout_height="38dp"
                     android:text="취소"
                     android:textSize="13sp"
-                    android:layout_marginLeft="8dp" />
+                    android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
             </LinearLayout>
 
@@ -100,7 +117,7 @@
                 android:id="@+id/editSearch"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:hint="재료 검색"
+                android:hint="재료 이름 검색"
                 android:paddingLeft="18dp"
                 android:paddingRight="18dp"
                 android:background="@drawable/bg_card"
@@ -125,9 +142,17 @@
                         android:layout_height="36dp"
                         android:text="전체"
                         android:textSize="13sp"
-                        android:minWidth="76dp"
                         android:paddingLeft="12dp"
-                        android:paddingRight="12dp" />
+                        android:paddingRight="12dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
                     <Button
                         android:id="@+id/btnFilterVegetable"
@@ -135,10 +160,18 @@
                         android:layout_height="36dp"
                         android:text="채소"
                         android:textSize="13sp"
-                        android:minWidth="76dp"
                         android:paddingLeft="12dp"
                         android:paddingRight="12dp"
-                        android:layout_marginLeft="8dp" />
+                        android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
                     <Button
                         android:id="@+id/btnFilterDairy"
@@ -146,10 +179,18 @@
                         android:layout_height="36dp"
                         android:text="유제품"
                         android:textSize="13sp"
-                        android:minWidth="82dp"
                         android:paddingLeft="12dp"
                         android:paddingRight="12dp"
-                        android:layout_marginLeft="8dp" />
+                        android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
                     <Button
                         android:id="@+id/btnFilterProtein"
@@ -157,10 +198,18 @@
                         android:layout_height="36dp"
                         android:text="단백질"
                         android:textSize="13sp"
-                        android:minWidth="82dp"
                         android:paddingLeft="12dp"
                         android:paddingRight="12dp"
-                        android:layout_marginLeft="8dp" />
+                        android:layout_marginLeft="8dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
                 </LinearLayout>
 
@@ -171,7 +220,7 @@
                 android:layout_width="152dp"
                 android:layout_height="38dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_chip_white"
+                android:background="@drawable/bg_input_field"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp" />
 
@@ -217,7 +266,7 @@
                 android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingTop="14dp"
-                android:paddingBottom="96dp" />
+                android:paddingBottom="118dp" />
 
         </LinearLayout>
 
@@ -240,7 +289,16 @@
             android:layout_height="44dp"
             android:text="직접 추가"
             android:textSize="14sp"
-            android:layout_marginBottom="9dp" />
+            android:layout_marginBottom="9dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
         <Button
             android:id="@+id/btnAddBarcode"
@@ -248,7 +306,16 @@
             android:layout_height="44dp"
             android:text="바코드 스캔"
             android:textSize="14sp"
-            android:layout_marginBottom="9dp" />
+            android:layout_marginBottom="9dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
         <Button
             android:id="@+id/btnAddReceipt"
@@ -256,7 +323,16 @@
             android:layout_height="44dp"
             android:text="영수증 스캔"
             android:textSize="14sp"
-            android:layout_marginBottom="9dp" />
+            android:layout_marginBottom="9dp" 
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                />
 
     </LinearLayout>
 

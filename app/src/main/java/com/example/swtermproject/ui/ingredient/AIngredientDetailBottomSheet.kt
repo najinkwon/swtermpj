@@ -70,6 +70,22 @@ class AIngredientDetailBottomSheet(
         val btnEdit = view.findViewById<Button>(R.id.btnEditIngredient)
         val btnClose = view.findViewById<Button>(R.id.btnCloseBottom)
 
+        listOf(btnUse10, btnUse30, btnRefill, btnEdit, btnClose).forEach {
+            it.backgroundTintList = null
+        }
+
+        btnUse10.setBackgroundResource(R.drawable.bg_soft_red_chip)
+        btnUse30.setBackgroundResource(R.drawable.bg_soft_red_chip)
+        btnRefill.setBackgroundResource(R.drawable.bg_primary_button)
+        btnEdit.setBackgroundResource(R.drawable.bg_chip_white)
+        btnClose.setBackgroundResource(R.drawable.bg_dialog_outline_button)
+
+        btnUse10.setTextColor(resources.getColor(R.color.accent_red, null))
+        btnUse30.setTextColor(resources.getColor(R.color.accent_red, null))
+        btnRefill.setTextColor(resources.getColor(R.color.white, null))
+        btnEdit.setTextColor(resources.getColor(R.color.primary_green_dark, null))
+        btnClose.setTextColor(resources.getColor(R.color.text_sub, null))
+
         bindIngredientInfo()
         updateUI(false)
         updateExpireUI()
@@ -106,6 +122,10 @@ class AIngredientDetailBottomSheet(
         return view
     }
 
+    private fun Int.dp(): Int {
+        return (this * resources.displayMetrics.density).toInt()
+    }
+
     private fun bindIngredientInfo() {
         textName.text = currentIngredient.name
         textCategory.text = currentIngredient.category
@@ -134,14 +154,14 @@ class AIngredientDetailBottomSheet(
 
         val container = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(42, 18, 42, 0)
+            setPadding(24.dp(), 10.dp(), 24.dp(), 4.dp())
         }
 
         val editName = EditText(context).apply {
             hint = "재료명"
             setText(currentIngredient.name)
             inputType = InputType.TYPE_CLASS_TEXT
-            setSingleLine(true)
+            styleEditText(this)
         }
 
         val categorySpinner = Spinner(context)
@@ -155,14 +175,14 @@ class AIngredientDetailBottomSheet(
             hint = "구매량"
             setText(formatAmount(currentIngredient.initialAmount))
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setSingleLine(true)
+            styleEditText(this)
         }
 
         val editCurrentAmount = EditText(context).apply {
             hint = "현재 남은 양"
             setText(formatAmount(currentIngredient.currentAmount))
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setSingleLine(true)
+            styleEditText(this)
         }
 
         val unitSpinner = Spinner(context)
@@ -178,7 +198,7 @@ class AIngredientDetailBottomSheet(
             inputType = InputType.TYPE_NULL
             isFocusable = false
             isClickable = true
-            setSingleLine(true)
+            styleEditText(this)
             setOnClickListener {
                 showDatePicker(this)
             }
@@ -267,6 +287,16 @@ class AIngredientDetailBottomSheet(
                 }
 
                 show()
+
+                getButton(AlertDialog.BUTTON_POSITIVE)?.apply {
+                    setTextColor(resources.getColor(R.color.primary_green_dark, null))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                }
+
+                getButton(AlertDialog.BUTTON_NEGATIVE)?.apply {
+                    setTextColor(resources.getColor(R.color.text_sub, null))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                }
             }
     }
 
@@ -274,11 +304,15 @@ class AIngredientDetailBottomSheet(
         spinner: Spinner,
         items: List<String>
     ) {
-        spinner.adapter = ArrayAdapter(
+        val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.item_spinner_selected,
             items
         )
+
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
+        spinner.adapter = adapter
+        styleSpinner(spinner)
     }
 
     private fun showDatePicker(editExpiryDate: EditText) {
@@ -309,8 +343,33 @@ class AIngredientDetailBottomSheet(
         return TextView(requireContext()).apply {
             this.text = text
             textSize = 13f
-            setPadding(0, 14, 0, 4)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+            setPadding(2.dp(), 13.dp(), 0, 6.dp())
         }
+    }
+
+    private fun styleEditText(editText: EditText) {
+        editText.setTextColor(resources.getColor(R.color.text_main, null))
+        editText.setHintTextColor(resources.getColor(R.color.text_hint, null))
+        editText.textSize = 15f
+        editText.setSingleLine(true)
+        editText.setBackgroundResource(R.drawable.bg_input_field)
+        editText.setPadding(14.dp(), 0, 14.dp(), 0)
+        editText.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            48.dp()
+        )
+    }
+
+    private fun styleSpinner(spinner: Spinner) {
+        spinner.setBackgroundResource(R.drawable.bg_input_field)
+        spinner.setPadding(10.dp(), 0, 10.dp(), 0)
+        spinner.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            48.dp()
+        )
     }
 
     private fun decreasePercent(amount: Int) {

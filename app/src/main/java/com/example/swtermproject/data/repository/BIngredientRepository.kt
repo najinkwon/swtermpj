@@ -56,20 +56,141 @@ class BIngredientRepository(
     }
 
     suspend fun findSimilarIngredientByName(name: String): BIngredient? {
-        val incomingNormalized = normalizeName(name)
-        val incomingKey = canonicalIngredientKey(name)
+        val incomingName = name.trim()
 
-        if (incomingKey.isBlank()) return null
+        if (incomingName.isBlank()) {
+            return null
+        }
 
-        return ingredientDao.getAllIngredients()
-            .map { it.toDomain() }
-            .firstOrNull { existing ->
-                val existingNormalized = normalizeName(existing.name)
-                val existingKey = canonicalIngredientKey(existing.name)
+        val incomingKey = normalizeIngredientKey(incomingName)
+        val ingredients: List<BIngredient> = getAllIngredients()
 
-                existingNormalized != incomingNormalized &&
-                        existingKey == incomingKey
+        return ingredients.firstOrNull { existing: BIngredient ->
+            val existingKey = normalizeIngredientKey(existing.name)
+
+            isSameIngredientName(
+                existingName = existing.name,
+                incomingName = incomingName,
+                existingKey = existingKey,
+                incomingKey = incomingKey
+            )
+        }
+    }
+
+    private fun normalizeIngredientKey(name: String): String {
+        return name
+            .lowercase()
+            .replace("\\s".toRegex(), "")
+            .replace("[()\\[\\]{}_/\\\\.,·-]".toRegex(), "")
+            .replace("국내산", "")
+            .replace("수입산", "")
+            .replace("무항생제", "")
+            .replace("친환경", "")
+            .replace("유기농", "")
+            .replace("냉장", "")
+            .replace("냉동", "")
+            .trim()
+    }
+
+    private fun isSameIngredientName(
+        existingName: String,
+        incomingName: String,
+        existingKey: String,
+        incomingKey: String
+    ): Boolean {
+        if (existingKey.isBlank() || incomingKey.isBlank()) {
+            return false
+        }
+
+        if (existingKey == incomingKey) {
+            return true
+        }
+
+        if (isUnsafeIngredientPair(existingKey, incomingKey)) {
+            return false
+        }
+
+        val existingAlias = safeAlias(existingKey)
+        val incomingAlias = safeAlias(incomingKey)
+
+        if (
+            existingAlias.isNotBlank() &&
+            incomingAlias.isNotBlank() &&
+            existingAlias == incomingAlias
+        ) {
+            return true
+        }
+
+        return false
+    }
+
+    private fun safeAlias(name: String): String {
+        return when (name) {
+            "계란", "달걀", "달걀란", "계란란" -> "계란"
+            "흰우유", "일반우유", "서울우유", "매일우유", "남양우유" -> "우유"
+            else -> name
+        }
+    }
+
+    private fun isUnsafeIngredientPair(
+        first: String,
+        second: String
+    ): Boolean {
+        val pair = setOf(first, second)
+
+        val unsafePairs = setOf(
+            setOf("닭", "닭고기"),
+            setOf("닭", "닭가슴살"),
+            setOf("닭", "닭다리살"),
+            setOf("닭", "닭안심"),
+            setOf("닭", "닭날개"),
+            setOf("닭", "닭봉"),
+            setOf("닭고기", "닭가슴살"),
+            setOf("닭고기", "닭다리살"),
+            setOf("닭고기", "닭안심"),
+            setOf("돼지고기", "돼지고기다짐육"),
+            setOf("소고기", "소고기다짐육"),
+            setOf("고기", "소고기"),
+            setOf("고기", "돼지고기"),
+            setOf("고기", "닭고기"),
+            setOf("파", "대파"),
+            setOf("파", "쪽파"),
+            setOf("파", "양파"),
+            setOf("대파", "쪽파"),
+            setOf("마늘", "다진마늘"),
+            setOf("마늘", "깐마늘"),
+            setOf("우유", "초코우유"),
+            setOf("우유", "딸기우유"),
+            setOf("우유", "바나나우유"),
+            setOf("우유", "두유"),
+            setOf("치즈", "체다치즈"),
+            setOf("치즈", "모짜렐라치즈"),
+            setOf("치즈", "슬라이스치즈"),
+            setOf("밥", "볶음밥"),
+            setOf("면", "라면"),
+            setOf("면", "파스타면")
+        )
+
+        if (pair in unsafePairs) {
+            return true
+        }
+
+        val shorter = listOf(first, second).minByOrNull { it.length }.orEmpty()
+        val longer = listOf(first, second).maxByOrNull { it.length }.orEmpty()
+
+        if (shorter != longer && longer.contains(shorter)) {
+            val allowedContainPairs = setOf(
+                setOf("우유", "서울우유"),
+                setOf("우유", "매일우유"),
+                setOf("우유", "남양우유")
+            )
+
+            if (pair !in allowedContainPairs) {
+                return true
             }
+        }
+
+        return false
     }
 
     suspend fun mergeIngredientWithExisting(

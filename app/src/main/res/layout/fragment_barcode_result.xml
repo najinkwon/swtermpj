@@ -15,19 +15,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="22dp">
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="108dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="18dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingRight="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -35,7 +39,10 @@
                         android:text="상품 정보"
                         android:textColor="@color/text_main"
                         android:textSize="30sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                     <TextView
                         android:id="@+id/textBarcodeNumber"
@@ -44,17 +51,25 @@
                         android:text="바코드 번호"
                         android:textColor="@color/text_sub"
                         android:textSize="14sp"
-                        android:layout_marginTop="6dp" />
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 </LinearLayout>
 
                 <TextView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:gravity="center"
-                    android:text="📦"
-                    android:textSize="24sp"
-                    android:background="@drawable/bg_chip" />
+                    android:text="▣"
+                    android:textSize="23sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_green_dark"
+                    android:background="@drawable/bg_chip"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
             </LinearLayout>
 
@@ -63,54 +78,70 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="22dp"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="18dp"
                 android:background="@drawable/bg_card"
-                android:elevation="3dp">
-
-                <TextView
-                    android:id="@+id/textProductEmoji"
-                    android:layout_width="match_parent"
-                    android:layout_height="190dp"
-                    android:gravity="center"
-                    android:text="📦"
-                    android:textSize="72sp"
-                    android:background="@drawable/bg_stat_mint" />
+                android:elevation="0dp">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="86dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="18dp">
+                    android:background="@drawable/bg_dialog_info_box"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp">
 
                     <TextView
-                        android:id="@+id/textProductCategory"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="유제품"
-                        android:textColor="@color/primary_green_dark"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:background="@drawable/bg_chip"
-                        android:paddingLeft="14dp"
-                        android:paddingRight="14dp"
-                        android:paddingTop="7dp"
-                        android:paddingBottom="7dp" />
+                        android:id="@+id/textProductEmoji"
+                        android:layout_width="58dp"
+                        android:layout_height="58dp"
+                        android:gravity="center"
+                        android:text="📦"
+                        android:textSize="29sp"
+                        android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
-                    <TextView
-                        android:id="@+id/textStatus"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="조회 완료"
-                        android:textColor="@color/text_sub"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:background="@drawable/bg_chip_white"
-                        android:paddingLeft="14dp"
-                        android:paddingRight="14dp"
-                        android:paddingTop="7dp"
-                        android:paddingBottom="7dp"
-                        android:layout_marginLeft="10dp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginLeft="13dp">
+
+                        <TextView
+                            android:id="@+id/textProductCategory"
+                            android:layout_width="wrap_content"
+                            android:layout_height="28dp"
+                            android:gravity="center"
+                            android:text="유제품"
+                            android:textColor="@color/primary_green_dark"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:background="@drawable/bg_chip"
+                            android:paddingLeft="12dp"
+                            android:paddingRight="12dp"
+                            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
+
+                        <TextView
+                            android:id="@+id/textStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="조회 완료"
+                            android:textColor="@color/text_sub"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:layout_marginTop="8dp"
+                            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -120,8 +151,11 @@
                     android:text="제품명"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
-                    android:textSize="15sp"
-                    android:layout_marginTop="22dp" />
+                    android:textSize="14sp"
+                    android:layout_marginTop="20dp"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <TextView
                     android:id="@+id/textProductName"
@@ -132,7 +166,11 @@
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="18dp" />
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -140,7 +178,11 @@
                     android:text="제조사"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
-                    android:textSize="15sp" />
+                    android:textSize="14sp"
+                    android:layout_marginTop="18dp"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <TextView
                     android:id="@+id/textCompany"
@@ -148,9 +190,13 @@
                     android:layout_height="wrap_content"
                     android:text="서울우유협동조합"
                     android:textColor="@color/text_sub"
-                    android:textSize="16sp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="18dp" />
+                    android:textSize="15sp"
+                    android:layout_marginTop="7dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -158,55 +204,69 @@
                     android:text="등록 정보"
                     android:textStyle="bold"
                     android:textColor="@color/text_main"
-                    android:textSize="15sp" />
+                    android:textSize="17sp"
+                    android:layout_marginTop="22dp"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="12dp">
 
                     <EditText
                         android:id="@+id/editBarcodeInitialAmount"
                         android:layout_width="0dp"
-                        android:layout_height="52dp"
+                        android:layout_height="50dp"
                         android:layout_weight="1"
                         android:hint="구매량"
                         android:inputType="numberDecimal"
                         android:text="1"
                         android:singleLine="true"
-                        android:background="@drawable/bg_chip_white"
+                        android:background="@drawable/bg_input_field"
                         android:paddingLeft="14dp"
                         android:paddingRight="14dp"
                         android:textColor="@color/text_main"
                         android:textColorHint="@color/text_hint"
                         android:textSize="15sp"
-                        android:layout_marginRight="6dp" />
+                        android:layout_marginRight="6dp"
+        
+        android:includeFontPadding="true"
+        android:minHeight="52dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
 
                     <EditText
                         android:id="@+id/editBarcodeCurrentAmount"
                         android:layout_width="0dp"
-                        android:layout_height="52dp"
+                        android:layout_height="50dp"
                         android:layout_weight="1"
                         android:hint="현재량"
                         android:inputType="numberDecimal"
                         android:text="1"
                         android:singleLine="true"
-                        android:background="@drawable/bg_chip_white"
+                        android:background="@drawable/bg_input_field"
                         android:paddingLeft="14dp"
                         android:paddingRight="14dp"
                         android:textColor="@color/text_main"
                         android:textColorHint="@color/text_hint"
                         android:textSize="15sp"
-                        android:layout_marginLeft="6dp" />
+                        android:layout_marginLeft="6dp"
+        
+        android:includeFontPadding="true"
+        android:minHeight="52dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
 
                 </LinearLayout>
 
                 <Spinner
                     android:id="@+id/spinnerBarcodeUnit"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:background="@drawable/bg_chip_white"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_input_field"
                     android:paddingLeft="14dp"
                     android:paddingRight="14dp"
                     android:layout_marginTop="10dp" />
@@ -214,36 +274,53 @@
                 <EditText
                     android:id="@+id/editBarcodeExpiryDate"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="50dp"
                     android:hint="유통기한 선택"
                     android:focusable="false"
                     android:clickable="true"
                     android:inputType="none"
                     android:singleLine="true"
-                    android:background="@drawable/bg_chip_white"
+                    android:background="@drawable/bg_input_field"
                     android:paddingLeft="14dp"
                     android:paddingRight="14dp"
                     android:textColor="@color/text_main"
                     android:textColorHint="@color/text_hint"
                     android:textSize="15sp"
-                    android:layout_marginTop="10dp" />
+                    android:layout_marginTop="10dp"
+        
+        android:includeFontPadding="true"
+        android:minHeight="52dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
 
                 <Spinner
                     android:id="@+id/spinnerBarcodeStorage"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:background="@drawable/bg_chip_white"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_input_field"
                     android:paddingLeft="14dp"
                     android:paddingRight="14dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_marginTop="10dp" />
 
                 <Button
                     android:id="@+id/btnAddBarcodeIngredient"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:text="입력한 정보로 냉장고에 추가"
-                    android:textSize="16sp" />
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_primary_button"
+                    android:backgroundTint="@null"
+                    android:gravity="center"
+                    android:includeFontPadding="true"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:textSize="16sp"
+                    android:layout_marginTop="18dp"
+        
+        android:stateListAnimator="@null" />
 
             </LinearLayout>
 
@@ -252,10 +329,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp"
+                android:paddingLeft="22dp"
+                android:paddingRight="22dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="24dp"
                 android:background="@drawable/bg_card"
-                android:elevation="3dp"
+                android:elevation="0dp"
                 android:visibility="gone">
+
+                <TextView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="!"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_red"
+                    android:background="@drawable/bg_soft_red_chip"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -264,7 +358,11 @@
                     android:textColor="@color/text_main"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:layout_marginTop="18dp"
+                    android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
                 <TextView
                     android:id="@+id/textErrorMessage"
@@ -272,26 +370,51 @@
                     android:layout_height="wrap_content"
                     android:text="등록되지 않은 바코드거나 네트워크 상태가 불안정할 수 있어요."
                     android:textColor="@color/text_sub"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:gravity="center"
-                    android:lineSpacingExtra="6dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="24dp" />
+                    android:lineSpacingExtra="5dp"
+                    android:layout_marginTop="11dp"
+                    android:layout_marginBottom="22dp"
+                    android:includeFontPadding="true" />
 
                 <Button
                     android:id="@+id/btnRetryBarcode"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:text="다시 조회하기"
-                    android:textSize="16sp" />
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_primary_button"
+                    android:backgroundTint="@null"
+                    android:gravity="center"
+                    android:includeFontPadding="true"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:textSize="16sp"
+        
+        android:stateListAnimator="@null" />
 
                 <Button
                     android:id="@+id/btnManualInput"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"
+                    android:layout_height="56dp"
                     android:text="직접 입력하기"
-                    android:textSize="16sp"
-                    android:layout_marginTop="12dp" />
+                    android:textColor="@color/primary_green_dark"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_chip_white"
+                    android:backgroundTint="@null"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:includeFontPadding="true"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:layout_marginTop="10dp"
+        
+        android:stateListAnimator="@null" />
 
             </LinearLayout>
 
@@ -327,7 +450,10 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/text_main"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="20dp"
+            android:includeFontPadding="true"
+        
+        android:lineSpacingExtra="2dp" />
 
     </LinearLayout>
 

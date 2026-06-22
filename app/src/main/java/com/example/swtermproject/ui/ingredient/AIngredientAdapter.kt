@@ -60,19 +60,41 @@ class AIngredientAdapter(
 
         holder.textName.text = ingredient.name
         holder.textCategory.text = ingredient.category
-        holder.textPercent.text = "$percent%"
-        holder.textExpireDay.text =
-            if (ingredient.expiryDate.isBlank()) {
-                "미입력"
-            } else {
-                "D-$expireDay"
-            }
+
+        if (percent >= 95) {
+            holder.textPercent.visibility = View.GONE
+        } else {
+            holder.textPercent.visibility = View.VISIBLE
+            holder.textPercent.text =
+                if (percent <= 20) {
+                    "부족"
+                } else {
+                    "$percent%"
+                }
+        }
+
+        if (ingredient.expiryDate.isBlank()) {
+            holder.textExpireDay.visibility = View.GONE
+        } else {
+            holder.textExpireDay.visibility = View.VISIBLE
+            holder.textExpireDay.text = "D-$expireDay"
+        }
 
         val warningColor = ContextCompat.getColor(context, R.color.accent_red)
         val safeColor = ContextCompat.getColor(context, R.color.primary_green_dark)
 
+        val isExpireUrgent = expireDay <= 3 && ingredient.expiryDate.isNotBlank()
+
         holder.textExpireDay.setTextColor(
-            if (expireDay <= 3 && ingredient.expiryDate.isNotBlank()) warningColor else safeColor
+            if (isExpireUrgent) warningColor else ContextCompat.getColor(context, R.color.accent_orange)
+        )
+
+        holder.textExpireDay.setBackgroundResource(
+            if (isExpireUrgent) {
+                R.drawable.bg_expire_urgent_pill
+            } else {
+                R.drawable.bg_expire_pill
+            }
         )
 
         holder.textIcon.text = when (ingredient.category) {
@@ -93,6 +115,24 @@ class AIngredientAdapter(
         holder.btnFavorite.text =
             if (ingredient.favorite) "★" else "☆"
 
+        holder.btnFavorite.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (ingredient.favorite) {
+                    R.color.accent_coral
+                } else {
+                    R.color.text_hint
+                }
+            )
+        )
+
+        holder.btnDelete.setTextColor(
+            ContextCompat.getColor(
+                context,
+                R.color.text_hint
+            )
+        )
+
         holder.textSelect.visibility =
             if (selectionMode) View.VISIBLE else View.GONE
 
@@ -101,9 +141,9 @@ class AIngredientAdapter(
 
         holder.itemView.setBackgroundResource(
             if (isSelected) {
-                R.drawable.bg_stat_mint
+                R.drawable.bg_ingredient_selected
             } else {
-                R.drawable.bg_card
+                R.drawable.bg_ingredient_item
             }
         )
 

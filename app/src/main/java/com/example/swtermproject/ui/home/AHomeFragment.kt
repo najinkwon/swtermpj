@@ -12,7 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.MainActivity
 import com.example.swtermproject.R
@@ -22,7 +22,6 @@ import com.example.swtermproject.domain.model.BRecipe
 import com.example.swtermproject.recipe.BRecipeDataSource
 import com.example.swtermproject.recipe.BRecipeScorer
 import com.example.swtermproject.ui.ingredient.AIngredientListFragment
-import com.example.swtermproject.ui.recipe.RecipeAdapter
 import com.example.swtermproject.viewmodel.BHomeViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -39,7 +38,7 @@ class AHomeFragment : Fragment() {
     private lateinit var textLowStock: TextView
     private lateinit var textExpire: TextView
 
-    private lateinit var recipeAdapter: RecipeAdapter
+    private lateinit var recipeAdapter: HomeRecipeAdapter
     private val homeRecipes = mutableListOf<Recipe>()
 
     override fun onCreateView(
@@ -66,9 +65,9 @@ class AHomeFragment : Fragment() {
         val buttonMoreRecipe = view.findViewById<TextView>(R.id.buttonMoreRecipe)
         val recyclerRecipe = view.findViewById<RecyclerView>(R.id.recyclerRecipe)
 
-        recyclerRecipe.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerRecipe.layoutManager = LinearLayoutManager(requireContext())
 
-        recipeAdapter = RecipeAdapter(homeRecipes) { recipe ->
+        recipeAdapter = HomeRecipeAdapter(homeRecipes) { recipe ->
             (activity as MainActivity).openRecipeDetail(recipe.title)
         }
 
@@ -199,7 +198,7 @@ class AHomeFragment : Fragment() {
 
         return when {
             source.contains("볶음밥") -> "🍳"
-            source.contains("밥") -> "🍚"
+            source.contains("🍚") -> "🍚"
             source.contains("파스타") -> "🍝"
             source.contains("두부") -> "🥘"
             source.contains("규동") -> "🍱"

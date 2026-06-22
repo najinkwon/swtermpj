@@ -2,12 +2,15 @@ package com.example.swtermproject.ui.recipe
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -74,8 +77,17 @@ class ARecipeDetailFragment : Fragment() {
         val btnShopping = view.findViewById<Button>(R.id.btnShopping)
         btnCookDone = view.findViewById(R.id.btnCookDone)
 
+        listOf(btnYoutube, btnShopping, btnCookDone).forEach {
+            it.backgroundTintList = null
+        }
+
+        btnYoutube.setBackgroundResource(R.drawable.bg_youtube_button)
+        btnYoutube.setTextColor(resources.getColor(R.color.white, null))
+        btnShopping.setBackgroundResource(R.drawable.bg_chip_white)
+        btnShopping.setTextColor(resources.getColor(R.color.primary_green_dark, null))
+
         textImageEmoji.text = emojiForRecipe(recipe)
-        textTitle.text = "${emojiForRecipe(recipe)} ${recipe.title}"
+        textTitle.text = recipe.title
         textReason.text = "냉장고 재료를 기준으로 매칭률을 계산하고 있어요."
         textMatch.text = "계산 중"
         textCookTime.text = cookTimeForRecipe(recipe)
@@ -121,6 +133,10 @@ class ARecipeDetailFragment : Fragment() {
         }
 
         return view
+    }
+
+    private fun Int.dp(): Int {
+        return (this * resources.displayMetrics.density).toInt()
     }
 
     private fun loadRecipeMatch(recipe: BRecipe) {
@@ -251,23 +267,31 @@ class ARecipeDetailFragment : Fragment() {
                 else -> "재료"
             }
 
+        val prefix =
+            when {
+                status.isEnough -> "보유"
+                status.isOwned && !status.isUnitCompatible -> "확인"
+                !requirement.essential -> "선택"
+                else -> "부족"
+            }
+
         return when {
             status.isEnough -> {
                 val ownedText = "${formatAmount(status.ownedAmount)}${status.ownedUnit}"
-                "• ${requirement.name} $requiredText 필요 / 보유 $ownedText  ✅"
+                "$prefix · ${requirement.name}  $requiredText 필요 / 보유 $ownedText"
             }
 
             status.isOwned && !status.isUnitCompatible -> {
                 val ownedText = "${formatAmount(status.ownedAmount)}${status.ownedUnit}"
-                "• ${requirement.name} $requiredText 필요 / 보유 $ownedText  ⚠ 단위 확인 필요"
+                "$prefix · ${requirement.name}  $requiredText 필요 / 보유 $ownedText · 단위 확인"
             }
 
             !requirement.essential -> {
-                "• ${requirement.name} $requiredText 필요  ◻ 선택 $label"
+                "$prefix · ${requirement.name}  $requiredText 필요 · $label"
             }
 
             else -> {
-                "• ${requirement.name} $requiredText 필요  ❌ 부족"
+                "$prefix · ${requirement.name}  $requiredText 필요"
             }
         }
     }
@@ -322,16 +346,132 @@ class ARecipeDetailFragment : Fragment() {
                 "- ${status.requirement.name}: ${formatAmount(status.requirement.amount)}${status.requirement.unit} 차감"
             }
 
-            AlertDialog.Builder(requireContext())
-                .setTitle("요리했어요?")
-                .setMessage(
-                    "이 레시피에 사용된 재료를 냉장고 재고에서 차감할게요.\n\n$message"
-                )
-                .setPositiveButton("차감하기") { _, _ ->
+            showCookDoneDialog(
+                message = message,
+                onConfirm = {
                     consumeRecipeIngredients(recipe, consumableStatuses)
                 }
-                .setNegativeButton("취소", null)
-                .show()
+            )
+        }
+    }
+
+    private fun showCookDoneDialog(
+        message: String,
+        onConfirm: () -> Unit
+    ) {
+        val context = requireContext()
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dp(), 22.dp(), 24.dp(), 10.dp())
+        }
+
+        val title = TextView(context).apply {
+            text = "요리했어요?"
+            textSize = 21f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+        }
+
+        val description = TextView(context).apply {
+            text = "사용한 재료를 냉장고 재고에서 차감할게요."
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            setPadding(0, 8.dp(), 0, 0)
+            includeFontPadding = false
+        }
+
+        val infoBox = TextView(context).apply {
+            text = message
+            textSize = 15f
+            setTextColor(resources.getColor(R.color.text_main, null))
+            setBackgroundResource(R.drawable.bg_dialog_info_box)
+            setPadding(16.dp(), 14.dp(), 16.dp(), 14.dp())
+            setLineSpacing(6f, 1.0f)
+            includeFontPadding = false
+        }
+
+        val infoParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = 18.dp()
+        }
+
+        val buttonRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 20.dp(), 0, 0)
+        }
+
+        val cancelButton = makeDialogButton(
+            text = "취소",
+            textColor = R.color.primary_green_dark,
+            background = R.drawable.bg_dialog_outline_button
+        )
+
+        val confirmButton = makeDialogButton(
+            text = "차감하기",
+            textColor = R.color.white,
+            background = R.drawable.bg_primary_button
+        )
+
+        buttonRow.addView(
+            cancelButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                rightMargin = 8.dp()
+            }
+        )
+
+        buttonRow.addView(
+            confirmButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                leftMargin = 8.dp()
+            }
+        )
+
+        container.addView(title)
+        container.addView(description)
+        container.addView(infoBox, infoParams)
+        container.addView(buttonRow)
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(container)
+            .create()
+
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        confirmButton.setOnClickListener {
+            dialog.dismiss()
+            onConfirm()
+        }
+
+        dialog.show()
+    }
+
+    private fun makeDialogButton(
+        text: String,
+        textColor: Int,
+        background: Int
+    ): TextView {
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setTextColor(resources.getColor(textColor, null))
+            setBackgroundResource(background)
         }
     }
 
@@ -381,7 +521,7 @@ class ARecipeDetailFragment : Fragment() {
 
         return when {
             source.contains("볶음밥") -> "🍳"
-            source.contains("밥") -> "🍚"
+            source.contains("🍚") -> "🍚"
             source.contains("파스타") -> "🍝"
             source.contains("두부") -> "🥘"
             source.contains("규동") -> "🍱"

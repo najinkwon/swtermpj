@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swtermproject.R
 import com.example.swtermproject.data.model.ShoppingItem
@@ -15,8 +16,7 @@ class AShoppingAdapter(
     private val shoppingList: List<ShoppingItem>
 ) : RecyclerView.Adapter<AShoppingAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) :
-        RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val emoji: TextView =
             view.findViewById(R.id.textShoppingEmoji)
@@ -41,7 +41,6 @@ class AShoppingAdapter(
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
-
         val view = LayoutInflater.from(
             parent.context
         ).inflate(
@@ -76,19 +75,31 @@ class AShoppingAdapter(
 
         holder.message.text =
             if (isRecipeMissingItem) {
-                "${item.name}이 있으면 선택한 레시피를 만들 수 있어요."
+                "구매하면 바로 만들 수 있어요"
             } else {
-                "${item.name} 재고가 부족해요. 지금 구매를 추천해요."
+                "재고가 부족해요"
             }
 
-        holder.badge.text =
-            if (isRecipeMissingItem) {
-                "레시피"
-            } else if (item.percent <= 10) {
-                "매우 부족"
-            } else {
-                "부족"
-            }
+        if (isRecipeMissingItem) {
+            holder.badge.visibility = View.GONE
+        } else {
+            holder.badge.visibility = View.VISIBLE
+            holder.badge.text =
+                if (item.percent <= 10) {
+                    "매우 부족"
+                } else {
+                    "부족"
+                }
+        }
+
+        holder.button.backgroundTintList = null
+        holder.button.setBackgroundResource(R.drawable.bg_primary_button)
+        holder.button.setTextColor(
+            ContextCompat.getColor(
+                holder.itemView.context,
+                R.color.white
+            )
+        )
 
         holder.button.setOnClickListener {
             val intent = Intent(
@@ -102,12 +113,12 @@ class AShoppingAdapter(
         }
 
         holder.itemView.alpha = 0f
-        holder.itemView.translationY = 50f
+        holder.itemView.translationY = 18f
 
         holder.itemView.animate()
             .alpha(1f)
             .translationY(0f)
-            .setDuration(320)
+            .setDuration(220)
             .start()
     }
 }

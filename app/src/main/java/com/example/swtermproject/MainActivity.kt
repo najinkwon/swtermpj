@@ -7,6 +7,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import kotlinx.coroutines.launch
+import com.example.swtermproject.demo.DemoDataSeeder
+import androidx.lifecycle.lifecycleScope
 import com.example.swtermproject.ui.activity.RecipeDetailActivity
 import com.example.swtermproject.ui.home.AHomeFragment
 import com.example.swtermproject.ui.ingredient.ABarcodeScanFragment
@@ -50,7 +53,10 @@ class MainActivity : AppCompatActivity() {
         initBottomTabs()
 
         if (savedInstanceState == null) {
-            handleStartDestination()
+            lifecycleScope.launch {
+                DemoDataSeeder.seedIfNeeded(this@MainActivity)
+                handleStartDestination()
+            }
         }
 
         tabHome.setOnClickListener {
@@ -149,10 +155,15 @@ class MainActivity : AppCompatActivity() {
         val unselectedColor =
             ContextCompat.getColor(this, R.color.text_sub)
 
-        iconHome.setBackgroundResource(R.drawable.bg_chip_white)
-        iconIngredient.setBackgroundResource(R.drawable.bg_chip_white)
-        iconRecipe.setBackgroundResource(R.drawable.bg_chip_white)
-        iconNotification.setBackgroundResource(R.drawable.bg_chip_white)
+        iconHome.background = null
+        iconIngredient.background = null
+        iconRecipe.background = null
+        iconNotification.background = null
+
+        iconHome.setTextColor(unselectedColor)
+        iconIngredient.setTextColor(unselectedColor)
+        iconRecipe.setTextColor(unselectedColor)
+        iconNotification.setTextColor(unselectedColor)
 
         textHome.setTextColor(unselectedColor)
         textIngredient.setTextColor(unselectedColor)
@@ -172,7 +183,8 @@ class MainActivity : AppCompatActivity() {
         val selectedColor =
             ContextCompat.getColor(this, R.color.primary_green_dark)
 
-        icon.setBackgroundResource(R.drawable.bg_chip)
+        icon.background = null
+        icon.setTextColor(selectedColor)
         text.setTextColor(selectedColor)
         text.setTypeface(null, android.graphics.Typeface.BOLD)
 

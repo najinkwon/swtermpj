@@ -3,134 +3,175 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_bg"
+    android:fillViewport="true"
     android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="22dp">
+        android:paddingLeft="22dp"
+        android:paddingRight="22dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="112dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingRight="12dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="영수증 스캔"
+                    android:textSize="31sp"
+                    android:textStyle="bold"
                     android:textColor="@color/text_main"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:letterSpacing="-0.03"
+                    android:includeFontPadding="true" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="구매한 재료를 한 번에 등록해요"
-                    android:textColor="@color/text_sub"
+                    android:text="장본 내역을 재료 후보로 불러와요"
                     android:textSize="14sp"
-                    android:layout_marginTop="6dp" />
+                    android:textColor="@color/text_sub"
+                    android:layout_marginTop="4dp"
+                    android:includeFontPadding="true" />
 
             </LinearLayout>
 
             <TextView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
                 android:gravity="center"
                 android:text="🧾"
-                android:textSize="24sp"
-                android:background="@drawable/bg_chip" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:background="@drawable/bg_stat_mint"
-            android:padding="24dp">
-
-            <TextView
-                android:layout_width="86dp"
-                android:layout_height="86dp"
-                android:gravity="center"
-                android:text="🧾"
-                android:textSize="44sp"
-                android:background="@drawable/bg_chip_white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="영수증 사진을 인식할 준비가 됐어요"
-                android:textColor="@color/text_main"
-                android:textStyle="bold"
-                android:textSize="19sp"
-                android:layout_marginTop="18dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="영수증 사진을 선택하면 OCR로 재료 후보를 찾아요"
-                android:textColor="@color/text_sub"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginTop="8dp" />
+                android:textSize="30sp"
+                android:includeFontPadding="true" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:elevation="3dp"
-            android:padding="20dp"
-            android:layout_marginTop="18dp">
+            android:minHeight="158dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_scan_hero_receipt"
+            android:paddingLeft="22dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:layout_marginTop="24dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingRight="14dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="영수증 한 장이면 충분해요"
+                    android:textSize="23sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_main"
+                    android:letterSpacing="-0.02"
+                    android:includeFontPadding="true" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="사진에서 재료 후보를 찾아 냉장고에 바로 추가할 수 있어요."
+                    android:textSize="14sp"
+                    android:textColor="@color/text_sub"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="3dp"
+                    android:includeFontPadding="true" />
+
+            </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="인식 항목"
-                android:textColor="@color/text_main"
-                android:textStyle="bold"
-                android:textSize="19sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="• 상품명\n• 구매 수량\n• 카테고리 자동 분류\n• 냉장고 일괄 추가"
-                android:textColor="@color/text_sub"
-                android:textSize="14sp"
-                android:lineSpacingExtra="6dp"
-                android:layout_marginTop="12dp" />
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:gravity="center"
+                android:text="🛒"
+                android:textSize="40sp"
+                android:includeFontPadding="true" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btnStartReceiptScan"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="56dp"
             android:text="영수증 인식 시작"
             android:textSize="16sp"
-            android:layout_marginTop="22dp" />
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_primary_button"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:elevation="0dp"
+            android:layout_marginTop="18dp"
+            android:includeFontPadding="true" />
 
         <Button
             android:id="@+id/btnReceiptResult"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="52dp"
             android:text="샘플 결과 확인"
-            android:textSize="16sp"
-            android:layout_marginTop="12dp" />
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_green_dark"
+            android:background="@drawable/bg_chip_white"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:elevation="0dp"
+            android:layout_marginTop="10dp"
+            android:includeFontPadding="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_scan_tip"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="17dp"
+            android:paddingBottom="17dp"
+            android:layout_marginTop="22dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="인식 전 확인"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main"
+                android:includeFontPadding="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="영수증 전체가 보이게 촬영하면 더 정확해요. 인식된 재료는 저장 전에 이름과 수량을 수정할 수 있어요."
+                android:textSize="14sp"
+                android:textColor="@color/text_sub"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:includeFontPadding="true" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

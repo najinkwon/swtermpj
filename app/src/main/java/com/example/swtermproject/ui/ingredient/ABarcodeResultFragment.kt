@@ -3,9 +3,11 @@ package com.example.swtermproject.ui.ingredient
 import android.app.AlertDialog
 import android.content.Intent
 import android.app.DatePickerDialog
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,6 +86,17 @@ class ABarcodeResultFragment : Fragment() {
         val btnAdd = view.findViewById<Button>(R.id.btnAddBarcodeIngredient)
         val btnRetry = view.findViewById<Button>(R.id.btnRetryBarcode)
         val btnManualInput = view.findViewById<Button>(R.id.btnManualInput)
+
+        listOf(btnAdd, btnRetry, btnManualInput).forEach {
+            it.backgroundTintList = null
+        }
+
+        btnAdd.setBackgroundResource(R.drawable.bg_primary_button)
+        btnAdd.setTextColor(resources.getColor(R.color.white, null))
+        btnRetry.setBackgroundResource(R.drawable.bg_primary_button)
+        btnRetry.setTextColor(resources.getColor(R.color.white, null))
+        btnManualInput.setBackgroundResource(R.drawable.bg_chip_white)
+        btnManualInput.setTextColor(resources.getColor(R.color.primary_green_dark, null))
 
         setupSpinner(
             spinner = spinnerUnit,
@@ -252,6 +265,10 @@ class ABarcodeResultFragment : Fragment() {
         return view
     }
 
+    private fun Int.dp(): Int {
+        return (this * resources.displayMetrics.density).toInt()
+    }
+
     private fun openIngredientInputSafely() {
         val hostActivity = activity
 
@@ -332,33 +349,192 @@ class ABarcodeResultFragment : Fragment() {
         incomingIngredient: BIngredient,
         button: Button
     ) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("비슷한 재료가 이미 있어요")
-            .setMessage(
-                "기존 재료: ${existingIngredient.name}\n" +
-                    "새 재료: ${incomingIngredient.name}\n\n" +
-                    "같은 재료로 보고 수량을 합칠까요?"
-            )
-            .setPositiveButton("병합") { _, _ ->
+        showBarcodeSimilarIngredientDialog(
+            existingName = existingIngredient.name,
+            incomingName = incomingIngredient.name,
+            onMerge = {
                 mergeBarcodeIngredient(
                     repository = repository,
                     existingIngredient = existingIngredient,
                     incomingIngredient = incomingIngredient,
                     button = button
                 )
-            }
-            .setNegativeButton("새로 추가") { _, _ ->
+            },
+            onAddNew = {
                 saveBarcodeIngredient(
                     repository = repository,
                     incomingIngredient = incomingIngredient,
                     button = button,
                     forceNew = true
                 )
-            }
-            .setOnCancelListener {
+            },
+            onCancel = {
                 button.isEnabled = true
             }
-            .show()
+        )
+    }
+
+
+    private fun showBarcodeSimilarIngredientDialog(
+        existingName: String,
+        incomingName: String,
+        onMerge: () -> Unit,
+        onAddNew: () -> Unit,
+        onCancel: () -> Unit
+    ) {
+        val context = requireContext()
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dp(), 22.dp(), 24.dp(), 10.dp())
+        }
+
+        val title = TextView(context).apply {
+            text = "비슷한 재료가 있어요"
+            textSize = 21f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            includeFontPadding = false
+        }
+
+        val description = TextView(context).apply {
+            text = "같은 재료인지 확인한 뒤 원하는 방식으로 저장해요"
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            setPadding(0, 8.dp(), 0, 0)
+            includeFontPadding = false
+        }
+
+        val infoBox = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_dialog_info_box)
+            setPadding(16.dp(), 14.dp(), 16.dp(), 14.dp())
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = 18.dp()
+            }
+        }
+
+        infoBox.addView(makeInfoLabel("기존 재료"))
+        infoBox.addView(makeInfoValue(existingName))
+        infoBox.addView(makeInfoLabel("추가할 재료").apply {
+            setPadding(0, 12.dp(), 0, 4.dp())
+        })
+        infoBox.addView(makeInfoValue(incomingName))
+
+        val helpText = TextView(context).apply {
+            text = "같은 재료라면 수량을 합치고, 아니라면 새 재료로 추가할 수 있어요."
+            textSize = 12f
+            setTextColor(resources.getColor(R.color.text_hint, null))
+            setPadding(2.dp(), 12.dp(), 2.dp(), 0)
+            includeFontPadding = false
+        }
+
+        val buttonRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 20.dp(), 0, 0)
+        }
+
+        val addNewButton = makeDialogButton(
+            text = "새로 추가",
+            textColor = R.color.primary_green_dark,
+            background = R.drawable.bg_dialog_outline_button
+        )
+
+        val mergeButton = makeDialogButton(
+            text = "수량 합치기",
+            textColor = R.color.white,
+            background = R.drawable.bg_primary_button
+        )
+
+        buttonRow.addView(
+            addNewButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                rightMargin = 8.dp()
+            }
+        )
+
+        buttonRow.addView(
+            mergeButton,
+            LinearLayout.LayoutParams(
+                0,
+                48.dp(),
+                1f
+            ).apply {
+                leftMargin = 8.dp()
+            }
+        )
+
+        container.addView(title)
+        container.addView(description)
+        container.addView(infoBox)
+        container.addView(helpText)
+        container.addView(buttonRow)
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(container)
+            .create()
+
+        addNewButton.setOnClickListener {
+            dialog.dismiss()
+            onAddNew()
+        }
+
+        mergeButton.setOnClickListener {
+            dialog.dismiss()
+            onMerge()
+        }
+
+        dialog.setOnCancelListener {
+            onCancel()
+        }
+
+        dialog.show()
+    }
+
+    private fun makeInfoLabel(text: String): TextView {
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_sub, null))
+            includeFontPadding = false
+        }
+    }
+
+    private fun makeInfoValue(text: String): TextView {
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 17f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, null))
+            setPadding(0, 5.dp(), 0, 0)
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            includeFontPadding = false
+        }
+    }
+
+    private fun makeDialogButton(
+        text: String,
+        textColor: Int,
+        background: Int
+    ): TextView {
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setTextColor(resources.getColor(textColor, null))
+            setBackgroundResource(background)
+        }
     }
 
     private fun mergeBarcodeIngredient(
@@ -430,11 +606,16 @@ class ABarcodeResultFragment : Fragment() {
         spinner: Spinner,
         items: List<String>
     ) {
-        spinner.adapter = ArrayAdapter(
+        val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.item_spinner_selected,
             items
         )
+
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
+        spinner.adapter = adapter
+        spinner.setBackgroundResource(R.drawable.bg_input_field)
+        spinner.setPadding(14.dp(), 0, 14.dp(), 0)
     }
 
     private fun setupAmountAutoFill(

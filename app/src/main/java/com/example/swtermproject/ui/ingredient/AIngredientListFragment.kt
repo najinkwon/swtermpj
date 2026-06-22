@@ -92,6 +92,11 @@ class AIngredientListFragment : Fragment() {
         btnDeleteSelected = view.findViewById(R.id.btnDeleteSelected)
         btnCancelSelection = view.findViewById(R.id.btnCancelSelection)
         fabMain = view.findViewById(R.id.fabMain)
+
+        prepareReadableButtons(
+            btnDeleteSelected,
+            btnCancelSelection
+        )
         fabMenuLayout = view.findViewById(R.id.fabMenuLayout)
 
         val btnAddManual = view.findViewById<Button>(R.id.btnAddManual)
@@ -102,6 +107,16 @@ class AIngredientListFragment : Fragment() {
         btnVegetable = view.findViewById(R.id.btnFilterVegetable)
         btnDairy = view.findViewById(R.id.btnFilterDairy)
         btnProtein = view.findViewById(R.id.btnFilterProtein)
+
+        prepareReadableButtons(
+            btnAddManual,
+            btnAddBarcode,
+            btnAddReceipt,
+            btnAll,
+            btnVegetable,
+            btnDairy,
+            btnProtein
+        )
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -221,6 +236,12 @@ class AIngredientListFragment : Fragment() {
         fabMain.setOnClickListener {
             toggleFabMenu()
         }
+
+        stylePrimaryButton(btnAddManual)
+        styleOutlineButton(btnAddBarcode)
+        styleOutlineButton(btnAddReceipt)
+        styleDangerButton(btnDeleteSelected)
+        styleOutlineButton(btnCancelSelection)
 
         btnAddManual.setOnClickListener {
             closeFabMenu()
@@ -354,9 +375,15 @@ class AIngredientListFragment : Fragment() {
         buttons.forEach { button ->
             val isSelected = button == selectedButton
 
+            button.backgroundTintList = null
+            button.minHeight = 0
+            button.minWidth = 0
+            button.gravity = android.view.Gravity.CENTER
+            button.includeFontPadding = false
+
             button.setBackgroundResource(
                 if (isSelected) {
-                    R.drawable.bg_chip
+                    R.drawable.bg_primary_button
                 } else {
                     R.drawable.bg_chip_white
                 }
@@ -366,9 +393,9 @@ class AIngredientListFragment : Fragment() {
                 ContextCompat.getColor(
                     requireContext(),
                     if (isSelected) {
-                        R.color.primary_green_dark
+                        R.color.white
                     } else {
-                        R.color.text_sub
+                        R.color.primary_green_dark
                     }
                 )
             )
@@ -378,6 +405,58 @@ class AIngredientListFragment : Fragment() {
                 if (isSelected) Typeface.BOLD else Typeface.NORMAL
             )
         }
+    }
+
+    private fun prepareReadableButtons(vararg buttons: Button) {
+        buttons.forEach { button ->
+            button.backgroundTintList = null
+            button.minHeight = 0
+            button.minWidth = 0
+            button.gravity = android.view.Gravity.CENTER
+            button.includeFontPadding = false
+            button.setPadding(
+                button.paddingLeft,
+                0,
+                button.paddingRight,
+                0
+            )
+        }
+    }
+
+    private fun stylePrimaryButton(button: Button) {
+        button.backgroundTintList = null
+        button.setBackgroundResource(R.drawable.bg_primary_button)
+        button.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.white
+            )
+        )
+        button.setTypeface(null, Typeface.BOLD)
+    }
+
+    private fun styleOutlineButton(button: Button) {
+        button.backgroundTintList = null
+        button.setBackgroundResource(R.drawable.bg_chip_white)
+        button.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.primary_green_dark
+            )
+        )
+        button.setTypeface(null, Typeface.BOLD)
+    }
+
+    private fun styleDangerButton(button: Button) {
+        button.backgroundTintList = null
+        button.setBackgroundResource(R.drawable.bg_stat_red)
+        button.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.accent_red
+            )
+        )
+        button.setTypeface(null, Typeface.BOLD)
     }
 
     private fun refreshList() {

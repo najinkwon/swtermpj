@@ -1,5 +1,6 @@
-﻿package com.example.swtermproject.ui.notification
+package com.example.swtermproject.ui.notification
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,46 +49,79 @@ class ANotificationAdapter(
         val textSub = ContextCompat.getColor(context, R.color.text_sub)
         val textHint = ContextCompat.getColor(context, R.color.text_hint)
         val primaryDark = ContextCompat.getColor(context, R.color.primary_green_dark)
+        val accentRed = ContextCompat.getColor(context, R.color.accent_red)
+        val accentOrange = ContextCompat.getColor(context, R.color.accent_orange)
+
+        val isEmptyState = item.title == "냉장고 상태가 좋아요"
+        val isExpire = item.title.contains("유통기한")
+        val isLowStock = item.title.contains("부족") || item.title.contains("재고")
 
         holder.title.text = item.title
         holder.message.text = item.message
         holder.time.text = if (item.isRead) "읽음" else item.time
 
-        holder.icon.text = when {
-            item.title.contains("유통기한") -> "⏰"
-            item.title.contains("부족") || item.title.contains("재고") -> "⚠️"
-            else -> "✅"
-        }
+        holder.icon.text =
+            when {
+                isEmptyState -> "✓"
+                isExpire -> "D"
+                isLowStock -> "!"
+                else -> "✓"
+            }
+
+        holder.icon.setTextColor(
+            when {
+                isExpire -> accentOrange
+                isLowStock -> accentRed
+                else -> primaryDark
+            }
+        )
+
+        holder.btnDelete.visibility =
+            if (isEmptyState) View.GONE else View.VISIBLE
 
         if (item.isRead) {
-            holder.root.alpha = 0.72f
+            holder.root.alpha = 0.64f
             holder.title.setTextColor(textSub)
             holder.message.setTextColor(textHint)
             holder.time.setTextColor(textHint)
+            holder.title.setTypeface(null, Typeface.NORMAL)
         } else {
             holder.root.alpha = 1f
             holder.title.setTextColor(textMain)
             holder.message.setTextColor(textSub)
-            holder.time.setTextColor(primaryDark)
+            holder.time.setTextColor(textHint)
+            holder.title.setTypeface(null, Typeface.BOLD)
         }
 
         holder.root.setOnClickListener {
+            val adapterPosition = holder.bindingAdapterPosition
+
+            if (adapterPosition == RecyclerView.NO_POSITION) {
+                return@setOnClickListener
+            }
+
             item.isRead = true
-            notifyItemChanged(holder.adapterPosition)
+            notifyItemChanged(adapterPosition)
             onItemClick(item)
         }
 
         holder.btnDelete.setOnClickListener {
-            onDeleteClick(holder.adapterPosition)
+            val adapterPosition = holder.bindingAdapterPosition
+
+            if (adapterPosition == RecyclerView.NO_POSITION) {
+                return@setOnClickListener
+            }
+
+            onDeleteClick(adapterPosition)
         }
 
         holder.itemView.alpha = 0f
-        holder.itemView.translationY = 24f
+        holder.itemView.translationY = 12f
 
         holder.itemView.animate()
             .alpha(1f)
             .translationY(0f)
-            .setDuration(240)
+            .setDuration(180)
             .start()
     }
 }
